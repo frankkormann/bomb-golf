@@ -13,12 +13,12 @@ left your feedback on the
 **Real hardware**
 
 You will need to [hack your 3DS](https://3ds.hacks.guide/). Then, place the
-(latest release)[https://github.com/frankkormann/bomb-golf/releases] onto your
+[latest release](https://github.com/frankkormann/bomb-golf/releases) onto your
 SD card and launch it with the Homebrew Launcher.
 
 **Emulator**
 
-Run the (latest release)[https://github.com/frankkormann/bomb-golf/releases].
+Run the [latest release](https://github.com/frankkormann/bomb-golf/releases).
 
 ### Dependencies
 
