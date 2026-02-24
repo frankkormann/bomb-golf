@@ -27,3 +27,7 @@ You will need these to build from source
 - [devkitPro](https://devkitpro.org/) for the 3DS
 - [citro2d](https://github.com/devkitPro/citro2d/) and
   [citro3d](https://github.com/devkitPro/citro3d/)
+
+### License
+
+[CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
