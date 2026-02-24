@@ -46,7 +46,7 @@ static void boostFromExplosion(float explosionX, float explosionY) {
 	float relativeXYLength = sqrt(relativeX*relativeX + relativeY*relativeY);
 
 	float velLength = sqrt(data->velX*data->velX + data->velY*data->velY)
-		+ EXPLOSION_BOOST;
+			+ EXPLOSION_BOOST;
 	if (velLength < 3) velLength = MIN_SPEED_AFTER_EXPLOSION;
 
 	data->velX = velLength * (relativeX / relativeXYLength);
