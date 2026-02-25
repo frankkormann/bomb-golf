@@ -34,6 +34,7 @@ typedef enum {
 	TILE_HALF_S,
 	TILE_HALF_W,
 	TILE_HALF_E,
+
 	NUM_TILES
 } BG_Tile;
 
