@@ -2,14 +2,6 @@
 #include <citro2d.h>
 #include "spritesheet.h"
 
-static const int centers[][2] = {
-	{ 4, 4 },	// SPRITE_BALL
-	{ 4, 11 },	// SPRITE_BOMB
-	{ 5, 5 },	// SPRITE_TRIANGLE
-	{ 5, 5 },	// SPRITE_BLOCK
-	{ 5, 5 },	// SPRITE_HALF
-};
-
 static C2D_SpriteSheet spriteSheet;
 
 void SpriteSheet_Init() {
@@ -36,8 +28,8 @@ void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
 			img.subtex->height * (flipVert ? -1 : 1)
 		},
 		.center = {
-			centers[sprite][0],
-			centers[sprite][1]
+			img.subtex->width / 2,
+			sprite == SPRITE_BOMB ? 10 : img.subtex->height / 2
 		},
 		.depth = depth,
 		.angle = angle
