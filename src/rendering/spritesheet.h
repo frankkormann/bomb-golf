@@ -21,13 +21,6 @@ void SpriteSheet_Exit();
 C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite);
 
 void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
-		float angle);
-
-/*
- * Like SpriteSheet_Draw but each of the sprite's opaque pixels is replaced by
- * newColor.
- */
-void SpriteSheet_DrawOverwriteColor(SpriteSheet_Sprite sprite, float x, float y,
-		float depth, float angle, u32 newColor);
+		float angle, bool flipHoriz, bool flipVert, C2D_ImageTint *tint);
 
 #endif

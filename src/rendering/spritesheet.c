@@ -24,25 +24,22 @@ C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite) {
 	return C2D_SpriteSheetGetImage(spriteSheet, sprite);
 }
 
-void drawSprite(SpriteSheet_Sprite sprite, float x, float y, float depth,
-		float angle, C2D_ImageTint *tint) {
+void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
+		float angle, bool flipHoriz, bool flipVert, C2D_ImageTint *tint) {
 	C2D_Image img = SpriteSheet_GetImage(sprite);
+
 	C2D_DrawImage(img, &(C2D_DrawParams) {
-		.pos = { x, y, img.subtex->width, img.subtex->height },
-		.center = { centers[sprite][0], centers[sprite][1] },
+		.pos = {
+			x,
+			y,
+			img.subtex->width * (flipHoriz ? -1 : 1),
+			img.subtex->height * (flipVert ? -1 : 1)
+		},
+		.center = {
+			centers[sprite][0],
+			centers[sprite][1]
+		},
 		.depth = depth,
 		.angle = angle
 	}, tint);
-}
-
-void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
-		float angle) {
-	drawSprite(sprite, x, y, depth, angle, NULL);
-}
-
-void SpriteSheet_DrawOverwriteColor(SpriteSheet_Sprite sprite, float x, float y,
-		float depth, float angle, u32 newColor) {
-	C2D_ImageTint tint;
-	C2D_PlainImageTint(&tint, newColor, 1);
-	drawSprite(sprite, x, y, depth, angle, &tint);
 }

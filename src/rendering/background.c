@@ -122,41 +122,46 @@ void drawTile(RenderTile tile, u32 backgroundColor) {
 	float spriteY = tile.y + BG_TILE_SIZE / 2;
 	switch (tile.type) {
 		case TILE_CLEAR:
-			SpriteSheet_DrawOverwriteColor(SPRITE_BLOCK, spriteX,
-					spriteY, depth, 0, backgroundColor);
+			C2D_ImageTint tint;
+			C2D_PlainImageTint(&tint, backgroundColor, 1);
+			SpriteSheet_Draw(SPRITE_BLOCK, spriteX, spriteY, depth, 0,
+					false, false, &tint);
 			break;
 		case TILE_GREEN:
-			SpriteSheet_Draw(SPRITE_BLOCK, spriteX, spriteY, depth, 0);
+			SpriteSheet_Draw(SPRITE_BLOCK, spriteX, spriteY, depth, 0,
+					false, false, NULL);
 			break;
 		case TILE_TRI_NW:
 			SpriteSheet_Draw(SPRITE_TRIANGLE, spriteX, spriteY, depth,
-					M_PI);
+					M_PI, false, false, NULL);
 			break;
 		case TILE_TRI_NE:
 			SpriteSheet_Draw(SPRITE_TRIANGLE, spriteX, spriteY, depth,
-					M_PI * 3/2);
+					M_PI * 3/2, false, false, NULL);
 			break;
 		case TILE_TRI_SW:
 			SpriteSheet_Draw(SPRITE_TRIANGLE, spriteX, spriteY, depth,
-					M_PI / 2);
+					M_PI / 2, false, false, NULL);
 			break;
 		case TILE_TRI_SE:
 			SpriteSheet_Draw(SPRITE_TRIANGLE, spriteX, spriteY, depth,
-					0);
+					0, false, false, NULL);
 			break;
 		case TILE_HALF_N:
-			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth, 0);
+			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth, 0,
+					false, false, NULL);
 			break;
 		case TILE_HALF_S:
-			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth, M_PI);
+			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth, M_PI,
+					false, false, NULL);
 			break;
 		case TILE_HALF_W:
 			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth,
-					M_PI * 3/2);
+					M_PI * 3/2, false, false, NULL);
 			break;
 		case TILE_HALF_E:
 			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth,
-					M_PI / 2);
+					M_PI / 2, false, false, NULL);
 			break;
 		case NUM_TILES:
 			break;
