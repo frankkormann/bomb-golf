@@ -13,8 +13,7 @@
 #include "../util/macros.h"
 #include "../levelio.h"
 
-#define SKY_COLOR (C2D_Color32(101, 101, 255, 255))
-#define TERRAIN_COLOR (C2D_Color32(0, 255, 0, 255))
+#define SKY_COLOR (C2D_Color32(4, 132, 209, 255))
 #define RED_COLOR (C2D_Color32(136, 0, 21, 255))
 
 #define HOLE_WIDTH (BG_TILE_SIZE * 2)

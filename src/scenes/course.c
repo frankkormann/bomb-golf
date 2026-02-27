@@ -16,6 +16,7 @@
 
 #define NUM_LEVELS 5
 #define LAUNCH_SPEED_MAX 6
+#define SKY_COLOR (C2D_Color32(4, 132, 209, 255))
 
 static unsigned int level;
 static bool isSdmc;
@@ -71,63 +72,78 @@ static void setTerrainForTile(BG_Tile tile, int x, int y) {
 	switch (tile) {
 		case TILE_CLEAR:
 			break;
-		case TILE_GREEN:
+		case TILE_GRASS_TOP:
+		case TILE_DIRT_TOP_N:
+		case TILE_DIRT_TOP_S:
+		case TILE_DIRT_TOP_W:
+		case TILE_DIRT_TOP_E:
+		case TILE_DIRT_INTERNAL:
+		case TILE_DIRT_TRI_FILL_NW:
+		case TILE_DIRT_TRI_FILL_NE:
+		case TILE_DIRT_TRI_FILL_SW:
+		case TILE_DIRT_TRI_FILL_SE:
+		case TILE_GRASS_TRI_FILL_W:
+		case TILE_GRASS_TRI_FILL_E:
 			for (int j = 0; j < BG_TILE_SIZE; j++) {
 				for (int i = 0; i < BG_TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_TRI_NW:
+		case TILE_GRASS_TRI_NW:
+		case TILE_DIRT_TRI_NW:
 			for (int j = 0; j < BG_TILE_SIZE; j++) {
 				for (int i = 0; i < BG_TILE_SIZE - j; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_TRI_NE:
+		case TILE_GRASS_TRI_NE:
+		case TILE_DIRT_TRI_NE:
 			for (int j = 0; j < BG_TILE_SIZE; j++) {
 				for (int i = j; i < BG_TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_TRI_SW:
+		case TILE_GRASS_TRI_SW:
+		case TILE_DIRT_TRI_SW:
 			for (int j = 0; j < BG_TILE_SIZE; j++) {
 				for (int i = 0; i < BG_TILE_SIZE - j; i++) {
 					terrain[x+i][BG_TILE_SIZE+y-j-1] = true;
 				}
 			}
 			break;
-		case TILE_TRI_SE:
+		case TILE_GRASS_TRI_SE:
+		case TILE_DIRT_TRI_SE:
 			for (int j = 0; j < BG_TILE_SIZE; j++) {
 				for (int i = j; i < BG_TILE_SIZE; i++) {
 					terrain[x+i][BG_TILE_SIZE+y-j-1] = true;
 				}
 			}
 			break;
-		case TILE_HALF_N:
+		case TILE_GRASS_HALF_N:
 			for (int j = 0; j < BG_TILE_SIZE/2; j++) {
 				for (int i = 0; i < BG_TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_HALF_S:
+		case TILE_GRASS_HALF_S:
 			for (int j = BG_TILE_SIZE/2; j < BG_TILE_SIZE; j++) {
 				for (int i = 0; i < BG_TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_HALF_W:
+		case TILE_GRASS_HALF_W:
 			for (int j = 0; j < BG_TILE_SIZE; j++) {
 				for (int i = 0; i < BG_TILE_SIZE / 2; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_HALF_E:
+		case TILE_GRASS_HALF_E:
 			for (int j = 0; j < BG_TILE_SIZE; j++) {
 				for (int i = BG_TILE_SIZE/2; i < BG_TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
@@ -155,7 +171,7 @@ static bool loadLevel(char path[]) {
 		}
 	}
 
-	bg = BG_Create(fieldWidth, LEVEL_HEIGHT, C2D_Color32(101, 101, 255, 255));
+	bg = BG_Create(fieldWidth, LEVEL_HEIGHT, SKY_COLOR);
 	if (!bg) goto failed;
 
 	for (int x = 0; x < fieldWidth / BG_TILE_SIZE; x++) {

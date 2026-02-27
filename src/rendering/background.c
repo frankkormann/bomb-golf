@@ -127,43 +127,105 @@ void drawTile(RenderTile tile, u32 backgroundColor) {
 			SpriteSheet_Draw(SPRITE_BLOCK, spriteX, spriteY, depth, 0,
 					false, false, &tint);
 			break;
-		case TILE_GREEN:
-			SpriteSheet_Draw(SPRITE_BLOCK, spriteX, spriteY, depth, 0,
-					false, false, NULL);
+		case TILE_GRASS_TOP:
+			SpriteSheet_Draw(SPRITE_GRASS, spriteX, spriteY,
+					depth, 0, false, false, NULL);
 			break;
-		case TILE_TRI_NW:
-			SpriteSheet_Draw(SPRITE_TRIANGLE, spriteX, spriteY, depth,
-					M_PI, false, false, NULL);
+		case TILE_DIRT_TOP_N:
+			SpriteSheet_Draw(SPRITE_DIRT, spriteX, spriteY,
+					depth, 0, false, false, NULL);
 			break;
-		case TILE_TRI_NE:
-			SpriteSheet_Draw(SPRITE_TRIANGLE, spriteX, spriteY, depth,
-					M_PI * 3/2, false, false, NULL);
+		case TILE_DIRT_TOP_S:
+			SpriteSheet_Draw(SPRITE_DIRT, spriteX, spriteY,
+					depth, 0, false, true, NULL);
 			break;
-		case TILE_TRI_SW:
-			SpriteSheet_Draw(SPRITE_TRIANGLE, spriteX, spriteY, depth,
-					M_PI / 2, false, false, NULL);
+		case TILE_DIRT_TOP_W:
+			SpriteSheet_Draw(SPRITE_DIRT, spriteX, spriteY,
+					depth, M_PI / 2, false, false, NULL);
 			break;
-		case TILE_TRI_SE:
-			SpriteSheet_Draw(SPRITE_TRIANGLE, spriteX, spriteY, depth,
-					0, false, false, NULL);
+		case TILE_DIRT_TOP_E:
+			SpriteSheet_Draw(SPRITE_DIRT, spriteX, spriteY,
+					depth, M_PI / 2, false, true, NULL);
 			break;
-		case TILE_HALF_N:
-			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth, 0,
-					false, false, NULL);
+		case TILE_DIRT_INTERNAL:
+			SpriteSheet_Draw(SPRITE_DIRT_INTERNAL, spriteX, spriteY,
+					depth, 0, false, false, NULL);
 			break;
-		case TILE_HALF_S:
-			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth, M_PI,
-					false, false, NULL);
+		case TILE_DIRT_TRI_NW:
+			SpriteSheet_Draw(SPRITE_DIRT_TRIANGLE, spriteX, spriteY,
+					depth, M_PI, false, false, NULL);
 			break;
-		case TILE_HALF_W:
-			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth,
-					M_PI * 3/2, false, false, NULL);
+		case TILE_DIRT_TRI_NE:
+			SpriteSheet_Draw(SPRITE_DIRT_TRIANGLE, spriteX, spriteY,
+					depth, M_PI, true, false, NULL);
 			break;
-		case TILE_HALF_E:
-			SpriteSheet_Draw(SPRITE_HALF, spriteX, spriteY, depth,
-					M_PI / 2, false, false, NULL);
+		case TILE_DIRT_TRI_SW:
+			SpriteSheet_Draw(SPRITE_DIRT_TRIANGLE, spriteX, spriteY,
+					depth, 0, true, false, NULL);
+			break;
+		case TILE_DIRT_TRI_SE:
+			SpriteSheet_Draw(SPRITE_DIRT_TRIANGLE, spriteX, spriteY,
+					depth, 0, false, false, NULL);
+			break;
+		case TILE_DIRT_TRI_FILL_NW:
+			SpriteSheet_Draw(SPRITE_DIRT_TRIANGLE_FILLER, spriteX,
+					spriteY, depth, 0, true, false, NULL);
+			break;
+		case TILE_DIRT_TRI_FILL_NE:
+			SpriteSheet_Draw(SPRITE_DIRT_TRIANGLE_FILLER, spriteX,
+					spriteY, depth, 0, false, false, NULL);
+			break;
+		case TILE_DIRT_TRI_FILL_SW:
+			SpriteSheet_Draw(SPRITE_DIRT_TRIANGLE_FILLER, spriteX,
+					spriteY, depth, 0, true, true, NULL);
+			break;
+		case TILE_DIRT_TRI_FILL_SE:
+			SpriteSheet_Draw(SPRITE_DIRT_TRIANGLE_FILLER, spriteX,
+					spriteY, depth, 0, false, true, NULL);
+			break;
+		case TILE_GRASS_TRI_NW:
+			SpriteSheet_Draw(SPRITE_GRASS_TRIANGLE_2, spriteX, spriteY,
+					depth, M_PI, false, false, NULL);
+			break;
+		case TILE_GRASS_TRI_NE:
+			SpriteSheet_Draw(SPRITE_GRASS_TRIANGLE_2, spriteX, spriteY,
+					depth, M_PI, true, false, NULL);
+			break;
+		case TILE_GRASS_TRI_SW:
+			SpriteSheet_Draw(SPRITE_GRASS_TRIANGLE_1, spriteX, spriteY,
+					depth, 0, true, false, NULL);
+			break;
+		case TILE_GRASS_TRI_SE:
+			SpriteSheet_Draw(SPRITE_GRASS_TRIANGLE_1, spriteX, spriteY,
+					depth, 0, false, false, NULL);
+			break;
+		case TILE_GRASS_HALF_N:
+			SpriteSheet_Draw(SPRITE_GRASS_HALF_HORIZ, spriteX, spriteY,
+					depth, 0, false, false, NULL);
+			break;
+		case TILE_GRASS_HALF_S:
+			SpriteSheet_Draw(SPRITE_GRASS_HALF_HORIZ, spriteX, spriteY,
+					depth, 0, false, true, NULL);
+			break;
+		case TILE_GRASS_HALF_W:
+			SpriteSheet_Draw(SPRITE_GRASS_HALF_VERT, spriteX, spriteY,
+					depth, 0, false, false, NULL);
+			break;
+		case TILE_GRASS_HALF_E:
+			SpriteSheet_Draw(SPRITE_GRASS_HALF_VERT, spriteX, spriteY,
+					depth, 0, false, true, NULL);
+			break;
+		case TILE_GRASS_TRI_FILL_W:
+			SpriteSheet_Draw(SPRITE_GRASS_TRIANGLE_FILLER, spriteX,
+					spriteY, depth, 0, true, false, NULL);
+			break;
+		case TILE_GRASS_TRI_FILL_E:
+			SpriteSheet_Draw(SPRITE_GRASS_TRIANGLE_FILLER, spriteX,
+					spriteY, depth, 0, false, false, NULL);
 			break;
 		case NUM_TILES:
+			SpriteSheet_Draw(SPRITE_BLOCK, spriteX, spriteY, depth, 0,
+					false, false, NULL);
 			break;
 	}
 }

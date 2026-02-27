@@ -23,17 +23,38 @@ typedef struct background* Background;
 
 typedef enum {
 	TILE_CLEAR,
-	TILE_GREEN,
-	// Directions are where the angle opposite the hypotenuse is
-	TILE_TRI_NW,
-	TILE_TRI_NE,
-	TILE_TRI_SW,
-	TILE_TRI_SE,
+	TILE_GRASS_TOP,
+	// Directions are where the right angle is
+	TILE_GRASS_TRI_NW,
+	TILE_GRASS_TRI_NE,
+	TILE_GRASS_TRI_SW,
+	TILE_GRASS_TRI_SE,
 	
-	TILE_HALF_N,
-	TILE_HALF_S,
-	TILE_HALF_W,
-	TILE_HALF_E,
+	TILE_GRASS_HALF_N,
+	TILE_GRASS_HALF_S,
+	TILE_GRASS_HALF_W,
+	TILE_GRASS_HALF_E,
+
+	TILE_DIRT_TOP_N,
+	TILE_DIRT_INTERNAL,
+	// For filling gaps between triangles
+	TILE_GRASS_TRI_FILL_W,
+	TILE_GRASS_TRI_FILL_E,
+
+	TILE_DIRT_TOP_S,
+	TILE_DIRT_TOP_W,
+	TILE_DIRT_TOP_E,
+
+	TILE_DIRT_TRI_FILL_NW,
+	TILE_DIRT_TRI_FILL_NE,
+
+	TILE_DIRT_TRI_NW,
+	TILE_DIRT_TRI_NE,
+	TILE_DIRT_TRI_SW,
+	TILE_DIRT_TRI_SE,
+
+	TILE_DIRT_TRI_FILL_SW,
+	TILE_DIRT_TRI_FILL_SE,
 
 	NUM_TILES
 } BG_Tile;
