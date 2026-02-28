@@ -1,7 +1,9 @@
 #include <malloc.h>
 #include <stddef.h>
 #include "levelio.h"
+#include "tile.h"
 #include "rendering/background.h"
+#include "rendering/spritesheet.h"
 #include "projectiles/ball.h"
 
 // Projectile is really a pointer, so convert to int for serialization
@@ -16,15 +18,15 @@ static int projToNum(Projectile proj) {
 }
 
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		BG_Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width) {
+		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width) {
 	FILE *data = fopen(path, "rb");
 	if (!data) return false;
 
 	fread(width, sizeof(*width), 1, data);
 
-	size_t tilesSize = sizeof(**tiles) * *width / BG_TILE_SIZE;
+	size_t tilesSize = sizeof(**tiles) * *width / TILE_SIZE;
 	*tiles = malloc(tilesSize);
-	if (!tiles) {
+	if (!(*tiles)) {
 		fclose(data);
 		return false;
 	}
@@ -38,7 +40,7 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 	fread(&proj->startX, sizeof(proj->startX), 1, data);
 	fread(&proj->startY, sizeof(proj->startY), 1, data);
 	fread(&projNum, sizeof(projNum), 1, data);
-	fread(*tiles, tilesSize, 1, data);
+	fread(**tiles, tilesSize, 1, data);
 
 	fclose(data);
 
@@ -52,11 +54,11 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 }
 
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
-		const BG_Tile (*tiles)[LEVEL_HEIGHT_TILES], int width) {
+		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width) {
 	FILE *data = fopen(path, "wb");
 	if (!data) return false;
 
-	size_t tilesSize = sizeof(*tiles) * width / BG_TILE_SIZE;
+	size_t tilesSize = sizeof(*tiles) * width / TILE_SIZE;
 	int projNum = projToNum(proj.type);
 
 	fwrite(&width, sizeof(width), 1, data);

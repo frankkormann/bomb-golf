@@ -8,6 +8,7 @@
 #include "title.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/background.h"
+#include "../rendering/spritesheet.h"
 #include "../projectiles/ball.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
@@ -16,17 +17,18 @@
 #define SKY_COLOR (C2D_Color32(4, 132, 209, 255))
 #define RED_COLOR (C2D_Color32(136, 0, 21, 255))
 
-#define HOLE_WIDTH (BG_TILE_SIZE * 2)
-#define HOLE_HEIGHT (BG_TILE_SIZE * 4)
+#define HOLE_WIDTH (TILE_SIZE * 2)
+#define HOLE_HEIGHT (TILE_SIZE * 4)
 
-#define SCROLL_UNIT BG_TILE_SIZE
+#define SCROLL_UNIT TILE_SIZE
 
 static Background bg;
 static float scroll;
 
 static Background tileSelectorBG;
-static BG_Tile (*tiles)[LEVEL_HEIGHT_TILES];
-static BG_Tile selectedTile;
+static Tile (*tiles)[LEVEL_HEIGHT_TILES];
+static SpriteSheet_Sprite selectedTileSprite;
+static u8 selectedTileOrientation;
 
 static int holeX, holeY;
 static int projX, projY;
@@ -43,8 +45,8 @@ static bool sceneInit(Scene_Params params) {
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, SKY_COLOR);
 	if (!bg) goto failed;
 
-	tileSelectorBG = BG_Create((BG_TILE_SIZE + 2) * NUM_TILES - 2, BG_TILE_SIZE,
-			SKY_COLOR);
+	tileSelectorBG = BG_Create((TILE_SIZE + 2) * NUM_TILES - 2,
+			(TILE_SIZE + 2) * 8 - 2, SKY_COLOR);
 	if (!tileSelectorBG) goto failed;
 
 	char path[20];
@@ -53,14 +55,14 @@ static bool sceneInit(Scene_Params params) {
 	LevelIO_Proj proj;
 	int width;
 	if (LevelIO_Read(path, &hole, &proj, &tiles, &width)) {
-		BG_Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
+		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!newTiles) goto failed;
 		tiles = newTiles;
 
-		for (int x = width / BG_TILE_SIZE; x < LEVEL_MAX_WIDTH_TILES; x++) {
+		for (int x = width / TILE_SIZE; x < LEVEL_MAX_WIDTH_TILES; x++) {
 			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
-				tiles[x][y] = TILE_CLEAR;
+				tiles[x][y] = Tile_Make(SPRITE_SKY, 0);
 			}
 		}
 
@@ -71,25 +73,37 @@ static bool sceneInit(Scene_Params params) {
 
 		for (int x = 0; x < LEVEL_MAX_WIDTH_TILES; x++) {
 			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
-				BG_DrawTile(bg, tiles[x][y], x * BG_TILE_SIZE,
-						y * BG_TILE_SIZE, false);
+				BG_DrawTile(bg, tiles[x][y], x * TILE_SIZE,
+						y * TILE_SIZE, false);
 			}
 		}
 	} else {
-		tiles = calloc(LEVEL_MAX_WIDTH_TILES, sizeof(*tiles));
+		tiles = malloc(sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!tiles) goto failed;
 
+		for (int x = 0; x < LEVEL_MAX_WIDTH_TILES; x++) {
+			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
+				tiles[x][y] = Tile_Make(SPRITE_SKY, 0);
+			}
+		}
+
 		holeX = holeY = 0;
-		projX = 40 + (BG_TILE_SIZE / 2);
-		projY = 190 + (BG_TILE_SIZE / 2);
+		projX = 40 + (TILE_SIZE / 2);
+		projY = 190 + (TILE_SIZE / 2);
 	}
 
-	for (int i = 0; i < NUM_TILES; i++) {
-		BG_DrawTile(tileSelectorBG, i, i * (BG_TILE_SIZE + 2), 0, false);
+	for (int sprite = 0; sprite < NUM_TILES; sprite++) {
+		for (int orientation = 0; orientation < 8; orientation++) {
+			BG_DrawTile(tileSelectorBG,
+					Tile_Make(sprite + 2, orientation),
+					sprite * (TILE_SIZE + 2),
+					orientation * (TILE_SIZE + 2), false);
+		}
 	}
 
 	scroll = 0;
-	selectedTile = TILE_CLEAR;
+	selectedTileSprite = SPRITE_SKY;
+	selectedTileOrientation = 0;
 	level = params.editor.level;
 
 	return true;
@@ -111,13 +125,13 @@ static bool exportLevel() {
 	int tilesMaxX = 0;
 	for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
 		for (int x = tilesMaxX; x < LEVEL_MAX_WIDTH_TILES; x++) {
-			if (tiles[x][y] != TILE_CLEAR) {
+			if (Tile_GetSprite(tiles[x][y]) != SPRITE_SKY) {
 				tilesMaxX = x;
 			}
 		}
 	}
 
-	return LevelIO_Write(path, hole, proj, tiles, (tilesMaxX+1) * BG_TILE_SIZE);
+	return LevelIO_Write(path, hole, proj, tiles, (tilesMaxX+1) * TILE_SIZE);
 }
 
 static void sceneUpdate() {
@@ -137,32 +151,44 @@ static void sceneUpdate() {
 		scroll += SCROLL_UNIT;
 	scroll = clamp(scroll, 0, LEVEL_MAX_WIDTH - 320);
 
-	if (kDown & KEY_DRIGHT || kDown & KEY_X) {
-		selectedTile++;
-		if (selectedTile >= NUM_TILES) selectedTile = 0;
+	if (kDown & KEY_DRIGHT) {
+		selectedTileSprite++;
+		if (selectedTileSprite >= NUM_TILES + FIRST_TILE_SPRITE) {
+			selectedTileSprite = FIRST_TILE_SPRITE;
+		}
 	}
-	if (kDown & KEY_DLEFT || kDown & KEY_Y) {
-		selectedTile--;
-		if (selectedTile >= NUM_TILES) selectedTile = NUM_TILES - 1;
+	if (kDown & KEY_DLEFT) {
+		selectedTileSprite--;
+		if (selectedTileSprite < FIRST_TILE_SPRITE) {
+			selectedTileSprite = NUM_TILES + FIRST_TILE_SPRITE - 1;
+		}
+	}
+	if (kDown & KEY_DUP) {
+		selectedTileOrientation--;
+		if (selectedTileOrientation >= 8) selectedTileOrientation = 7;
+	}
+	if (kDown & KEY_DDOWN) {
+		selectedTileOrientation++;
+		if (selectedTileOrientation >= 8) selectedTileOrientation = 0;
 	}
 
 	if (TouchInput_InProgress()) {
 		float courseX = TouchInput_GetSwipe().end.px + scroll;
 		float courseY = TouchInput_GetSwipe().end.py;
-		int tileX = courseX / BG_TILE_SIZE;
-		int tileY = courseY / BG_TILE_SIZE;
+		int tileX = courseX / TILE_SIZE;
+		int tileY = courseY / TILE_SIZE;
 
-		if (kHeld & KEY_DDOWN || kHeld & KEY_ZR) {
-			holeX = tileX * BG_TILE_SIZE;
-			holeY = tileY * BG_TILE_SIZE;
-		} else if (kHeld & KEY_DUP || kHeld & KEY_R) {
-			projX = tileX * BG_TILE_SIZE + (BG_TILE_SIZE / 2);
-			projY = tileY * BG_TILE_SIZE + (BG_TILE_SIZE / 2);
+		if (kHeld & KEY_CPAD_DOWN) {
+			holeX = tileX * TILE_SIZE;
+			holeY = tileY * TILE_SIZE;
+		} else if (kHeld & KEY_CPAD_UP) {
+			projX = tileX * TILE_SIZE + (TILE_SIZE / 2);
+			projY = tileY * TILE_SIZE + (TILE_SIZE / 2);
 		} else {
 			int tileX2 = (TouchInput_GetSwipe().start.px + scroll)
-					/ BG_TILE_SIZE;
+					/ TILE_SIZE;
 			int tileY2 = (TouchInput_GetSwipe().start.py)
-					/ BG_TILE_SIZE;
+					/ TILE_SIZE;
 			int startX = tileX > tileX2 ? tileX2 : tileX;
 			int endX = tileX > tileX2 ? tileX : tileX2;
 			int startY = tileY > tileY2 ? tileY2 : tileY;
@@ -170,10 +196,12 @@ static void sceneUpdate() {
 
 			for (int x = startX; x <= endX; x++) {
 				for (int y = startY; y <= endY; y++) {
-					tiles[x][y] = selectedTile;
-					BG_DrawTile(bg, selectedTile,
-							x * BG_TILE_SIZE,
-							y * BG_TILE_SIZE, true);
+					Tile tile = Tile_Make(selectedTileSprite,
+							selectedTileOrientation);
+					tiles[x][y] = tile;
+					BG_DrawTile(bg, tile,
+							x * TILE_SIZE,
+							y * TILE_SIZE, true);
 				}
 			}
 		}
@@ -204,10 +232,6 @@ static void sceneDraw() {
 	C2D_TargetClear(bottom, C2D_Color32(255, 255, 255, 255));
 	C2D_SceneBegin(bottom);
 
-	BG_Draw(tileSelectorBG, 2, 2, 0, 1, 1);
-	drawRectOutline(selectedTile * (BG_TILE_SIZE + 2) + 1, 1, BG_TILE_SIZE + 2,
-			BG_TILE_SIZE + 2, RED_COLOR, 1);
-
 	C2D_ViewTranslate(-scroll, 0);
 
 	BG_Draw(bg, 0, 0, -1, 1, 1);
@@ -220,6 +244,11 @@ static void sceneDraw() {
 	C3D_RenderTarget *top = RenderTarget_GetTop();
 	C2D_TargetClear(top, C2D_Color32(255, 255, 255, 255));
 	C2D_SceneBegin(top);
+
+	BG_Draw(tileSelectorBG, 2, 2, 0, 1, 1);
+	drawRectOutline((selectedTileSprite - FIRST_TILE_SPRITE) * (TILE_SIZE+2) + 1,
+			selectedTileOrientation * (TILE_SIZE+2) + 1,
+			TILE_SIZE + 2, TILE_SIZE + 2, RED_COLOR, 1);
 }
 
 static void sceneExit() {

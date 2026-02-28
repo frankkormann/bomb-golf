@@ -68,90 +68,96 @@ void Course_ClearCircle(int x, int y, int radius) {
 	}
 }
 
-static void setTerrainForTile(BG_Tile tile, int x, int y) {
-	switch (tile) {
-		case TILE_CLEAR:
-			break;
-		case TILE_GRASS_TOP:
-		case TILE_DIRT_TOP_N:
-		case TILE_DIRT_TOP_S:
-		case TILE_DIRT_TOP_W:
-		case TILE_DIRT_TOP_E:
-		case TILE_DIRT_INTERNAL:
-		case TILE_DIRT_TRI_FILL_NW:
-		case TILE_DIRT_TRI_FILL_NE:
-		case TILE_DIRT_TRI_FILL_SW:
-		case TILE_DIRT_TRI_FILL_SE:
-		case TILE_GRASS_TRI_FILL_W:
-		case TILE_GRASS_TRI_FILL_E:
-			for (int j = 0; j < BG_TILE_SIZE; j++) {
-				for (int i = 0; i < BG_TILE_SIZE; i++) {
+static void setTerrainForHalf(u8 orientation, int x, int y) {
+	switch(orientation) {
+		case 0:
+		case TILE_FLIP_VERT:
+			for (int j = 0; j < TILE_SIZE; j++) {
+				for (int i = 0; i < TILE_SIZE / 2; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_GRASS_TRI_NW:
-		case TILE_DIRT_TRI_NW:
-			for (int j = 0; j < BG_TILE_SIZE; j++) {
-				for (int i = 0; i < BG_TILE_SIZE - j; i++) {
+		case TILE_ROTATE_90:
+		case TILE_ROTATE_90 | TILE_FLIP_VERT:
+			for (int j = TILE_SIZE/2; j < TILE_SIZE; j++) {
+				for (int i = 0; i < TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_GRASS_TRI_NE:
-		case TILE_DIRT_TRI_NE:
-			for (int j = 0; j < BG_TILE_SIZE; j++) {
-				for (int i = j; i < BG_TILE_SIZE; i++) {
+		case TILE_FLIP_HORIZ:
+		case TILE_FLIP_HORIZ | TILE_FLIP_VERT:
+			for (int j = 0; j < TILE_SIZE; j++) {
+				for (int i = TILE_SIZE/2; i < TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_GRASS_TRI_SW:
-		case TILE_DIRT_TRI_SW:
-			for (int j = 0; j < BG_TILE_SIZE; j++) {
-				for (int i = 0; i < BG_TILE_SIZE - j; i++) {
-					terrain[x+i][BG_TILE_SIZE+y-j-1] = true;
-				}
-			}
-			break;
-		case TILE_GRASS_TRI_SE:
-		case TILE_DIRT_TRI_SE:
-			for (int j = 0; j < BG_TILE_SIZE; j++) {
-				for (int i = j; i < BG_TILE_SIZE; i++) {
-					terrain[x+i][BG_TILE_SIZE+y-j-1] = true;
-				}
-			}
-			break;
-		case TILE_GRASS_HALF_N:
-			for (int j = 0; j < BG_TILE_SIZE/2; j++) {
-				for (int i = 0; i < BG_TILE_SIZE; i++) {
+		case TILE_ROTATE_90 | TILE_FLIP_HORIZ:
+		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
+			for (int j = 0; j < TILE_SIZE/2; j++) {
+				for (int i = 0; i < TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_GRASS_HALF_S:
-			for (int j = BG_TILE_SIZE/2; j < BG_TILE_SIZE; j++) {
-				for (int i = 0; i < BG_TILE_SIZE; i++) {
+	}
+}
+
+static void setTerrainForTriangle(u8 orientation, int x, int y) {
+	switch (orientation) {
+		case 0:
+		case TILE_ROTATE_90 | TILE_FLIP_HORIZ:
+			for (int j = 0; j < TILE_SIZE; j++) {
+				for (int i = j; i < TILE_SIZE; i++) {
+					terrain[x+i][TILE_SIZE+y-j-1] = true;
+				}
+			}
+			break;
+		case TILE_ROTATE_90:
+		case TILE_FLIP_VERT:
+			for (int j = 0; j < TILE_SIZE; j++) {
+				for (int i = j; i < TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_GRASS_HALF_W:
-			for (int j = 0; j < BG_TILE_SIZE; j++) {
-				for (int i = 0; i < BG_TILE_SIZE / 2; i++) {
+		case TILE_FLIP_HORIZ:
+		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
+			for (int j = 0; j < TILE_SIZE; j++) {
+				for (int i = 0; i < TILE_SIZE - j; i++) {
+					terrain[x+i][TILE_SIZE+y-j-1] = true;
+				}
+			}
+			break;
+		case TILE_ROTATE_90 | TILE_FLIP_VERT:
+		case TILE_FLIP_HORIZ | TILE_FLIP_VERT:
+			for (int j = 0; j < TILE_SIZE; j++) {
+				for (int i = 0; i < TILE_SIZE - j; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case TILE_GRASS_HALF_E:
-			for (int j = 0; j < BG_TILE_SIZE; j++) {
-				for (int i = BG_TILE_SIZE/2; i < BG_TILE_SIZE; i++) {
+	}
+}
+
+static void setTerrainForTile(Tile tile, int x, int y) {
+	switch (Tile_GetHitbox(tile)) {
+		case TILE_HITBOX_NONE:
+			break;
+		case TILE_HITBOX_FULL:
+			for (int j = 0; j < TILE_SIZE; j++) {
+				for (int i = 0; i < TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
 			}
 			break;
-		case NUM_TILES:
-			// Satisfy compiler warning
+		case TILE_HITBOX_HALF:
+			setTerrainForHalf(Tile_GetOrientFlags(tile), x, y);
+			break;
+		case TILE_HITBOX_TRIANGLE:
+			setTerrainForTriangle(Tile_GetOrientFlags(tile), x, y);
 			break;
 	}
 }
@@ -159,7 +165,7 @@ static void setTerrainForTile(BG_Tile tile, int x, int y) {
 static bool loadLevel(char path[]) {
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
-	BG_Tile (*tiles)[LEVEL_HEIGHT_TILES];
+	Tile (*tiles)[LEVEL_HEIGHT_TILES];
 	if (!LevelIO_Read(path, &hole, &proj, &tiles, &fieldWidth)) return false;
 
 	terrain = malloc(sizeof(*terrain) * fieldWidth);
@@ -174,13 +180,12 @@ static bool loadLevel(char path[]) {
 	bg = BG_Create(fieldWidth, LEVEL_HEIGHT, SKY_COLOR);
 	if (!bg) goto failed;
 
-	for (int x = 0; x < fieldWidth / BG_TILE_SIZE; x++) {
-		for (int y = 0; y < LEVEL_HEIGHT / BG_TILE_SIZE; y++)  {
-			if (tiles[x][y] == TILE_CLEAR) continue;
-			setTerrainForTile(tiles[x][y], x*BG_TILE_SIZE,
-					y*BG_TILE_SIZE);
-			BG_DrawTile(bg, tiles[x][y], x*BG_TILE_SIZE,
-					y*BG_TILE_SIZE, false);
+	for (int x = 0; x < fieldWidth / TILE_SIZE; x++) {
+		for (int y = 0; y < LEVEL_HEIGHT / TILE_SIZE; y++)  {
+			setTerrainForTile(tiles[x][y], x*TILE_SIZE,
+					y*TILE_SIZE);
+			BG_DrawTile(bg, tiles[x][y], x*TILE_SIZE,
+					y*TILE_SIZE, false);
 		}
 	}
 	free(tiles);

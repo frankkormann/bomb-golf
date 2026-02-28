@@ -8,12 +8,13 @@
 #include <stdbool.h>
 #include "rendering/background.h"
 #include "projectile.h"
+#include "tile.h"
 
 #define LEVEL_HEIGHT 240
 #define LEVEL_MAX_WIDTH 1020
 
-#define LEVEL_MAX_WIDTH_TILES (LEVEL_MAX_WIDTH / BG_TILE_SIZE)
-#define LEVEL_HEIGHT_TILES (LEVEL_HEIGHT / BG_TILE_SIZE)
+#define LEVEL_MAX_WIDTH_TILES (LEVEL_MAX_WIDTH / TILE_SIZE)
+#define LEVEL_HEIGHT_TILES (LEVEL_HEIGHT / TILE_SIZE)
 
 typedef struct {
 	int x;
@@ -36,13 +37,13 @@ typedef struct {
  * returned.
  */
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		BG_Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width);
+		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width);
 
 /*
- * Writes a level to the file at path, overwriting it.
+ * Writes a level to the file at path, overwriting it if it already exists.
  *
  * Returns false if an error occurred.
  */
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
-		const BG_Tile (*tiles)[LEVEL_HEIGHT_TILES], int width);
+		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width);
 #endif
