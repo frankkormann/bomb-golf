@@ -5,11 +5,11 @@
 #include "../projectile.h"
 #include "projectile_internal.h"
 #include "ball.h"
+#include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
 #include "../scenes/course.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
-#include "../colors.h"
 
 #define EXPLOSION_RADIUS 20
 #define EXPLOSION_BOOST 1

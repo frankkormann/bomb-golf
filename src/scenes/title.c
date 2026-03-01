@@ -5,8 +5,8 @@
 #include "title.h"
 #include "course.h"
 #include "editor.h"
+#include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
-#include "../colors.h"
 
 #define TITLE_TEXT "Bomb Golf"
 

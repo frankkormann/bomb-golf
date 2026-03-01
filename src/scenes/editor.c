@@ -8,12 +8,12 @@
 #include "title.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/background.h"
+#include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
 #include "../projectiles/ball.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../levelio.h"
-#include "../colors.h"
 
 #define HOLE_WIDTH (TILE_SIZE * 2)
 #define HOLE_HEIGHT (TILE_SIZE * 4)

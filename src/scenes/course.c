@@ -9,12 +9,12 @@
 #include "title.h"
 #include "../projectile.h"
 #include "../projectiles/ball.h"
+#include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/background.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../levelio.h"
-#include "../colors.h"
 
 #define NUM_LEVELS 5
 #define LAUNCH_SPEED_MAX 6
@@ -186,8 +186,10 @@ static bool loadLevel(char path[]) {
 		for (int y = 0; y < LEVEL_HEIGHT / TILE_SIZE; y++)  {
 			setTerrainForTile(tiles[x][y], x*TILE_SIZE,
 					y*TILE_SIZE);
-			BG_DrawTile(bg, tiles[x][y], x*TILE_SIZE,
-					y*TILE_SIZE, false);
+			if (Tile_GetSprite(tiles[x][y]) != SPRITE_SKY) {
+				BG_DrawTile(bg, tiles[x][y], x*TILE_SIZE,
+						y*TILE_SIZE, false);
+			}
 		}
 	}
 	free(tiles);
