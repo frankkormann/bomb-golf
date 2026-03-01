@@ -6,6 +6,7 @@
 #include "course.h"
 #include "editor.h"
 #include "../rendering/rendertarget.h"
+#include "../colors.h"
 
 #define TITLE_TEXT "Bomb Golf"
 
@@ -85,7 +86,7 @@ static void sceneUpdate() {
 
 static void sceneDraw() {
 	C3D_RenderTarget *top = RenderTarget_GetTop();
-	C2D_TargetClear(top, C2D_Color32(255, 255, 255, 255));
+	C2D_TargetClear(top, COLOR_WHITE);
 	C2D_SceneBegin(top);
 
 	C2D_DrawText(&titleText, 0, 160, 50, 0, 1, 1);
@@ -97,12 +98,12 @@ static void sceneDraw() {
 	if (cursor == START_SDMC || cursor == LEVEL_EDITOR) {
 		for (int i = 0; i < num; i++) {
 			C2D_DrawRectSolid(200 + 15 * i, 100 + 15 * cursor, 0, 10, 10,
-					C2D_Color32(0, 200, 120, 255));
+					COLOR_LBLUE);
 		}
 	}
 	
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
-	C2D_TargetClear(bottom, C2D_Color32(255, 255, 255, 255));
+	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
 }
 

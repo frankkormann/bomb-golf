@@ -7,6 +7,8 @@
 
 #include <citro2d.h>
 
+// These values are written directly into level files, so be careful when
+// reassigning or removing them
 typedef enum {
 	SPRITE_BALL,
 	SPRITE_BOMB,

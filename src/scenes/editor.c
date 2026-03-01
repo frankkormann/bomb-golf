@@ -13,9 +13,7 @@
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../levelio.h"
-
-#define SKY_COLOR (C2D_Color32(4, 132, 209, 255))
-#define RED_COLOR (C2D_Color32(136, 0, 21, 255))
+#include "../colors.h"
 
 #define HOLE_WIDTH (TILE_SIZE * 2)
 #define HOLE_HEIGHT (TILE_SIZE * 4)
@@ -42,11 +40,11 @@ Scene_Params Editor_MakeParams(unsigned int level) {
 }
 
 static bool sceneInit(Scene_Params params) {
-	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, SKY_COLOR);
+	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!bg) goto failed;
 
 	tileSelectorBG = BG_Create((TILE_SIZE + 2) * NUM_TILES - 2,
-			(TILE_SIZE + 2) * 8 - 2, SKY_COLOR);
+			(TILE_SIZE + 2) * 8 - 2, COLOR_BLUE);
 	if (!tileSelectorBG) goto failed;
 
 	char path[20];
@@ -229,26 +227,26 @@ static void sceneDraw() {
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
-	C2D_TargetClear(bottom, C2D_Color32(255, 255, 255, 255));
+	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
 
 	C2D_ViewTranslate(-scroll, 0);
 
 	BG_Draw(bg, 0, 0, -1, 1, 1);
-	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, RED_COLOR, 2);
+	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
 	SpriteSheet_Draw(SPRITE_BALL, projX, projY, 0.5, 0, false, false, NULL);
 
 	C2D_ViewReset();
 
 
 	C3D_RenderTarget *top = RenderTarget_GetTop();
-	C2D_TargetClear(top, C2D_Color32(255, 255, 255, 255));
+	C2D_TargetClear(top, COLOR_WHITE);
 	C2D_SceneBegin(top);
 
 	BG_Draw(tileSelectorBG, 2, 2, 0, 1, 1);
 	drawRectOutline((selectedTileSprite - FIRST_TILE_SPRITE) * (TILE_SIZE+2) + 1,
 			selectedTileOrientation * (TILE_SIZE+2) + 1,
-			TILE_SIZE + 2, TILE_SIZE + 2, RED_COLOR, 1);
+			TILE_SIZE + 2, TILE_SIZE + 2, COLOR_DRED, 1);
 }
 
 static void sceneExit() {

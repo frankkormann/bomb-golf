@@ -9,6 +9,7 @@
 #include "../scenes/course.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
+#include "../colors.h"
 
 #define EXPLOSION_RADIUS 20
 #define EXPLOSION_BOOST 1
@@ -170,10 +171,10 @@ static void drawAimingCircle(float depth) {
 	float lineX = (EXPLOSION_RADIUS + 5) * (relativeX / relativeXYLength);
 	float lineY = (EXPLOSION_RADIUS + 5) * (relativeY / relativeXYLength);
 
-	u32 color = C2D_Color32(237, 28, 36, 255);
+	u32 color = COLOR_DRED;
 	if (timeSlowFrames > TIME_SLOW_MAX_FRAMES - 30
 			&& (timeSlowFrames / 5) % 2 == 0) {
-		color = C2D_Color32(0, 0, 0, 0);
+		color = COLOR_TRANSPARENT;
 	}
 
 	drawCircle(data->x, data->y, EXPLOSION_RADIUS, color);

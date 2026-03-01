@@ -13,10 +13,10 @@
 #include "../rendering/background.h"
 #include "../util/touchinput.h"
 #include "../levelio.h"
+#include "../colors.h"
 
 #define NUM_LEVELS 5
 #define LAUNCH_SPEED_MAX 6
-#define SKY_COLOR (C2D_Color32(4, 132, 209, 255))
 
 static unsigned int level;
 static bool isSdmc;
@@ -177,7 +177,7 @@ static bool loadLevel(char path[]) {
 		}
 	}
 
-	bg = BG_Create(fieldWidth, LEVEL_HEIGHT, SKY_COLOR);
+	bg = BG_Create(fieldWidth, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!bg) goto failed;
 
 	for (int x = 0; x < fieldWidth / TILE_SIZE; x++) {
@@ -305,7 +305,7 @@ static void sceneDraw() {
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
-	C2D_TargetClear(bottom, C2D_Color32(255, 255, 255, 255));
+	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
 
 	Projectile_CenterViewC2D(GFX_BOTTOM);
@@ -339,7 +339,7 @@ static void sceneDraw() {
 
 
 	C3D_RenderTarget *top = RenderTarget_GetTop();
-	C2D_TargetClear(top, C2D_Color32(255, 255, 255, 255));
+	C2D_TargetClear(top, COLOR_WHITE);
 	C2D_SceneBegin(top);
 
 	float scale = 400.0 / fieldWidth;
@@ -349,8 +349,7 @@ static void sceneDraw() {
 	if (!Projectile_IsMoving()) {
 		float x, y;
 		Projectile_GetPos(&x, &y);
-		C2D_DrawRectSolid(x * scale, bgY + y * scale, 1, 2, 2,
-				C2D_Color32(255, 255, 255, 255));
+		C2D_DrawRectSolid(x * scale, bgY + y * scale, 1, 2, 2, COLOR_WHITE);
 	}
 
 	layoutInfoText();
