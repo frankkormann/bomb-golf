@@ -7,8 +7,6 @@
 
 #include <citro2d.h>
 
-#define NUM_SPRITES 14
-
 // These values are written directly into level files, so be careful when
 // reassigning or removing them
 typedef enum {
@@ -17,7 +15,7 @@ typedef enum {
 	SPRITE_DIRT,
 	SPRITE_DIRT_INTERNAL,
 	SPRITE_DIRT_TRIANGLE,
-	SPRITE_DIRT_TRIANGLE_FILLER,
+	SPRITE_DIRT_HALF,
 	SPRITE_GRASS,
 	SPRITE_GRASS_HALF,
 	SPRITE_GRASS_TRIANGLE_1,
@@ -25,7 +23,12 @@ typedef enum {
 	SPRITE_GRASS_TRIANGLE_FILLER,
 	SPRITE_SKY,
 	SPRITE_TREE,
-	SPRITE_LEAVES
+	SPRITE_LEAVES,
+	SPRITE_LEAVES_HALF,
+	SPRITE_HOLE_WALL,
+	SPRITE_HOLE_WALL_TRIANGLE,
+
+	NUM_SPRITES
 } SpriteSheet_Sprite;
 
 void SpriteSheet_Init();

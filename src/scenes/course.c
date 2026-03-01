@@ -12,11 +12,13 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/background.h"
 #include "../util/touchinput.h"
+#include "../util/macros.h"
 #include "../levelio.h"
 #include "../colors.h"
 
 #define NUM_LEVELS 5
 #define LAUNCH_SPEED_MAX 6
+#define TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR 0.05
 
 static unsigned int level;
 static bool isSdmc;
@@ -235,8 +237,10 @@ static bool sceneInit(Scene_Params params) {
 
 static void calculateLaunchVelocity(TouchInput_Swipe stroke, float *velX,
 		float *velY) {
-	*velX = (float)(stroke.end.px - stroke.start.px) / stroke.length;
-	*velY = (float)(stroke.end.py - stroke.start.py) / stroke.length;
+	*velX = (float)(stroke.end.px - stroke.start.px)
+			* TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR;
+	*velY = (float)(stroke.end.py - stroke.start.py)
+			* TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR;
 	float magnitude² = *velX * *velX + *velY * *velY;
 	if (magnitude² > LAUNCH_SPEED_MAX*LAUNCH_SPEED_MAX) {
 		// Set vector length to LAUNCH_SPEED_MAX
@@ -317,18 +321,16 @@ static void sceneDraw() {
 
 		float strength = (velX*velX + velY*velY)
 				/ (LAUNCH_SPEED_MAX*LAUNCH_SPEED_MAX);
-		int r = 512 * strength;
-		int g = 512 - r;
-		r = r > 255 ? 255 : r;
-		g = g > 255 ? 255 : g;
-		u32 color = C2D_Color32(r, g, 0, 255);
+		u32 color = strength > 0.75 ? COLOR_DRED
+				: strength > 0.5 ? COLOR_RED
+				: strength > 0.25 ? COLOR_ORANGE
+				: COLOR_LGREEN;
 
 		float projX, projY;
 		Projectile_GetPos(&projX, &projY);
-		float strokeX = stroke.end.px - stroke.start.px;
-		float strokeY = stroke.end.py - stroke.start.py;
-
-		C2D_DrawLine(projX, projY, color, projX + strokeX, projY + strokeY,
+		C2D_DrawLine(projX, projY, color,
+				projX + velX / TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR,
+				projY + velY / TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR,
 				color, 2, 1);
 	}
 

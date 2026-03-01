@@ -13,7 +13,7 @@
 #define TILE_SIZE 10
 
 // Index of the first sprite for tiles
-#define FIRST_TILE_SPRITE 2
+#define FIRST_TILE_SPRITE SPRITE_DIRT
 #define NUM_TILES (NUM_SPRITES - FIRST_TILE_SPRITE)
 
 typedef enum {
