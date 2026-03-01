@@ -80,7 +80,7 @@ static void setTerrainForHalf(u8 orientation, int x, int y) {
 			break;
 		case TILE_ROTATE_90:
 		case TILE_ROTATE_90 | TILE_FLIP_VERT:
-			for (int j = TILE_SIZE/2; j < TILE_SIZE; j++) {
+			for (int j = 0; j < TILE_SIZE/2; j++) {
 				for (int i = 0; i < TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
@@ -96,7 +96,7 @@ static void setTerrainForHalf(u8 orientation, int x, int y) {
 			break;
 		case TILE_ROTATE_90 | TILE_FLIP_HORIZ:
 		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
-			for (int j = 0; j < TILE_SIZE/2; j++) {
+			for (int j = TILE_SIZE/2; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
 				}
@@ -108,15 +108,15 @@ static void setTerrainForHalf(u8 orientation, int x, int y) {
 static void setTerrainForTriangle(u8 orientation, int x, int y) {
 	switch (orientation) {
 		case 0:
-		case TILE_ROTATE_90 | TILE_FLIP_HORIZ:
+		case TILE_ROTATE_90 | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = j; i < TILE_SIZE; i++) {
 					terrain[x+i][TILE_SIZE+y-j-1] = true;
 				}
 			}
 			break;
-		case TILE_ROTATE_90:
 		case TILE_FLIP_VERT:
+		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = j; i < TILE_SIZE; i++) {
 					terrain[x+i][y+j] = true;
@@ -124,14 +124,14 @@ static void setTerrainForTriangle(u8 orientation, int x, int y) {
 			}
 			break;
 		case TILE_FLIP_HORIZ:
-		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
+		case TILE_ROTATE_90:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE - j; i++) {
 					terrain[x+i][TILE_SIZE+y-j-1] = true;
 				}
 			}
 			break;
-		case TILE_ROTATE_90 | TILE_FLIP_VERT:
+		case TILE_ROTATE_90 | TILE_FLIP_HORIZ:
 		case TILE_FLIP_HORIZ | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE - j; i++) {
