@@ -17,9 +17,25 @@
 #define FIRST_TILE_SPRITE 2
 
 typedef enum {
+	/*               *
+	 *               *
+	 *               *
+	 *               */
 	TILE_HITBOX_NONE,
+	/*    * * * *    *
+	 *    * * * *    *
+	 *    * * * *    *
+	 *    * * * *    */
 	TILE_HITBOX_FULL,
+	/*    * *        *
+	 *    * *        *
+	 *    * *        *
+	 *    * *        */
 	TILE_HITBOX_HALF,
+	/*          *    *
+	 *        * *    *
+	 *      * * *    *
+	 *    * * * *    */
 	TILE_HITBOX_TRIANGLE
 } Tile_Hitbox;
 
