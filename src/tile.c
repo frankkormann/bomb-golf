@@ -13,6 +13,8 @@ Tile_Hitbox spriteToHitbox(SpriteSheet_Sprite sprite) {
 		case SPRITE_DIRT_TRIANGLE_FILLER:
 		case SPRITE_GRASS:
 		case SPRITE_GRASS_TRIANGLE_FILLER:
+		case SPRITE_TREE:
+		case SPRITE_LEAVES:
 			return TILE_HITBOX_FULL;
 		case SPRITE_DIRT_TRIANGLE:
 		case SPRITE_GRASS_TRIANGLE_1:
