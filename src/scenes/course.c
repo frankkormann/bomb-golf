@@ -245,10 +245,11 @@ static bool sceneInit(Scene_Params params) {
 
 static void calculateLaunchVelocity(TouchInput_Swipe stroke, float *velX,
 		float *velY) {
-	*velX = (float)(stroke.end.px - stroke.start.px)
+	float projX, projY;
+	Projectile_GetPos(&projX, &projY);
+	*velX = (float)(stroke.end.px - projX + Course_GetScreenOffset())
 			* TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR;
-	*velY = (float)(stroke.end.py - stroke.start.py)
-			* TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR;
+	*velY = (float)(stroke.end.py - projY) * TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR;
 	float magnitude² = *velX * *velX + *velY * *velY;
 	if (magnitude² > LAUNCH_SPEED_MAX*LAUNCH_SPEED_MAX) {
 		// Set vector length to LAUNCH_SPEED_MAX
