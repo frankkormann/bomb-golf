@@ -77,8 +77,8 @@ static void move() {
 		TouchInput_Swipe touch = TouchInput_GetSwipe();
 		Course_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
 		endSlowTime();
-		int offsetX = clamp(data->x - 160, 0, Course_GetFieldWidth() - 320);
-		boostFromExplosion(touch.end.px + offsetX, touch.end.py);
+		boostFromExplosion(touch.end.px + Course_GetScreenOffset(),
+				touch.end.py);
 		ballState = FLYING_EXPLODED;
 	}
 

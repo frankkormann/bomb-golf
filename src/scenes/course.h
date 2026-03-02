@@ -35,4 +35,11 @@ bool Course_CheckTerrain(int x, int y);
 int Course_GetFieldWidth();
 int Course_GetFieldHeight();
 
+/*
+ * Returns the number of pixels the bottom screen has been shifted horizontally
+ * before being drawn. Useful for converting touchscreen coordinates to in-game
+ * coordinates.
+ */
+int Course_GetScreenOffset();
+
 #endif

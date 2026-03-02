@@ -45,6 +45,12 @@ int Course_GetFieldHeight() {
 	return LEVEL_HEIGHT;
 }
 
+int Course_GetScreenOffset() {
+	float projX, projY;
+	Projectile_GetPos(&projX, &projY);
+	return clamp(projX - 160, 0, fieldWidth - 320);
+}
+
 bool Course_CheckTerrain(int x, int y) {
 	return !withinBounds(x, y) || terrain[x][y];
 }
@@ -314,7 +320,7 @@ static void sceneDraw() {
 	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
 
-	Projectile_CenterViewC2D(GFX_BOTTOM);
+	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
 
 	if (!Projectile_IsMoving() && TouchInput_InProgress()) {
 		TouchInput_Swipe stroke = TouchInput_GetSwipe();

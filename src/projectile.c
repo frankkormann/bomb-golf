@@ -73,13 +73,6 @@ void Projectile_Draw(float depth) {
 	proj->draw(depth);
 }
 
-void Projectile_CenterViewC2D(gfxScreen_t screen) {
-	int screenWidth = screen == GFX_TOP ? 400 : 320;
-	int offset = clamp(data.x - screenWidth / 2, 0,
-			Course_GetFieldWidth() - screenWidth);
-	C2D_ViewTranslate(-offset, 0);
-}
-
 ProjectileI_Data* ProjectileI_AccessData() {
 	return &data;
 }

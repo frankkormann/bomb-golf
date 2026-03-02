@@ -40,9 +40,4 @@ void Projectile_Update();
  */
 void Projectile_Draw(float depth);
 
-/*
- * Uses C2D_ViewTranslate to center the view on the projectile.
- */
-void Projectile_CenterViewC2D(gfxScreen_t screen);
-
 #endif
