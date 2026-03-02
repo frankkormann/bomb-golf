@@ -90,18 +90,6 @@ void* Queue_FastPop(Queue q) {
 	return elem;
 }
 
-bool Queue_EnsureCapacity(Queue q, size_t minCapacity) {
-	size_t minArrSize = minCapacity + q->back;
-	if (q->arrSize >= minArrSize) return true;
-
-	void **newArr = realloc(q->arr, sizeof(void*) * minArrSize);
-	if (!newArr) return false;
-
-	q->arr = newArr;
-	q->arrSize = minArrSize;
-	return true;
-}
-
 void Queue_Prune(Queue q) {
 	rebalance(q);
 }

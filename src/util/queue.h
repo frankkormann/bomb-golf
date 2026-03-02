@@ -11,7 +11,7 @@
 typedef struct queue* Queue;
 
 /*
- * Returns the Queue or NULL if there isn't enough memory.
+ * Returns a new Queue or NULL if there isn't enough memory.
  */
 Queue Queue_Create();
 
@@ -31,17 +31,9 @@ void* Queue_Pop(Queue q);
 
 /*
  * Identical to Queue_Pop except there is no check to reduce the internal size
- * of q. Useful for popping many elements in a row or preventing a resize after
- * using Queue_EnsureCapacity.
+ * of q. Useful for popping many elements in a row.
  */
 void* Queue_FastPop(Queue q);
-
-/*
- * Attempts to increase q's internal size to fit minCapacity elements.
- *
- * Returns true if the resize was successful.
- */
-bool Queue_EnsureCapacity(Queue q, size_t minCapacity);
 
 /*
  * Performs a best attempt at reducing the memory used by q.
