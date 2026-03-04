@@ -19,6 +19,7 @@ union animation_params {
 /*
  * Starts playing anim using params. When it ends, calls onFinish if onFinish
  * isn't NULL.
+ * Each implementor of Animation should provide a function to make their params.
  *
  * Note: onFinish will be stored for later use, so it must not become dangling.
  *

@@ -1,3 +1,7 @@
+/*
+ * Animation of a circular fading explosion.
+ */
+
 #ifndef EXPLOSION_H
 #define EXPLOSION_H
 
