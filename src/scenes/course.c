@@ -344,7 +344,7 @@ static void sceneDraw() {
 	}
 
 	BG_Draw(bg, 0, 0, -1, 1, 1);
-	Projectile_Draw(0);
+	Projectile_Draw(1);
 
 	C2D_ViewReset();
 

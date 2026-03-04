@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include "scene.h"
 #include "scenes/scene_internal.h"
+#include "rendering/animation.h"
 
 static Scene sceneCurrent;
 static Scene sceneNext;
@@ -31,6 +32,7 @@ void Scene_Exit() {
 }
 
 void Scene_SetNext(Scene next, Scene_Params params) {
+	Animation_Clear(false);
 	sceneNext = next;
 	nextParams = params;
 }

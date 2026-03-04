@@ -7,6 +7,8 @@
 #include "ball.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
+#include "../rendering/animation.h"
+#include "../rendering/animations/explosion.h"
 #include "../scenes/course.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
@@ -76,6 +78,10 @@ static void move() {
 	if (TouchInput_JustFinished() && ballState == FLYING_TIME_SLOWED) {
 		TouchInput_Swipe touch = TouchInput_GetSwipe();
 		Course_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
+		Animation_Start(animationExplosion,
+				Explosion_MakeParams(data->x, data->y,
+					EXPLOSION_RADIUS),
+				NULL);
 		endSlowTime();
 		boostFromExplosion(touch.end.px + Course_GetScreenOffset(),
 				touch.end.py);
@@ -117,6 +123,10 @@ static void onHitGround(float hitX, float hitY) {
 			&& hitX > 0 && hitX < Course_GetFieldWidth()
 			&& hitY > 0 && hitY < Course_GetFieldHeight()) {
 		Course_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
+		Animation_Start(animationExplosion,
+				Explosion_MakeParams(data->x, data->y,
+					EXPLOSION_RADIUS),
+				NULL);
 		if (ballState == FLYING_TIME_SLOWED) endSlowTime();
 		ballState = FLYING_EXPLODED;
 	}

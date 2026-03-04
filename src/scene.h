@@ -47,6 +47,8 @@ void Scene_Exit();
 /*
  * Exits the active Scene and sets next as the new active Scene.
  * Each implementor of Scene provides a function to make their Scene_Params.
+ *
+ * Also calls Animation_Clear.
  */
 void Scene_SetNext(Scene next, Scene_Params params);
 

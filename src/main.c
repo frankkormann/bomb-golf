@@ -6,6 +6,7 @@
 #include "scenes/title.h"
 #include "rendering/spritesheet.h"
 #include "rendering/rendertarget.h"
+#include "rendering/animation.h"
 #include "util/touchinput.h"
 
 int main() {
@@ -27,9 +28,11 @@ int main() {
 		if (kDown & KEY_START) break;
 
 		Scene_Update();
+		Animation_Update();
 
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 		Scene_Draw();
+		Animation_Draw();
 		C3D_FrameEnd(0);
 	}
 
