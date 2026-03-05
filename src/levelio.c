@@ -18,11 +18,12 @@ static int projToNum(Projectile proj) {
 }
 
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width) {
+		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width, int *par) {
 	FILE *data = fopen(path, "rb");
 	if (!data) return false;
 
 	fread(width, sizeof(*width), 1, data);
+	fread(par, sizeof(*par), 1, data);
 
 	size_t tilesSize = sizeof(**tiles) * *width / TILE_SIZE;
 	*tiles = malloc(tilesSize);
@@ -54,7 +55,7 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 }
 
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
-		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width) {
+		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width, int par) {
 	FILE *data = fopen(path, "wb");
 	if (!data) return false;
 
@@ -62,6 +63,7 @@ bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
 	int projNum = projToNum(proj.type);
 
 	fwrite(&width, sizeof(width), 1, data);
+	fwrite(&par, sizeof(par), 1, data);
 	fwrite(&hole.x, sizeof(hole.x), 1, data);
 	fwrite(&hole.y, sizeof(hole.y), 1, data);
 	fwrite(&hole.width, sizeof(hole.width), 1, data);

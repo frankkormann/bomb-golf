@@ -37,7 +37,7 @@ typedef struct {
  * returned.
  */
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width);
+		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width, int *par);
 
 /*
  * Writes a level to the file at path, overwriting it if it already exists.
@@ -45,5 +45,5 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
  * Returns false if an error occurred.
  */
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
-		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width);
+		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width, int par);
 #endif

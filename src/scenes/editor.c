@@ -30,6 +30,7 @@ static u8 selectedTileOrientation;
 
 static int holeX, holeY;
 static int projX, projY;
+static int par;
 
 static unsigned int level;
 
@@ -52,7 +53,7 @@ static bool sceneInit(Scene_Params params) {
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	int width;
-	if (LevelIO_Read(path, &hole, &proj, &tiles, &width)) {
+	if (LevelIO_Read(path, &hole, &proj, &tiles, &width, &par)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!newTiles) goto failed;
@@ -129,7 +130,8 @@ static bool exportLevel() {
 		}
 	}
 
-	return LevelIO_Write(path, hole, proj, tiles, (tilesMaxX+1) * TILE_SIZE);
+	return LevelIO_Write(path, hole, proj, tiles, (tilesMaxX + 1) * TILE_SIZE,
+			par);
 }
 
 static void sceneUpdate() {
@@ -169,6 +171,9 @@ static void sceneUpdate() {
 		selectedTileOrientation++;
 		if (selectedTileOrientation >= 8) selectedTileOrientation = 0;
 	}
+
+	if (kDown & KEY_L || kDown & KEY_ZR) par--;
+	if (kDown & KEY_ZL || kDown & KEY_R) par++;
 
 	if (TouchInput_InProgress()) {
 		float courseX = TouchInput_GetSwipe().end.px + scroll;

@@ -31,6 +31,7 @@ static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
 
 static unsigned int strokeCounter;
+static int par;
 static bool hasFinished;
 
 static C2D_Text infoText;
@@ -177,7 +178,9 @@ static bool loadLevel(char path[]) {
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
-	if (!LevelIO_Read(path, &hole, &proj, &tiles, &fieldWidth)) return false;
+	if (!LevelIO_Read(path, &hole, &proj, &tiles, &fieldWidth, &par)) {
+		return false;
+	}
 
 	terrain = malloc(sizeof(*terrain) * fieldWidth);
 	if (!terrain) goto failed;
@@ -314,7 +317,7 @@ static void sceneUpdate() {
 static void layoutInfoText() {
 	C2D_TextBufClear(textBuf);
 	char cbuf[256];
-	sprintf(cbuf, "Strokes: %i", strokeCounter);
+	sprintf(cbuf, "Strokes: %i\nPar:       %i", strokeCounter, par);
 	C2D_TextParse(&infoText, textBuf, cbuf);
 	C2D_TextOptimize(&infoText);
 }
