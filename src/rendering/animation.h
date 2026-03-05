@@ -11,9 +11,11 @@ typedef struct animation *Animation;
 typedef union animation_params Animation_Params;
 
 #include "animations/explosion.h"
+#include "animations/firework.h"
 
 union animation_params {
 	Explosion_Params explosion;
+	Firework_Params firework;
 };
 
 /*

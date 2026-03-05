@@ -12,6 +12,8 @@
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/background.h"
+#include "../rendering/animation.h"
+#include "../rendering/animations/firework.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../levelio.h"
@@ -29,6 +31,7 @@ static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
 
 static unsigned int strokeCounter;
+static bool hasFinished;
 
 static C2D_Text infoText;
 static C2D_TextBuf textBuf;
@@ -238,6 +241,7 @@ static bool sceneInit(Scene_Params params) {
 	}
 
 	strokeCounter = 0;
+	hasFinished = false;
 	level = params.course.level;
 
 	return true;
@@ -289,17 +293,19 @@ static void sceneUpdate() {
 		return;
 	}
 
-	if (!Projectile_IsMoving()) {
+	if (!Projectile_IsMoving() && !hasFinished) {
 		checkLaunchInput();
 	}
 	
-	// Check in hole before updating so there is 1 visible frame where
-	// the projectile is in the hole
 	float x, y;
 	Projectile_GetPos(&x, &y);
-	if (holeX <= x && x <= holeX + holeWidth && holeY <= y
+	if (!hasFinished && holeX <= x && x <= holeX + holeWidth && holeY <= y
 			&& y <= holeY + holeHeight) {
-		nextLevel();
+		hasFinished = true;
+		if (!Animation_Start(animationFirework, Firework_MakeParams(x, y),
+				nextLevel)) {
+			nextLevel();
+		}
 	}
 
 	Projectile_Update();

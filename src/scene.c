@@ -16,6 +16,7 @@ bool Scene_Start(Scene first, Scene_Params params) {
 void Scene_Update() {
 	if (sceneNext) {
 		Scene_Exit();
+		Animation_Clear(false);
 		Scene_Start(sceneNext, nextParams);
 		sceneNext = NULL;
 	}
@@ -32,7 +33,6 @@ void Scene_Exit() {
 }
 
 void Scene_SetNext(Scene next, Scene_Params params) {
-	Animation_Clear(false);
 	sceneNext = next;
 	nextParams = params;
 }

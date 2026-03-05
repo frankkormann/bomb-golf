@@ -22,7 +22,7 @@ Animation_Params Explosion_MakeParams(float x, float y, float radius) {
 	return (Animation_Params) { .explosion = { x, y, radius } };
 }
 
-AnimationI_CreateAnimReturnValue create(Animation_Params params) {
+static AnimationI_CreateAnimReturnValue create(Animation_Params params) {
 	ExplosionData *data = malloc(sizeof(*data));
 	if (!data) {
 		return (AnimationI_CreateAnimReturnValue) { .success = false };
@@ -39,11 +39,11 @@ AnimationI_CreateAnimReturnValue create(Animation_Params params) {
 	};
 }
 
-void update(AnimationI_AnimObj obj) {
+static void update(AnimationI_AnimObj obj) {
 	((ExplosionData*)obj.data)->counter++;
 }
 
-void draw(AnimationI_AnimObj obj) {
+static void draw(AnimationI_AnimObj obj) {
 	C2D_SceneBegin(RenderTarget_GetBottom());
 	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
 
@@ -54,7 +54,7 @@ void draw(AnimationI_AnimObj obj) {
 	C2D_ViewReset();
 }
 
-bool isFinished(AnimationI_AnimObj obj) {
+static bool isFinished(AnimationI_AnimObj obj) {
 	return ((ExplosionData*)obj.data)->counter >= EXPLOSION_FINISHED;
 }
 
