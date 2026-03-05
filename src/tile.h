@@ -14,7 +14,7 @@
 
 // Index of the first sprite for tiles
 #define FIRST_TILE_SPRITE SPRITE_DIRT
-#define NUM_TILES (NUM_SPRITES - FIRST_TILE_SPRITE)
+#define NUM_TILES (SPRITE_FIREWORK_1 - FIRST_TILE_SPRITE)
 
 typedef enum {
 	/*               *
