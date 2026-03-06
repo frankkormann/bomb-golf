@@ -2,7 +2,7 @@
 
 Explode your ball to reshape the course or get a boost in mid-air.
 
-### Testing welcome!
+### Feedback welcome!
 
 Game is work in progress. It would be much appreciated if you gave it a go and
 left your feedback on the
