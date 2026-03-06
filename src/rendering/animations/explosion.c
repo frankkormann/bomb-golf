@@ -39,27 +39,27 @@ static AnimationI_CreateAnimReturnValue create(Animation_Params params) {
 	};
 }
 
-static void update(AnimationI_AnimObj obj) {
-	((ExplosionData*)obj.data)->counter++;
+static void update(AnimationI_AnimObj *obj) {
+	((ExplosionData*)obj->data)->counter++;
 }
 
-static void draw(AnimationI_AnimObj obj) {
+static void draw(AnimationI_AnimObj *obj) {
 	C2D_SceneBegin(RenderTarget_GetBottom());
 	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
 
-	ExplosionData *data = (ExplosionData*)obj.data;
+	ExplosionData *data = (ExplosionData*)obj->data;
 	u32 color = data->counter > EXPLOSION_STAGE_2 ? COLOR_ORANGE : COLOR_RED;
 	C2D_DrawCircleSolid(data->x, data->y, 0.5, data->radius, color);
 
 	C2D_ViewReset();
 }
 
-static bool isFinished(AnimationI_AnimObj obj) {
-	return ((ExplosionData*)obj.data)->counter >= EXPLOSION_FINISHED;
+static bool isFinished(AnimationI_AnimObj *obj) {
+	return ((ExplosionData*)obj->data)->counter >= EXPLOSION_FINISHED;
 }
 
-void _free(AnimationI_AnimObj obj) {
-	free(obj.data);
+void _free(AnimationI_AnimObj *obj) {
+	free(obj->data);
 }
 
 Animation animationExplosion = &(struct animation) {

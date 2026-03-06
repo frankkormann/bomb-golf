@@ -63,8 +63,8 @@ static SpriteSheet_Sprite getSpriteForFrame(int frame) {
 	return (frame / ANIMATION_FRAME_LENGTH) + SPRITE_FIREWORK_1;
 }
 
-static void update(AnimationI_AnimObj obj) {
-	FireworkData *data = (FireworkData*)obj.data;
+static void update(AnimationI_AnimObj *obj) {
+	FireworkData *data = (FireworkData*)obj->data;
 
 	data->trail[data->oldestTrailParticle] = data->exploding ?
 			(Point) { -1, -1 } : data->loc;
@@ -83,11 +83,11 @@ static void update(AnimationI_AnimObj obj) {
 	}
 }
 
-static void draw(AnimationI_AnimObj obj) {
+static void draw(AnimationI_AnimObj *obj) {
 	C2D_SceneBegin(RenderTarget_GetBottom());
 	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
 
-	FireworkData *data = (FireworkData*)obj.data;
+	FireworkData *data = (FireworkData*)obj->data;
 	if (data->exploding) {
 		SpriteSheet_Sprite spr = getSpriteForFrame(data->explosionFrame);
 		if (spr <= SPRITE_FIREWORK_12) {
@@ -108,12 +108,12 @@ static void draw(AnimationI_AnimObj obj) {
 	C2D_ViewReset();
 }
 
-static bool isFinished(AnimationI_AnimObj obj) {
-	return ((FireworkData*)obj.data)->explosionFrame > ANIMATION_LENGTH;
+static bool isFinished(AnimationI_AnimObj *obj) {
+	return ((FireworkData*)obj->data)->explosionFrame > ANIMATION_LENGTH;
 }
 
-static void _free(AnimationI_AnimObj obj) {
-	free(obj.data);
+static void _free(AnimationI_AnimObj *obj) {
+	free(obj->data);
 }
 
 Animation animationFirework = &(struct animation) {

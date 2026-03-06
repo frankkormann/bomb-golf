@@ -30,13 +30,13 @@ void Animation_Update() {
 		Animation anim = animationObjs[i].anim;
 		if (!anim) continue;
 
-		anim->update(animationObjs[i]);
+		anim->update(&animationObjs[i]);
 
-		if (anim->isFinished(animationObjs[i])) {
+		if (anim->isFinished(&animationObjs[i])) {
 			if (animationObjs[i].onFinish) {
 				animationObjs[i].onFinish();
 			}
-			anim->free(animationObjs[i]);
+			anim->free(&animationObjs[i]);
 			animationObjs[i].anim = NULL;
 		}
 	}
@@ -50,7 +50,7 @@ void Animation_Clear(bool doCallbacks) {
 		if (doCallbacks && animationObjs[i].onFinish) {
 			animationObjs[i].onFinish();
 		}
-		anim->free(animationObjs[i]);
+		anim->free(&animationObjs[i]);
 		animationObjs[i].anim = NULL;
 	}
 }
@@ -58,6 +58,6 @@ void Animation_Clear(bool doCallbacks) {
 void Animation_Draw() {
 	for (size_t i = 0; i < CONCURRENT_ANIMATIONS; i++) {
 		if (!animationObjs[i].anim) continue;
-		animationObjs[i].anim->draw(animationObjs[i]);
+		animationObjs[i].anim->draw(&animationObjs[i]);
 	}
 }

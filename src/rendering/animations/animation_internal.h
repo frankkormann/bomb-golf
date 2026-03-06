@@ -28,19 +28,19 @@ struct animation {
 	/*
 	 * Updates obj for one frame.
 	 */
-	void (*const update)(AnimationI_AnimObj obj);
+	void (*const update)(AnimationI_AnimObj *obj);
 	/*
 	 * Draws obj.
 	 */
-	void (*const draw)(AnimationI_AnimObj obj);
+	void (*const draw)(AnimationI_AnimObj *obj);
 	/*
 	 * Returns true if obj has completed its animation.
 	 */
-	bool (*const isFinished)(AnimationI_AnimObj obj);
+	bool (*const isFinished)(AnimationI_AnimObj *obj);
 	/*
 	 * Frees any resources used by obj.
 	 */
-	void (*const free)(AnimationI_AnimObj obj);
+	void (*const free)(AnimationI_AnimObj *obj);
 };
 
 #endif
