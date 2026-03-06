@@ -2,27 +2,23 @@
 
 Explode your ball to reshape the course or get a boost in mid-air.
 
-### Feedback welcome!
+## Feedback welcome!
 
 Game is work in progress. It would be much appreciated if you gave it a go and
 left your feedback on the
 [Issues](https://github.com/frankkormann/bomb-golf/issues) page!
 
-### Installing
+## Installing
 
-**Real hardware**
+Go to the [Release](https://github.com/frankkormann/bomb-golf/releases) tab and
+follow the instructions for the latest release. You will need to
+[hack your 3DS](https://3ds.hacks.guide/) to run on real hardware.
 
-You will need to [hack your 3DS](https://3ds.hacks.guide/). Then, place the
-[latest release](https://github.com/frankkormann/bomb-golf/releases) onto your
-SD card and launch it with the Homebrew Launcher.
+## Building
 
-**Emulator**
-
-Run the [latest release](https://github.com/frankkormann/bomb-golf/releases).
+`make`
 
 ### Dependencies
-
-You will need these to build from source
 
 * [devkitPro](https://devkitpro.org/) for the 3DS
 * [citro2d](https://github.com/devkitPro/citro2d/) and
