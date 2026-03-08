@@ -14,6 +14,7 @@
 #include "../rendering/background.h"
 #include "../rendering/animation.h"
 #include "../rendering/animations/firework.h"
+#include "../gui/text.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../levelio.h"
@@ -34,8 +35,7 @@ static unsigned int strokeCounter;
 static int par;
 static bool hasFinished;
 
-static C2D_Text infoText;
-static C2D_TextBuf textBuf;
+static Text infoText;
 
 static bool withinBounds(int x, int y) {
 	return 0 <= x && x <= fieldWidth-1 && 0 <= y && y <= LEVEL_HEIGHT-1;
@@ -237,8 +237,8 @@ static bool sceneInit(Scene_Params params) {
 	isSdmc = params.course.isSdmc;
 	if (!loadLevel(path)) return false;
 
-	textBuf = C2D_TextBufNew(256);
-	if (!textBuf) {
+	infoText = Text_Create(100, NULL);
+	if (!infoText) {
 		BG_Free(bg);
 		return false;
 	}
@@ -318,11 +318,7 @@ static void sceneUpdate() {
 }
 
 static void layoutInfoText() {
-	C2D_TextBufClear(textBuf);
-	char cbuf[256];
-	sprintf(cbuf, "Strokes: %i\nPar:       %i", strokeCounter, par);
-	C2D_TextParse(&infoText, textBuf, cbuf);
-	C2D_TextOptimize(&infoText);
+	Text_SetContent(infoText, "Strokes: %i\nPar:       %i", strokeCounter, par);
 }
 
 static void plotTrajectoryPoint(float initX, float initY, float velX, float velY,
@@ -382,12 +378,12 @@ static void sceneDraw() {
 	}
 
 	layoutInfoText();
-	C2D_DrawText(&infoText, 0, 10, 20, 0, 0.5, 0.5);
+	C2D_DrawText(&infoText->text, 0, 10, 20, 0, 0.5, 0.5);
 }
 
 static void sceneExit() {
 	if (bg) BG_Free(bg);
-	if (textBuf) C2D_TextBufDelete(textBuf);
+	if (infoText) Text_Free(infoText);
 	if (terrain) free(terrain);
 }
 
