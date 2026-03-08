@@ -10,6 +10,8 @@
 #include <3ds.h>
 #include "rendering/spritesheet.h"
 
+#define PROJECTILE_GRAVITY 0.1
+
 typedef struct projectile *Projectile;
 
 #include "projectiles/ball.h"

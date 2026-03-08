@@ -250,8 +250,8 @@ static bool sceneInit(Scene_Params params) {
 	return true;
 }
 
-static void calculateLaunchVelocity(TouchInput_Swipe stroke, float *velX,
-		float *velY) {
+static void calculateLaunchVelocity(float *velX, float *velY) {
+	TouchInput_Swipe stroke = TouchInput_GetSwipe();
 	float projX, projY;
 	Projectile_GetPos(&projX, &projY);
 	*velX = (float)(stroke.end.px - projX + Course_GetScreenOffset())
@@ -265,11 +265,14 @@ static void calculateLaunchVelocity(TouchInput_Swipe stroke, float *velX,
 	}
 }
 
+static bool canLaunch() {
+	return !Projectile_IsMoving() && !hasFinished;
+}
+
 static void checkLaunchInput() {
 	if (TouchInput_JustFinished()) {
-		TouchInput_Swipe stroke = TouchInput_GetSwipe();
 		float velX, velY;
-		calculateLaunchVelocity(stroke, &velX, &velY);
+		calculateLaunchVelocity(&velX, &velY);
 		Projectile_Launch(velX, velY);
 
 		strokeCounter++;
@@ -296,7 +299,7 @@ static void sceneUpdate() {
 		return;
 	}
 
-	if (!Projectile_IsMoving() && !hasFinished) {
+	if (canLaunch()) {
 		checkLaunchInput();
 	}
 	
@@ -322,6 +325,15 @@ static void layoutInfoText() {
 	C2D_TextOptimize(&infoText);
 }
 
+static void plotTrajectoryPoint(float initX, float initY, float velX, float velY,
+		int framesInFuture, float size, float depth, u32 color) {
+	float pointX = initX + (velX * framesInFuture);
+	float pointY = initY + (velY * framesInFuture)
+			+ (0.5 * PROJECTILE_GRAVITY * framesInFuture*framesInFuture);
+	C2D_DrawRectSolid(pointX - size/2, pointY - size/2, depth, size, size,
+			color);
+}
+
 static void sceneDraw() {
 	BG_UpdateGraphics(bg);
 
@@ -332,10 +344,10 @@ static void sceneDraw() {
 
 	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
 
-	if (!Projectile_IsMoving() && TouchInput_InProgress()) {
-		TouchInput_Swipe stroke = TouchInput_GetSwipe();
-		float velX, velY;
-		calculateLaunchVelocity(stroke, &velX, &velY);
+	if (canLaunch() && TouchInput_InProgress()) {
+		float projX, projY, velX, velY;
+		calculateLaunchVelocity(&velX, &velY);
+		Projectile_GetPos(&projX, &projY);
 
 		float strength = (velX*velX + velY*velY)
 				/ (LAUNCH_SPEED_MAX*LAUNCH_SPEED_MAX);
@@ -343,13 +355,10 @@ static void sceneDraw() {
 				: strength > 0.5 ? COLOR_RED
 				: strength > 0.25 ? COLOR_ORANGE
 				: COLOR_LGREEN;
-
-		float projX, projY;
-		Projectile_GetPos(&projX, &projY);
-		C2D_DrawLine(projX, projY, color,
-				projX + velX / TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR,
-				projY + velY / TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR,
-				color, 2, 1);
+		plotTrajectoryPoint(projX, projY, velX, velY, 5, 3, 1, color);
+		plotTrajectoryPoint(projX, projY, velX, velY, 10, 3, 1, color);
+		plotTrajectoryPoint(projX, projY, velX, velY, 15, 3, 1, color);
+		plotTrajectoryPoint(projX, projY, velX, velY, 20, 3, 1, color);
 	}
 
 	BG_Draw(bg, 0, 0, -1, 1, 1);

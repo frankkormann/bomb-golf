@@ -12,7 +12,6 @@
 #define LAST_POS_COUNT 20
 #define STOPPED_THRESHOLD 1.5
 
-#define GRAVITY 0.1
 #define BOUNCE_VELOCITY_RETENTION_X 0.8
 #define BOUNCE_VELOCITY_RETENTION_Y 0.6
 
@@ -178,7 +177,7 @@ static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 }
 
 void ProjDefault_Move() {
-	data.velY += GRAVITY;
+	data.velY += PROJECTILE_GRAVITY;
 
 	bool hasHitSomething;
 	int finalX, finalY, lastOkX, lastOkY, hitX, hitY;
