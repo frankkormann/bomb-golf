@@ -17,6 +17,8 @@ Text Text_Create(size_t maxChars, C2D_Font font) {
 	text->font = font;
 	text->maxChars = maxChars;
 
+	C2D_TextParse(&text->text, text->buf, "");
+
 	return text;
 }
 
