@@ -11,6 +11,7 @@
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
 #include "../projectiles/ball.h"
+#include "../gui/text.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../levelio.h"
@@ -33,6 +34,8 @@ static int projX, projY;
 static int par;
 
 static unsigned int level;
+
+static Text infoText;
 
 Scene_Params Editor_MakeParams(unsigned int level) {
 	return (Scene_Params) { .editor = {
@@ -100,6 +103,9 @@ static bool sceneInit(Scene_Params params) {
 		}
 	}
 
+	infoText = Text_Create(50, NULL);
+	if (!infoText) goto failed;
+
 	scroll = 0;
 	selectedTileSprite = SPRITE_SKY;
 	selectedTileOrientation = 0;
@@ -111,6 +117,7 @@ failed:
 	if (bg) BG_Free(bg);
 	if (tileSelectorBG) BG_Free(tileSelectorBG);
 	if (tiles) free(tiles);
+	if (infoText) Text_Free(infoText);
 	return false;
 }
 
@@ -215,6 +222,8 @@ static void sceneUpdate() {
 		Scene_SetNext(sceneTitle, Title_MakeParams());
 		return;
 	}
+
+	Text_SetContent(infoText, "Par: %i", par);
 }
 
 static void drawRectOutline(int x, int y, int width, int height, u32 color, int 		outlineWidth) {
@@ -252,12 +261,15 @@ static void sceneDraw() {
 	drawRectOutline((selectedTileSprite - FIRST_TILE_SPRITE) * (TILE_SIZE+2) + 1,
 			selectedTileOrientation * (TILE_SIZE+2) + 1,
 			TILE_SIZE + 2, TILE_SIZE + 2, COLOR_DRED, 1);
+
+	C2D_DrawText(&infoText->text, 0, 10, 210, 0, 0.5, 0.5);
 }
 
 static void sceneExit() {
 	if (bg) BG_Free(bg);
 	if (tileSelectorBG) BG_Free(tileSelectorBG);
 	if (tiles) free(tiles);
+	if (infoText) Text_Free(infoText);
 }
 
 Scene sceneEditor = &(struct scene) {

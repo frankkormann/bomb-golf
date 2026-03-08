@@ -315,9 +315,7 @@ static void sceneUpdate() {
 	}
 
 	Projectile_Update();
-}
 
-static void layoutInfoText() {
 	Text_SetContent(infoText, "Strokes: %i\nPar:       %i", strokeCounter, par);
 }
 
@@ -377,7 +375,6 @@ static void sceneDraw() {
 		C2D_DrawRectSolid(x * scale, bgY + y * scale, 1, 2, 2, COLOR_WHITE);
 	}
 
-	layoutInfoText();
 	C2D_DrawText(&infoText->text, 0, 10, 20, 0, 0.5, 0.5);
 }
 
