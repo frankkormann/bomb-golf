@@ -37,25 +37,6 @@ static void launch(float velX, float velY) {
 	ballState = FLYING_SHOULD_EXPLODE;
 }
 
-/*
- * Sets the velocity to point away from (explosionX, explosionY) and sets its
- * magnitude to min(magnitude + EXPLOSION_BOOST, MIN_SPEED_AFTER_EXPLOSION)
- */
-static void boostFromExplosion(float explosionX, float explosionY) {
-	ProjectileI_Data *data = ProjectileI_AccessData();
-
-	float relativeX = data->x - explosionX;
-	float relativeY = data->y - explosionY;
-	float relativeXYLength = sqrt(relativeX*relativeX + relativeY*relativeY);
-
-	float velLength = sqrt(data->velX*data->velX + data->velY*data->velY)
-			+ EXPLOSION_BOOST;
-	if (velLength < 3) velLength = MIN_SPEED_AFTER_EXPLOSION;
-
-	data->velX = velLength * (relativeX / relativeXYLength);
-	data->velY = velLength * (relativeY / relativeXYLength);
-}
-
 static void beginSlowTime() {
 	ProjectileI_Data *data = ProjectileI_AccessData();
 	data->velX *= TIME_SLOW_FACTOR;
@@ -68,6 +49,40 @@ static void endSlowTime() {
 	data->velY /= TIME_SLOW_FACTOR;
 }
 
+/*
+ * Sets the velocity to point towards (explosionX, explosionY) and sets its
+ * magnitude to max(magnitude + EXPLOSION_BOOST, MIN_SPEED_AFTER_EXPLOSION)
+ */
+static void boostFromExplosion(float explosionX, float explosionY) {
+	ProjectileI_Data *data = ProjectileI_AccessData();
+
+	float relativeX = data->x - explosionX;
+	float relativeY = data->y - explosionY;
+	float relativeXYLength = sqrt(relativeX*relativeX + relativeY*relativeY);
+
+	float velLength = sqrt(data->velX*data->velX + data->velY*data->velY)
+			+ EXPLOSION_BOOST;
+	velLength = max(velLength, MIN_SPEED_AFTER_EXPLOSION);
+
+	data->velX = -1 * velLength * (relativeX / relativeXYLength);
+	data->velY = -1 * velLength * (relativeY / relativeXYLength);
+}
+
+/*
+ * Clears a circle of radius EXPLOSION_RADIUS around the ball, sets its state,
+ * and plays an explosion animation.
+ */
+static void doExplosion() {
+	ProjectileI_Data *data = ProjectileI_AccessData();
+	Course_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
+	Animation_Start(animationExplosion,
+			Explosion_MakeParams(data->x, data->y,
+				EXPLOSION_RADIUS),
+			NULL);
+	if (ballState == FLYING_TIME_SLOWED) endSlowTime();
+	ballState = FLYING_EXPLODED;
+}
+
 static void move() {
 	ProjectileI_Data *data = ProjectileI_AccessData();
 	if (TouchInput_JustStarted() && ballState == FLYING_SHOULD_EXPLODE) {
@@ -77,15 +92,9 @@ static void move() {
 
 	if (TouchInput_JustFinished() && ballState == FLYING_TIME_SLOWED) {
 		TouchInput_Swipe touch = TouchInput_GetSwipe();
-		Course_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
-		Animation_Start(animationExplosion,
-				Explosion_MakeParams(data->x, data->y,
-					EXPLOSION_RADIUS),
-				NULL);
-		endSlowTime();
+		doExplosion();
 		boostFromExplosion(touch.end.px + Course_GetScreenOffset(),
 				touch.end.py);
-		ballState = FLYING_EXPLODED;
 	}
 
 	float prevVelX = data->velX;
@@ -117,18 +126,11 @@ static bool isMoving() {
 static void onHitGround(float hitX, float hitY) {
 	if (ballState == WAITING) return;
 
-	ProjectileI_Data *data = ProjectileI_AccessData();
-
 	if ((ballState == FLYING_SHOULD_EXPLODE || ballState == FLYING_TIME_SLOWED)
 			&& hitX > 0 && hitX < Course_GetFieldWidth()
 			&& hitY > 0 && hitY < Course_GetFieldHeight()) {
-		Course_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
-		Animation_Start(animationExplosion,
-				Explosion_MakeParams(data->x, data->y,
-					EXPLOSION_RADIUS),
-				NULL);
-		if (ballState == FLYING_TIME_SLOWED) endSlowTime();
-		ballState = FLYING_EXPLODED;
+		doExplosion();
+		boostFromExplosion(hitX, hitY);
 	}
 
 	ProjDefault_OnHitGround(hitX, hitY);
