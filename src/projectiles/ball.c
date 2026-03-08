@@ -130,7 +130,6 @@ static void onHitGround(float hitX, float hitY) {
 			&& hitX > 0 && hitX < Course_GetFieldWidth()
 			&& hitY > 0 && hitY < Course_GetFieldHeight()) {
 		doExplosion();
-		boostFromExplosion(hitX, hitY);
 	}
 
 	ProjDefault_OnHitGround(hitX, hitY);
