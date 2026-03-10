@@ -77,7 +77,12 @@ void BG_Free(Background bg) {
 	if (bg) {
 		C3D_TexDelete(&bg->tex);
 		if (bg->texTarget) C3D_RenderTargetDelete(bg->texTarget);
-		if (bg->renderQueue) Queue_Free(bg->renderQueue);
+		if (bg->renderQueue) {
+			while (!Queue_IsEmpty(bg->renderQueue)) {
+				free(Queue_Pop(bg->renderQueue));
+			}
+			Queue_Free(bg->renderQueue);
+		}
 		free(bg);
 	}
 }
