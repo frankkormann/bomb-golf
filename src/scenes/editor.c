@@ -7,6 +7,7 @@
 #include "editor.h"
 #include "title.h"
 #include "components/text.h"
+#include "components/tileselector.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/background.h"
 #include "../rendering/colors.h"
@@ -24,18 +25,16 @@
 static Background bg;
 static float scroll;
 
-static Background tileSelectorBG;
 static Tile (*tiles)[LEVEL_HEIGHT_TILES];
-static SpriteSheet_Sprite selectedTileSprite;
-static u8 selectedTileOrientation;
 
 static int holeX, holeY;
 static int projX, projY;
 static int par;
-
 static unsigned int level;
 
 static Text infoText;
+
+static Dispatcher touchDispatcher;
 
 Scene_Params Editor_MakeParams(unsigned int level) {
 	return (Scene_Params) { .editor = {
@@ -43,13 +42,12 @@ Scene_Params Editor_MakeParams(unsigned int level) {
 	} };
 }
 
+// Declaration needed to register with the dispatcher
+static bool handleTouchInput(void *ignored);
+
 static bool sceneInit(Scene_Params params) {
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!bg) goto failed;
-
-	tileSelectorBG = BG_Create((TILE_SIZE + 2) * NUM_TILES - 2,
-			(TILE_SIZE + 2) * 8 - 2, COLOR_BLUE);
-	if (!tileSelectorBG) goto failed;
 
 	char path[20];
 	sprintf(path, "sdmc:/level_%i.bin", params.editor.level);
@@ -94,30 +92,27 @@ static bool sceneInit(Scene_Params params) {
 		projY = 190 + (TILE_SIZE / 2);
 	}
 
-	for (int sprite = 0; sprite < NUM_TILES; sprite++) {
-		for (int orientation = 0; orientation < 8; orientation++) {
-			BG_DrawTile(tileSelectorBG,
-					Tile_Make(sprite + 2, orientation),
-					sprite * (TILE_SIZE + 2),
-					orientation * (TILE_SIZE + 2), false);
-		}
-	}
-
 	infoText = Text_Create(50, NULL);
 	if (!infoText) goto failed;
 
+	if (!TileSelector_Init(Tile_Make(SPRITE_SKY, 0))) goto failed;
+
+	touchDispatcher = Dispatcher_Create();
+	if (!touchDispatcher) goto failed;
+	Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
+			.priority = 0, .handle = handleTouchInput });
+	TileSelector_RegisterForTouchEvents(touchDispatcher, 1);
+
 	scroll = 0;
-	selectedTileSprite = SPRITE_SKY;
-	selectedTileOrientation = 0;
 	level = params.editor.level;
 
 	return true;
 
 failed:
 	if (bg) BG_Free(bg);
-	if (tileSelectorBG) BG_Free(tileSelectorBG);
 	if (tiles) free(tiles);
 	if (infoText) Text_Free(infoText);
+	if (touchDispatcher) Dispatcher_Free(touchDispatcher);
 	return false;
 }
 
@@ -141,46 +136,9 @@ static bool exportLevel() {
 			par);
 }
 
-static void sceneUpdate() {
-	if (BG_IsUpdating(bg)) return;
-
-	u32 kDown = hidKeysDown();
+// ignored param is to match the signature of Dispatcher_Handler
+static bool handleTouchInput(void *ignored) {
 	u32 kHeld = hidKeysHeld();
-
-	if (kDown & KEY_B) {
-		Scene_SetNext(sceneTitle, Title_MakeParams());
-		return;
-	}
-
-	if (kHeld & KEY_CPAD_LEFT || kHeld & KEY_CSTICK_LEFT)
-		scroll -= SCROLL_UNIT;
-	if (kHeld & KEY_CPAD_RIGHT || kHeld & KEY_CSTICK_RIGHT)
-		scroll += SCROLL_UNIT;
-	scroll = clamp(scroll, 0, LEVEL_MAX_WIDTH - 320);
-
-	if (kDown & KEY_DRIGHT) {
-		selectedTileSprite++;
-		if (selectedTileSprite >= NUM_TILES + FIRST_TILE_SPRITE) {
-			selectedTileSprite = FIRST_TILE_SPRITE;
-		}
-	}
-	if (kDown & KEY_DLEFT) {
-		selectedTileSprite--;
-		if (selectedTileSprite < FIRST_TILE_SPRITE) {
-			selectedTileSprite = NUM_TILES + FIRST_TILE_SPRITE - 1;
-		}
-	}
-	if (kDown & KEY_DUP) {
-		selectedTileOrientation--;
-		if (selectedTileOrientation >= 8) selectedTileOrientation = 7;
-	}
-	if (kDown & KEY_DDOWN) {
-		selectedTileOrientation++;
-		if (selectedTileOrientation >= 8) selectedTileOrientation = 0;
-	}
-
-	if (kDown & KEY_L || kDown & KEY_ZR) par--;
-	if (kDown & KEY_ZL || kDown & KEY_R) par++;
 
 	if (TouchInput_InProgress()) {
 		float courseX = TouchInput_GetSwipe().end.px + scroll;
@@ -206,22 +164,45 @@ static void sceneUpdate() {
 
 			for (int x = startX; x <= endX; x++) {
 				for (int y = startY; y <= endY; y++) {
-					Tile tile = Tile_Make(selectedTileSprite,
-							selectedTileOrientation);
+					Tile tile=TileSelector_GetTile();
 					tiles[x][y] = tile;
-					BG_DrawTile(bg, tile,
-							x * TILE_SIZE,
+					BG_DrawTile(bg, tile, x * TILE_SIZE,
 							y * TILE_SIZE, true);
 				}
 			}
 		}
 	}
 
+	return true;
+}
+
+static void sceneUpdate() {
+	if (BG_IsUpdating(bg)) return;
+
+	u32 kDown = hidKeysDown();
+	u32 kHeld = hidKeysHeld();
+
+	if (kDown & KEY_B) {
+		Scene_SetNext(sceneTitle, Title_MakeParams());
+		return;
+	}
+
+	if (kHeld & KEY_CPAD_LEFT || kHeld & KEY_CSTICK_LEFT)
+		scroll -= SCROLL_UNIT;
+	if (kHeld & KEY_CPAD_RIGHT || kHeld & KEY_CSTICK_RIGHT)
+		scroll += SCROLL_UNIT;
+	scroll = clamp(scroll, 0, LEVEL_MAX_WIDTH - 320);
+
+	if (kDown & KEY_L || kDown & KEY_ZR) par--;
+	if (kDown & KEY_ZL || kDown & KEY_R) par++;
+
 	if (kDown & KEY_A) {
 		exportLevel();
 		Scene_SetNext(sceneTitle, Title_MakeParams());
 		return;
 	}
+
+	Dispatcher_DispatchEvent(touchDispatcher, NULL);
 
 	Text_SetContent(infoText, "Par: %i", par);
 }
@@ -237,12 +218,13 @@ static void drawRectOutline(int x, int y, int width, int height, u32 color, int 
 
 static void sceneDraw() {
 	BG_UpdateGraphics(bg);
-	BG_UpdateGraphics(tileSelectorBG);
-
+	TileSelector_UpdateGraphics();
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
 	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
+
+	TileSelector_Draw(1);
 
 	C2D_ViewTranslate(-scroll, 0);
 
@@ -257,19 +239,15 @@ static void sceneDraw() {
 	C2D_TargetClear(top, COLOR_WHITE);
 	C2D_SceneBegin(top);
 
-	BG_Draw(tileSelectorBG, 2, 2, 0, 1, 1);
-	drawRectOutline((selectedTileSprite - FIRST_TILE_SPRITE) * (TILE_SIZE+2) + 1,
-			selectedTileOrientation * (TILE_SIZE+2) + 1,
-			TILE_SIZE + 2, TILE_SIZE + 2, COLOR_DRED, 1);
-
 	C2D_DrawText(&infoText->text, 0, 10, 210, 0, 0.5, 0.5);
 }
 
 static void sceneExit() {
-	if (bg) BG_Free(bg);
-	if (tileSelectorBG) BG_Free(tileSelectorBG);
-	if (tiles) free(tiles);
-	if (infoText) Text_Free(infoText);
+	BG_Free(bg);
+	free(tiles);
+	Text_Free(infoText);
+	Dispatcher_Free(touchDispatcher);
+	TileSelector_Exit();
 }
 
 Scene sceneEditor = &(struct scene) {
