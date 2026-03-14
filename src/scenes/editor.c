@@ -15,6 +15,7 @@
 #include "../projectiles/ball.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
+#include "../util/keychars.h"
 #include "../levelio.h"
 
 #define HOLE_WIDTH (TILE_SIZE * 2)
@@ -35,6 +36,9 @@ static unsigned int level;
 static enum { INDIV, FILL } brushType;
 
 static Text infoText;
+static C2D_Text controlsText1, controlsText2;
+static C2D_TextBuf textBuf;
+
 static Dispatcher touchDispatcher;
 
 Scene_Params Editor_MakeParams(unsigned int level) {
@@ -96,6 +100,21 @@ static bool sceneInit(Scene_Params params) {
 	infoText = Text_Create(50, NULL);
 	if (!infoText) goto failed;
 
+	textBuf = C2D_TextBufNew(256);
+	if (!textBuf) goto failed;
+	C2D_TextParse(&controlsText1, textBuf,
+			KEYCHAR_A ": Save and exit\n"
+			KEYCHAR_B ": Exit without saving\n"
+			KEYCHAR_L ", " KEYCHAR_R ": Switch brush"
+		);
+	C2D_TextParse(&controlsText2, textBuf,
+			KEYCHAR_DPAD "←, →: Change par\n"
+			KEYCHAR_DPAD "↑ (hold) + touchscreen: Move ball\n"
+			KEYCHAR_DPAD "↓ (hold) + touchscreen: Move hole"
+		);
+	C2D_TextOptimize(&controlsText1);
+	C2D_TextOptimize(&controlsText2);
+
 	if (!TileSelector_Init(Tile_Make(SPRITE_SKY, 0))) goto failed;
 
 	touchDispatcher = Dispatcher_Create();
@@ -115,6 +134,7 @@ failed:
 	if (tiles) free(tiles);
 	if (infoText) Text_Free(infoText);
 	if (touchDispatcher) Dispatcher_Free(touchDispatcher);
+	if (textBuf) C2D_TextBufDelete(textBuf);
 	return false;
 }
 
@@ -252,6 +272,8 @@ static void sceneDraw() {
 
 	BG_DrawFit(bg, 0, 0, 0, 400, 240);
 
+	C2D_DrawText(&controlsText1, 0, 10, 20, 0, 0.5, 0.5);
+	C2D_DrawText(&controlsText2, 0, 160, 20, 0, 0.5, 0.5);
 	C2D_DrawText(&infoText->text, 0, 10, 180, 0, 0.5, 0.5);
 }
 
@@ -261,6 +283,7 @@ static void sceneExit() {
 	Text_Free(infoText);
 	Dispatcher_Free(touchDispatcher);
 	TileSelector_Exit();
+	C2D_TextBufDelete(textBuf);
 }
 
 Scene sceneEditor = &(struct scene) {
