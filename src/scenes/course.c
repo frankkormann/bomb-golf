@@ -19,7 +19,6 @@
 #include "../util/macros.h"
 #include "../levelio.h"
 
-#define NUM_LEVELS 5
 #define LAUNCH_SPEED_MAX 6
 #define TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR 0.05
 
@@ -281,10 +280,6 @@ static void checkLaunchInput() {
 
 static void nextLevel() {
 	level++;
-	if (!isSdmc && level > NUM_LEVELS) {
-		Scene_SetNext(sceneTitle, Title_MakeParams());
-		return;
-	}
 	Scene_SetNext(sceneCourse, Course_MakeParams(level, isSdmc));
 }
 

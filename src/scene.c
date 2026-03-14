@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include "scene.h"
 #include "scenes/scene_internal.h"
+#include "scenes/title.h"
 #include "rendering/animation.h"
 
 static Scene sceneCurrent;
@@ -17,8 +18,12 @@ void Scene_Update() {
 	if (sceneNext) {
 		Scene_Exit();
 		Animation_Clear(false);
-		Scene_Start(sceneNext, nextParams);
-		sceneNext = NULL;
+		if (!Scene_Start(sceneNext, nextParams)
+				&& sceneNext != sceneTitle) {
+			Scene_SetNext(sceneTitle, Title_MakeParams());
+		} else {
+			sceneNext = NULL;
+		}
 	}
 	if (sceneCurrent) sceneCurrent->update();
 }
