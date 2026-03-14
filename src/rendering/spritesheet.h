@@ -41,7 +41,7 @@ typedef enum {
 	SPRITE_FIREWORK_11,
 	SPRITE_FIREWORK_12,
 
-	NUM_SPRITES
+	SPRITE_BUTTON_EXPAND
 } SpriteSheet_Sprite;
 
 void SpriteSheet_Init();

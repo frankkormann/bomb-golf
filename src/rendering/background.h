@@ -64,4 +64,11 @@ bool BG_IsUpdating(Background bg);
 void BG_Draw(Background bg, float x, float y, float depth, float scaleX,
 		float scaleY);
 
+/*
+ * Scales and translates bg to draw it centered in the region bounded by (x, y)
+ * and (x + maxWidth, y + maxHeight)
+ */
+void BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
+		float maxHeight);
+
 #endif

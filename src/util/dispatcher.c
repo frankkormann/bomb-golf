@@ -38,7 +38,7 @@ bool Dispatcher_AddHandler(Dispatcher dispatcher, Dispatcher_Handler newHandler)
 	new->handler = newHandler;
 
 	ListNode *pointerToCurrent = &dispatcher->firstHandler;
-	while (*pointerToCurrent != NULL) {
+	while (*pointerToCurrent) {
 		if ((*pointerToCurrent)->handler.priority < newHandler.priority) {
 			break;
 		}
@@ -51,9 +51,24 @@ bool Dispatcher_AddHandler(Dispatcher dispatcher, Dispatcher_Handler newHandler)
 	return true;
 }
 
-void Dispatcher_DispatchEvent(Dispatcher dispatcher, void *param) {
+void Dispatcher_RemoveHandler(Dispatcher dispatcher, Dispatcher_Handler handler) {	ListNode *pointerToCurrent = &dispatcher->firstHandler;
+	while (*pointerToCurrent) {
+		Dispatcher_Handler curHandler = (*pointerToCurrent)->handler;
+		if (curHandler.handleParam == handler.handleParam
+				&& curHandler.handle == handler.handle) {
+			ListNode toBeFreed = *pointerToCurrent;
+			*pointerToCurrent = toBeFreed->next;
+			free(toBeFreed);
+			break;
+		}
+		pointerToCurrent = &(*pointerToCurrent)->next;
+	}
+}
+
+void Dispatcher_DispatchEvent(Dispatcher dispatcher) {
 	// Handlers are stored in priority order
 	for (ListNode node = dispatcher->firstHandler; node; node = node->next) {
-		if (node->handler.handle(param)) break;
+		Dispatcher_Handler handler = node->handler;
+		if (handler.handle(handler.handleParam)) break;
 	}
 }

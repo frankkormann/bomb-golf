@@ -365,15 +365,7 @@ static void sceneDraw() {
 	C2D_TargetClear(top, COLOR_WHITE);
 	C2D_SceneBegin(top);
 
-	float scale = 400.0 / fieldWidth;
-	float bgY = 120 - (LEVEL_HEIGHT * scale) / 2;
-	BG_Draw(bg, 0, bgY, 0, scale, scale);
-
-	if (!Projectile_IsMoving()) {
-		float x, y;
-		Projectile_GetPos(&x, &y);
-		C2D_DrawRectSolid(x * scale, bgY + y * scale, 1, 2, 2, COLOR_WHITE);
-	}
+	BG_DrawFit(bg, 0, 0, 0, 400, 240);
 
 	C2D_DrawText(&infoText->text, 0, 10, 20, 0, 0.5, 0.5);
 }

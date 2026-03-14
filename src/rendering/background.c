@@ -175,3 +175,22 @@ void BG_Draw(Background bg, float x, float y, float depth, float scaleX,
 	C2D_Image img = { &bg->tex, &bg->subtex };
 	C2D_DrawImageAt(img, x, y, depth, NULL, scaleX, scaleY);
 }
+
+void BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
+		float maxHeight) {
+	float widthScale = maxWidth / bg->subtex.width;
+	float heightScale = maxHeight / bg->subtex.height;
+
+	float scale, newX, newY;
+	if (widthScale < heightScale) {
+		scale = widthScale;
+		newX = x;
+		newY = y + maxHeight/2 - (bg->subtex.height * scale)/2;
+	} else {
+		scale = heightScale;
+		newX = x + maxWidth/2 - (bg->subtex.width * scale)/2;
+		newY = y;
+	}
+
+	BG_Draw(bg, newX, newY, depth, scale, scale);
+}

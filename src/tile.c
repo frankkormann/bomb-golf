@@ -7,7 +7,6 @@ Tile_Hitbox spriteToHitbox(SpriteSheet_Sprite sprite) {
 		case SPRITE_BALL:
 		case SPRITE_BOMB:
 		case SPRITE_SKY:
-		case NUM_SPRITES:
 			return TILE_HITBOX_NONE;
 		case SPRITE_DIRT:
 		case SPRITE_DIRT_INTERNAL:

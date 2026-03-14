@@ -32,8 +32,9 @@ static int projX, projY;
 static int par;
 static unsigned int level;
 
-static Text infoText;
+static enum { INDIV, FILL } brushType;
 
+static Text infoText;
 static Dispatcher touchDispatcher;
 
 Scene_Params Editor_MakeParams(unsigned int level) {
@@ -100,11 +101,12 @@ static bool sceneInit(Scene_Params params) {
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto failed;
 	Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
-			.priority = 0, .handle = handleTouchInput });
+			.priority = 0, NULL, handleTouchInput });
 	TileSelector_RegisterForTouchEvents(touchDispatcher, 1);
 
 	scroll = 0;
 	level = params.editor.level;
+	brushType = INDIV;
 
 	return true;
 
@@ -136,6 +138,11 @@ static bool exportLevel() {
 			par);
 }
 
+static void changeTile(int tileX, int tileY, Tile newTile) {
+	tiles[tileX][tileY] = newTile;
+	BG_DrawTile(bg, newTile, tileX * TILE_SIZE, tileY * TILE_SIZE, true);
+}
+
 // ignored param is to match the signature of Dispatcher_Handler
 static bool handleTouchInput(void *ignored) {
 	u32 kHeld = hidKeysHeld();
@@ -146,13 +153,13 @@ static bool handleTouchInput(void *ignored) {
 		int tileX = courseX / TILE_SIZE;
 		int tileY = courseY / TILE_SIZE;
 
-		if (kHeld & KEY_CPAD_DOWN) {
+		if (kHeld & KEY_DDOWN) {
 			holeX = tileX * TILE_SIZE;
 			holeY = tileY * TILE_SIZE;
-		} else if (kHeld & KEY_CPAD_UP) {
+		} else if (kHeld & KEY_DUP) {
 			projX = tileX * TILE_SIZE + (TILE_SIZE / 2);
 			projY = tileY * TILE_SIZE + (TILE_SIZE / 2);
-		} else {
+		} else if (brushType == FILL) {
 			int tileX2 = (TouchInput_GetSwipe().start.px + scroll)
 					/ TILE_SIZE;
 			int tileY2 = (TouchInput_GetSwipe().start.py)
@@ -164,12 +171,11 @@ static bool handleTouchInput(void *ignored) {
 
 			for (int x = startX; x <= endX; x++) {
 				for (int y = startY; y <= endY; y++) {
-					Tile tile=TileSelector_GetTile();
-					tiles[x][y] = tile;
-					BG_DrawTile(bg, tile, x * TILE_SIZE,
-							y * TILE_SIZE, true);
+					changeTile(x, y, TileSelector_GetTile());
 				}
 			}
+		} else if (brushType == INDIV) {
+			changeTile(tileX, tileY, TileSelector_GetTile());
 		}
 	}
 
@@ -193,8 +199,12 @@ static void sceneUpdate() {
 		scroll += SCROLL_UNIT;
 	scroll = clamp(scroll, 0, LEVEL_MAX_WIDTH - 320);
 
-	if (kDown & KEY_L || kDown & KEY_ZR) par--;
-	if (kDown & KEY_ZL || kDown & KEY_R) par++;
+	if (kDown & KEY_DLEFT) par--;
+	if (kDown & KEY_DRIGHT) par++;
+
+	if (kDown & KEY_L || kDown & KEY_R) {
+		brushType = brushType == INDIV ? FILL : INDIV;
+	}
 
 	if (kDown & KEY_A) {
 		exportLevel();
@@ -202,9 +212,10 @@ static void sceneUpdate() {
 		return;
 	}
 
-	Dispatcher_DispatchEvent(touchDispatcher, NULL);
+	Dispatcher_DispatchEvent(touchDispatcher);
 
-	Text_SetContent(infoText, "Par: %i", par);
+	Text_SetContent(infoText, "Par: %i\nBrush: %s", par,
+			brushType == INDIV ? "Pencil" : "Rectangle");
 }
 
 static void drawRectOutline(int x, int y, int width, int height, u32 color, int 		outlineWidth) {
@@ -239,7 +250,9 @@ static void sceneDraw() {
 	C2D_TargetClear(top, COLOR_WHITE);
 	C2D_SceneBegin(top);
 
-	C2D_DrawText(&infoText->text, 0, 10, 210, 0, 0.5, 0.5);
+	BG_DrawFit(bg, 0, 0, 0, 400, 240);
+
+	C2D_DrawText(&infoText->text, 0, 10, 180, 0, 0.5, 0.5);
 }
 
 static void sceneExit() {
