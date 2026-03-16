@@ -10,10 +10,12 @@
 #include "../../util/touchinput.h"
 #include "../../util/macros.h"
 
-#define HOTBAR_LENGTH NUM_TILES
+#define HOTBAR_LENGTH 22
 
-#define TILE_MARGIN 2
-#define ICONS_WIDTH (NUM_TILES * (TILE_SIZE + TILE_MARGIN) - TILE_MARGIN)
+#define TILE_MARGIN 3
+#define HOTBAR_WIDTH (HOTBAR_LENGTH * (TILE_SIZE + TILE_MARGIN) - TILE_MARGIN)
+
+#define POPUP_WIDTH (NUM_TILES * (TILE_SIZE + TILE_MARGIN) - TILE_MARGIN)
 #define POPUP_HEIGHT (8 * (TILE_SIZE + TILE_MARGIN) - TILE_MARGIN)
 
 static enum { HOTBAR, POPUP_MENU } mode;
@@ -28,19 +30,19 @@ static void toggleMode() {
 }
 
 bool TileSelector_Init(Tile defaultTile) {
-	hotbarBg = BG_Create(ICONS_WIDTH, TILE_SIZE, COLOR_BLUE);
+	hotbarBg = BG_Create(HOTBAR_WIDTH, TILE_SIZE, COLOR_BLUE);
 	if (!hotbarBg) goto fail_hotbarBg;
 
-	popupBg = BG_Create(ICONS_WIDTH, POPUP_HEIGHT, COLOR_BLUE);
+	popupBg = BG_Create(POPUP_WIDTH, POPUP_HEIGHT, COLOR_BLUE);
 	if (!popupBg) goto fail_popupBg;
 
-	expandButton = Button_Create(ICONS_WIDTH + 2*TILE_MARGIN, TILE_MARGIN,
+	expandButton = Button_Create(HOTBAR_WIDTH + 2*TILE_MARGIN, TILE_MARGIN,
 			SPRITE_BUTTON_EXPAND, toggleMode);
 	if (!expandButton) goto fail_expandButton;
 
 	mode = HOTBAR;
 
-	for (size_t i = 0; i < HOTBAR_LENGTH; i++) {
+	for (size_t i = 0; i < NUM_TILES; i++) {
 		hotbar[i] = Tile_Make(i, 0);
 		BG_DrawTile(
 				hotbarBg,
@@ -64,6 +66,17 @@ bool TileSelector_Init(Tile defaultTile) {
 		}
 	}
 
+	for (size_t i = NUM_TILES; i < HOTBAR_LENGTH; i++) {
+		hotbar[i] = Tile_Make(SPRITE_TILE_SKY, 0);
+		BG_DrawTile(
+				hotbarBg,
+				hotbar[i],
+				i * (TILE_SIZE + TILE_MARGIN),
+				0,
+				false
+			);
+	}
+
 	return true;
 
 fail_expandButton:
@@ -84,14 +97,14 @@ static bool touchWithinBounds(touchPosition touch) {
 	switch (mode) {
 		case HOTBAR:
 			return touch.px >= TILE_MARGIN
-				&& touch.px < TILE_MARGIN + ICONS_WIDTH
+				&& touch.px < TILE_MARGIN + HOTBAR_WIDTH
 				&& touch.py >= TILE_MARGIN
 				&& touch.py < TILE_MARGIN + TILE_SIZE;
 		case POPUP_MENU:
 			return touch.px >= TILE_MARGIN
-				&& touch.px < TILE_MARGIN + ICONS_WIDTH
-				&& touch.py >= TILE_MARGIN
-				&& touch.py < 2*TILE_MARGIN+TILE_SIZE + POPUP_HEIGHT;
+				&& touch.px < TILE_MARGIN + POPUP_WIDTH
+				&& touch.py >= TILE_SIZE + 2*TILE_MARGIN
+				&& touch.py < TILE_SIZE+2*TILE_MARGIN + POPUP_HEIGHT;
 	}
 	return false;
 }
@@ -179,13 +192,17 @@ static void drawRectOutline(float x, float y, float depth, float width, float he
 
 static void drawHotbar(float depth) {
 	BG_Draw(hotbarBg, TILE_MARGIN, TILE_MARGIN, depth, 1, 1);
+	C2D_Image overlay = SpriteSheet_GetImage(SPRITE_HOTBAR_OVERLAY);
+	C2D_DrawImageAt(overlay, 1, 1, depth, NULL, 1, 1);
 	drawRectOutline(
-			selectedHotbarIndex * (TILE_SIZE + TILE_MARGIN) + 1,	
-			1,
+			selectedHotbarIndex * (TILE_SIZE + TILE_MARGIN)
+					+ TILE_MARGIN - 1,
+			TILE_MARGIN -1,
 			depth,
-			TILE_SIZE + TILE_MARGIN,
-			TILE_SIZE + TILE_MARGIN,
-			COLOR_DRED, 1
+			TILE_SIZE + 2,
+			TILE_SIZE + 2,
+			COLOR_DRED,
+			1
 		);
 }
 
