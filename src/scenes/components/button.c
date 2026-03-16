@@ -64,14 +64,5 @@ void Button_RemoveFromTouchDispatcher(Button button, Dispatcher touchDispatcher)
 
 void Button_Draw(Button button, float depth) {
 	C2D_Image iconImg = SpriteSheet_GetImage(button->icon);
-	SpriteSheet_Draw(
-			button->icon,
-			button->x + iconImg.subtex->width/2,
-			button->y + iconImg.subtex->height/2,
-			depth,
-			0,
-			false,
-			false,
-			NULL
-		);
+	C2D_DrawImageAt(iconImg, button->x, button->y, depth, NULL, 1, 1);
 }
