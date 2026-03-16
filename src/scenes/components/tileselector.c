@@ -41,17 +41,26 @@ bool TileSelector_Init(Tile defaultTile) {
 	mode = HOTBAR;
 
 	for (size_t i = 0; i < HOTBAR_LENGTH; i++) {
-		hotbar[i] = Tile_Make(i + FIRST_TILE_SPRITE, 0);
-		BG_DrawTile(hotbarBg, hotbar[i], i * (TILE_SIZE + TILE_MARGIN), 0,
-				false);
+		hotbar[i] = Tile_Make(i, 0);
+		BG_DrawTile(
+				hotbarBg,
+				hotbar[i],
+				i * (TILE_SIZE + TILE_MARGIN),
+				0,
+				false
+			);
 		for (int orientation = 0; orientation < 8; orientation++) {
-			Tile tile = Tile_Make(i + FIRST_TILE_SPRITE, orientation);
+			Tile tile = Tile_Make(i, orientation);
 			if (tile == defaultTile) {
 				selectedHotbarIndex = i;
 			}
-			BG_DrawTile(popupBg, tile, i * (TILE_SIZE + TILE_MARGIN),
+			BG_DrawTile(
+					popupBg,
+					tile,
+					i * (TILE_SIZE + TILE_MARGIN),
 					orientation * (TILE_SIZE + TILE_MARGIN),
-					false);
+					false
+				);
 		}
 	}
 
@@ -107,7 +116,7 @@ static bool handleTouchInputPopup() {
 		selectedHotbarIndex = (touch.end.px - TILE_MARGIN)
 				/ (TILE_SIZE + TILE_MARGIN);
 		Tile selectedTile = Tile_Make(
-				selectedHotbarIndex + FIRST_TILE_SPRITE,
+				selectedHotbarIndex,
 				(touch.end.py - 2*TILE_MARGIN - TILE_SIZE)
 					/ (TILE_SIZE + TILE_MARGIN)
 			);

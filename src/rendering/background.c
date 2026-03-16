@@ -89,7 +89,9 @@ void BG_Free(Background bg) {
 
 bool BG_DrawTile(Background bg, Tile tile, int x, int y, bool clearPrevious) {
 	if (clearPrevious) {
-		if (!BG_DrawTile(bg, Tile_Make(SPRITE_SKY, 0), x, y, false)) return false;
+		if (!BG_DrawTile(bg, Tile_Make(SPRITE_TILE_SKY, 0), x, y, false)) {
+			return false;
+		}
 	}
 
 	RenderObj *o = malloc(sizeof(*o));
@@ -122,13 +124,17 @@ void drawPoint(RenderPoint point) {
 }
 
 void drawTile(RenderTile tile, u32 backgroundColor) {
-	SpriteSheet_Sprite sprite = Tile_GetSprite(tile.type);
+	SpriteSheet_TileSprite sprite = Tile_GetSprite(tile.type);
 	u8 orientation = Tile_GetOrientFlags(tile.type);
-	SpriteSheet_Draw(sprite, tile.x + TILE_SIZE / 2, tile.y + TILE_SIZE / 2, 0,
+	SpriteSheet_DrawTile(
+			sprite,
+			tile.x,
+			tile.y,
+			0,
 			orientation & TILE_ROTATE_90 ? M_PI / 2 : 0,
 			orientation & TILE_FLIP_HORIZ,
-			orientation & TILE_FLIP_VERT,
-			NULL);
+			orientation & TILE_FLIP_VERT
+		);
 }
 
 void BG_ClearAll(Background bg) {

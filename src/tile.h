@@ -12,10 +12,6 @@
 // Width and height
 #define TILE_SIZE 10
 
-// Index of the first sprite for tiles
-#define FIRST_TILE_SPRITE SPRITE_DIRT
-#define NUM_TILES (SPRITE_FIREWORK_1 - FIRST_TILE_SPRITE)
-
 typedef enum {
 	/*               *
 	 *               *
@@ -48,9 +44,9 @@ typedef enum {
 
 typedef u16 Tile;
 
-Tile Tile_Make(SpriteSheet_Sprite sprite, Tile_OrientFlags flags);
+Tile Tile_Make(SpriteSheet_TileSprite sprite, Tile_OrientFlags flags);
 
-SpriteSheet_Sprite Tile_GetSprite(Tile tile);
+SpriteSheet_TileSprite Tile_GetSprite(Tile tile);
 Tile_Hitbox Tile_GetHitbox(Tile tile);
 u8 Tile_GetOrientFlags(Tile tile);
 

@@ -197,7 +197,7 @@ static bool loadLevel(char path[]) {
 		for (int y = 0; y < LEVEL_HEIGHT / TILE_SIZE; y++)  {
 			setTerrainForTile(tiles[x][y], x*TILE_SIZE,
 					y*TILE_SIZE);
-			if (Tile_GetSprite(tiles[x][y]) != SPRITE_SKY) {
+			if (Tile_GetSprite(tiles[x][y]) != SPRITE_TILE_SKY) {
 				BG_DrawTile(bg, tiles[x][y], x*TILE_SIZE,
 						y*TILE_SIZE, false);
 			}

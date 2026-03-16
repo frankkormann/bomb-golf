@@ -7,26 +7,9 @@
 
 #include <citro2d.h>
 
-// These values are written directly into level files, so be careful when
-// reassigning or removing them
 typedef enum {
 	SPRITE_BALL,
 	SPRITE_BOMB,
-	SPRITE_DIRT,
-	SPRITE_DIRT_INTERNAL,
-	SPRITE_DIRT_TRIANGLE,
-	SPRITE_DIRT_HALF,
-	SPRITE_GRASS,
-	SPRITE_GRASS_HALF,
-	SPRITE_GRASS_TRIANGLE_1,
-	SPRITE_GRASS_TRIANGLE_2,
-	SPRITE_GRASS_TRIANGLE_FILLER,
-	SPRITE_SKY,
-	SPRITE_TREE,
-	SPRITE_LEAVES,
-	SPRITE_LEAVES_HALF,
-	SPRITE_HOLE_WALL,
-	SPRITE_HOLE_WALL_TRIANGLE,
 
 	SPRITE_FIREWORK_1,
 	SPRITE_FIREWORK_2,
@@ -44,12 +27,46 @@ typedef enum {
 	SPRITE_BUTTON_EXPAND
 } SpriteSheet_Sprite;
 
+// These values are written directly into level files, so be careful when
+// reassigning or removing them
+typedef enum {
+	SPRITE_TILE_DIRT,
+	SPRITE_TILE_DIRT_INTERNAL,
+	SPRITE_TILE_DIRT_TRIANGLE,
+	SPRITE_TILE_DIRT_HALF,
+	SPRITE_TILE_GRASS,
+	SPRITE_TILE_GRASS_HALF,
+	SPRITE_TILE_GRASS_TRIANGLE_1,
+	SPRITE_TILE_GRASS_TRIANGLE_2,
+	SPRITE_TILE_GRASS_TRIANGLE_FILLER,
+	SPRITE_TILE_SKY,
+	SPRITE_TILE_TREE,
+	SPRITE_TILE_LEAVES,
+	SPRITE_TILE_LEAVES_HALF,
+	SPRITE_TILE_HOLE_WALL,
+	SPRITE_TILE_HOLE_WALL_TRIANGLE,
+
+	NUM_TILES
+} SpriteSheet_TileSprite;
+
 void SpriteSheet_Init();
 void SpriteSheet_Exit();
 
 C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite);
 
+/*
+ * Note: (x, y) is the center of the sprite
+ *
+ * For SPRITE_BOMB, the "center" is offset vertically to match the visual
+ * center of mass.
+ */
 void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
-		float angle, bool flipHoriz, bool flipVert, C2D_ImageTint *tint);
+		float angle, bool flipHoriz, bool flipVert);
+
+/*
+ * Note: (x, y) is the top-left corner of the tile
+ */
+void SpriteSheet_DrawTile(SpriteSheet_TileSprite tile, float x, float y, float depth,
+		float angle, bool flipHoriz, bool flipVert);
 
 #endif

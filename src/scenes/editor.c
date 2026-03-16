@@ -67,7 +67,7 @@ static bool sceneInit(Scene_Params params) {
 
 		for (int x = width / TILE_SIZE; x < LEVEL_MAX_WIDTH_TILES; x++) {
 			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
-				tiles[x][y] = Tile_Make(SPRITE_SKY, 0);
+				tiles[x][y] = Tile_Make(SPRITE_TILE_SKY, 0);
 			}
 		}
 
@@ -88,7 +88,7 @@ static bool sceneInit(Scene_Params params) {
 
 		for (int x = 0; x < LEVEL_MAX_WIDTH_TILES; x++) {
 			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
-				tiles[x][y] = Tile_Make(SPRITE_SKY, 0);
+				tiles[x][y] = Tile_Make(SPRITE_TILE_SKY, 0);
 			}
 		}
 
@@ -115,7 +115,7 @@ static bool sceneInit(Scene_Params params) {
 	C2D_TextOptimize(&controlsText1);
 	C2D_TextOptimize(&controlsText2);
 
-	if (!TileSelector_Init(Tile_Make(SPRITE_SKY, 0))) goto failed;
+	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_SKY, 0))) goto failed;
 
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto failed;
@@ -148,7 +148,7 @@ static bool exportLevel() {
 	int tilesMaxX = 0;
 	for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
 		for (int x = tilesMaxX; x < LEVEL_MAX_WIDTH_TILES; x++) {
-			if (Tile_GetSprite(tiles[x][y]) != SPRITE_SKY) {
+			if (Tile_GetSprite(tiles[x][y]) != SPRITE_TILE_SKY) {
 				tilesMaxX = x;
 			}
 		}
@@ -261,7 +261,7 @@ static void sceneDraw() {
 
 	BG_Draw(bg, 0, 0, -1, 1, 1);
 	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
-	SpriteSheet_Draw(SPRITE_BALL, projX, projY, 0.5, 0, false, false, NULL);
+	SpriteSheet_Draw(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
 
 	C2D_ViewReset();
 
