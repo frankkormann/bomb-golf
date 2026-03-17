@@ -1,0 +1,16 @@
+--atlas -f rgba8888 -z auto
+tiles/dirt.png
+tiles/dirt_internal.png
+tiles/dirt_triangle.png
+tiles/dirt_half.png
+tiles/grass.png
+tiles/grass_half.png
+tiles/grass_triangle_1.png
+tiles/grass_triangle_2.png
+tiles/grass_triangle_filler.png
+tiles/sky.png
+tiles/tree.png
+tiles/leaves.png
+tiles/leaves_half.png
+tiles/hole_wall.png
+tiles/hole_wall_triangle.png

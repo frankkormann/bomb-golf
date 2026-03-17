@@ -1,0 +1,18 @@
+--atlas -f rgba8888 -z auto
+ball.png
+bomb.png
+firework/firework1.png
+firework/firework2.png
+firework/firework3.png
+firework/firework4.png
+firework/firework5.png
+firework/firework6.png
+firework/firework7.png
+firework/firework8.png
+firework/firework9.png
+firework/firework10.png
+firework/firework11.png
+firework/firework12.png
+button_expand.png
+button_shrink.png
+hotbar_overlay.png
