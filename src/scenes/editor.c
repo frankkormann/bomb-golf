@@ -272,8 +272,8 @@ static void sceneDraw() {
 
 	BG_DrawFit(bg, 0, 0, 0, 400, 240);
 
-	C2D_DrawText(&controlsText1, 0, 10, 20, 0, 0.5, 0.5);
-	C2D_DrawText(&controlsText2, 0, 160, 20, 0, 0.5, 0.5);
+	C2D_DrawText(&controlsText1, 0, 10, 14, 0, 0.5, 0.5);
+	C2D_DrawText(&controlsText2, 0, 160, 14, 0, 0.5, 0.5);
 	C2D_DrawText(&infoText->text, 0, 10, 180, 0, 0.5, 0.5);
 }
 
