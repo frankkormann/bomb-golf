@@ -31,7 +31,8 @@ include $(DEVKITARM)/3ds_rules
 #     - icon.png
 #     - <libctru folder>/default_icon.png
 #---------------------------------------------------------------------------------
-TARGET		:=	$(notdir $(CURDIR))
+OUT		:=	out
+TARGET		:=	$(OUT)/$(notdir $(CURDIR))
 BUILD		:=	build
 SOURCES		:=	src $(dir $(wildcard src/*/))  $(dir $(wildcard src/*/*/))
 DATA		:=	data
@@ -179,7 +180,7 @@ endif
 .PHONY: all 3dsx cia clean cleanall
 
 #---------------------------------------------------------------------------------
-DEPS = $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(T3XHFILES)
+DEPS = $(BUILD) $(OUT) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(T3XHFILES)
 
 3dsx: $(DEPS)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile $(OUTPUT).3dsx
@@ -198,6 +199,9 @@ endif
 $(BUILD):
 	@mkdir -p $@
 
+$(OUT):
+	@mkdir -p $@
+
 ifneq ($(GFXBUILD),$(BUILD))
 $(GFXBUILD):
 	@mkdir -p $@
@@ -209,9 +213,13 @@ $(DEPSDIR):
 endif
 
 #---------------------------------------------------------------------------------
+cleanall:
+	@echo clean all ...
+	@rm -fr $(BUILD) $(OUT) $(GFXBUILD)
+
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).3dsx $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD)
+	@rm -fr $(BUILD) $(OUTPUT).smdh $(TARGET).elf $(GFXBUILD)
 
 #---------------------------------------------------------------------------------
 $(GFXBUILD)/%.t3x	$(BUILD)/%.h	:	%.t3s
