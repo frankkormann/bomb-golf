@@ -40,6 +40,17 @@ GRAPHICS	:=	gfx
 ROMFS		:=	romfs
 GFXBUILD	:=	$(ROMFS)/gfx
 
+APP_TITLE	:=	Bomb Golf
+APP_AUTHOR	:=	Frank Kormann
+ICON		:=	icon.png
+BANNER_IMAGE	:=	banner/image.png
+BANNER_AUDIO	:=	banner/audio.wav
+RSF		:=	rom_specs.rsf
+
+VER_MAJOR	:=	0
+VER_MINOR	:=	1
+VER_MICRO	:=	0
+
 #---------------------------------------------------------------------------------
 # options for 3dslink
 #---------------------------------------------------------------------------------
@@ -54,6 +65,10 @@ CFLAGS	:=	-Wall -Wextra -O3 -mword-relocations -ffunction-sections \
 			$(ARCH) -std=c99 -Wno-unused-parameter
 
 CFLAGS	+=	$(INCLUDE) -D__3DS__
+
+ifdef IS_CIA
+	CFLAGS += -D_CIA
+endif
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
@@ -161,15 +176,20 @@ ifneq ($(ROMFS),)
 	export _3DSXFLAGS += --romfs=$(CURDIR)/$(ROMFS)
 endif
 
-.PHONY: all clean
+.PHONY: all 3dsx cia clean cleanall
 
 #---------------------------------------------------------------------------------
-all: $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(T3XHFILES)
-	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+DEPS = $(BUILD) $(GFXBUILD) $(DEPSDIR) $(ROMFS_T3XFILES) $(T3XHFILES)
 
-3dslink: all
+3dsx: $(DEPS)
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile $(OUTPUT).3dsx
+
+cia: $(DEPS)
+	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile $(OUTPUT).cia IS_CIA=true
+
+3dslink: 3dsx
 ifndef 3DS_IP
-	@echo "missing argument: need `3DS_IP='"
+	@echo "missing argument: need '3DS_IP='"
 else
 	@echo connecting to $(3DS_IP) ...
 	@3dslink -a $(3DS_IP) $(OUTPUT).3dsx
@@ -205,11 +225,26 @@ else
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
+$(OUTPUT).cia	:	$(OUTPUT).elf banner.bnr icon.icn $(TOPDIR)/$(RSF)
+	@makerom -f cia -o $(OUTPUT).cia -target t -elf $(OUTPUT).elf \
+		-icon icon.icn -banner banner.bnr \
+		-rsf $(TOPDIR)/$(RSF) -DROMFS=$(TOPDIR)/$(ROMFS) \
+		$(if $(VER_MAJOR), -major $(VER_MAJOR)) \
+		$(if $(VER_MINOR), -minor $(VER_MINOR)) \
+		$(if $(VER_MICRO), -micro $(VER_MICRO))
+	@echo built ... $(notdir $(OUTPUT)).cia
+
 $(OUTPUT).3dsx	:	$(OUTPUT).elf $(_3DSXDEPS)
 
 $(OFILES_SOURCES) : $(HFILES)
 
 $(OUTPUT).elf	:	$(OFILES)
+
+banner.bnr	:
+	@bannertool makebanner -i $(TOPDIR)/$(BANNER_IMAGE) -a $(TOPDIR)/$(BANNER_AUDIO) -o banner.bnr > /dev/null
+
+icon.icn	:
+	@bannertool makesmdh -i $(APP_ICON) -s "$(APP_TITLE)" -l "$(APP_TITLE)" -p "$(APP_AUTHOR)" -o icon.icn > /dev/null
 
 #---------------------------------------------------------------------------------
 # you need a rule like this for each extension you use as binary data
