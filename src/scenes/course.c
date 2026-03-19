@@ -230,9 +230,8 @@ Scene_Params Course_MakeParams(unsigned int level, bool isSdmc) {
 }
 
 static bool sceneInit(Scene_Params params) {
-	char path[20];
-	sprintf(path, "%s:/level_%i.bin", params.course.isSdmc ? "sdmc" : "romfs",
-			params.course.level);
+	char path[LEVEL_PATH_MAX];
+	LevelIO_MakePath(params.course.level, params.course.isSdmc, path);
 	isSdmc = params.course.isSdmc;
 	if (!loadLevel(path)) return false;
 

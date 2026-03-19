@@ -20,6 +20,21 @@ int main() {
 	SpriteSheet_Init();
 	Scene_Start(sceneTitle, Title_MakeParams());
 
+#ifdef _CIA
+	Result res = archiveMount(ARCHIVE_SAVEDATA, fsMakePath(PATH_EMPTY, ""),
+			"save");
+	if (R_FAILED(res)) {
+		res = FSUSER_FormatSaveData(ARCHIVE_SAVEDATA,
+				fsMakePath(PATH_EMPTY, ""),
+				0x200, 0, 3, 3, 3, false);
+		if (R_FAILED(res)) return 1;
+		res = archiveMount(ARCHIVE_SAVEDATA, fsMakePath(PATH_EMPTY, ""),
+				"save");
+		if (R_FAILED(res)) return 1;
+		//TODO Have an error scene
+	}
+#endif
+
 	while (aptMainLoop()) {
 		hidScanInput();
 		TouchInput_Scan();
@@ -35,6 +50,11 @@ int main() {
 		Animation_Draw();
 		C3D_FrameEnd(0);
 	}
+
+#ifdef _CIA
+	archiveCommitSaveData("save");
+	archiveUnmount("save");
+#endif
 
 	Scene_Exit();
 	SpriteSheet_Exit();

@@ -54,8 +54,8 @@ static bool sceneInit(Scene_Params params) {
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!bg) goto failed;
 
-	char path[20];
-	sprintf(path, "sdmc:/level_%i.bin", params.editor.level);
+	char path[LEVEL_PATH_MAX];
+	LevelIO_MakePath(params.editor.level, true, path);
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	int width;
@@ -139,8 +139,8 @@ failed:
 }
 
 static bool exportLevel() {
-	char path[20];
-	sprintf(path, "sdmc:/level_%i.bin", level);
+	char path[LEVEL_PATH_MAX];
+	LevelIO_MakePath(level, true, path);
 
 	LevelIO_Hole hole = { holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT };
 	LevelIO_Proj proj = { projX, projY, projectileBall };
@@ -224,12 +224,14 @@ static void sceneUpdate() {
 
 	if (kDown & KEY_L || kDown & KEY_R) {
 		brushType = brushType == INDIV ? FILL : INDIV;
-	}
+	}	
 
 	if (kDown & KEY_A) {
-		exportLevel();
-		Scene_SetNext(sceneTitle, Title_MakeParams());
-		return;
+		if (exportLevel()) {
+			Scene_SetNext(sceneTitle, Title_MakeParams());
+			//TODO Have an error scene
+			return;
+		}
 	}
 
 	Dispatcher_DispatchEvent(touchDispatcher);

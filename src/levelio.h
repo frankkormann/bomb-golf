@@ -10,6 +10,8 @@
 #include "projectile.h"
 #include "tile.h"
 
+#define LEVEL_PATH_MAX 20
+
 #define LEVEL_HEIGHT 240
 #define LEVEL_MAX_WIDTH 1020
 
@@ -28,6 +30,12 @@ typedef struct {
 	int startY;
 	Projectile type;
 } LevelIO_Proj;
+
+/*
+ * Makes a level path suitable for passing to LevelIO_Read or LevelIO_Write and
+ * stores it in path. There must be room for at least LEVEL_PATH_MAX characters.
+ */
+void LevelIO_MakePath(int levelNum, bool isSdmc, char *path);
 
 /*
  * Reads the level file at path and fills in *proj, *width, and *tiles with the
