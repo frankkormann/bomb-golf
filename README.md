@@ -16,10 +16,15 @@ follow the instructions for the latest release. You will need to
 
 ## Building
 
-`make`
+`make 3dsx` or `make cia`
 
 ### Dependencies
 
 * [devkitPro](https://devkitpro.org/) for the 3DS
 * [citro2d](https://github.com/devkitPro/citro2d/) and
   [citro3d](https://github.com/devkitPro/citro3d/)
+
+To compile as `cia`:
+
+* [makerom](https://github.com/3DSGuy/Project_CTR/tree/master/makerom)
+* [bannertool](https://github.com/diasurgical/bannertool)
