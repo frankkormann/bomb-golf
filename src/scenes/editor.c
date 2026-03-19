@@ -55,7 +55,7 @@ static bool sceneInit(Scene_Params params) {
 	if (!bg) goto failed;
 
 	char path[LEVEL_PATH_MAX];
-	LevelIO_MakePath(params.editor.level, true, path);
+	LevelIO_MakePath(params.editor.level, false, path);
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	int width;
@@ -140,7 +140,7 @@ failed:
 
 static bool exportLevel() {
 	char path[LEVEL_PATH_MAX];
-	LevelIO_MakePath(level, true, path);
+	LevelIO_MakePath(level, false, path);
 
 	LevelIO_Hole hole = { holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT };
 	LevelIO_Proj proj = { projX, projY, projectileBall };

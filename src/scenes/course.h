@@ -9,7 +9,7 @@
 
 typedef struct {
 	unsigned int level;
-	bool isSdmc;
+	bool inRomfs;
 } Course_Params;
 
 #include "../scene.h"
@@ -17,10 +17,10 @@ typedef struct {
 extern Scene sceneCourse;
 
 /*
- * Makes Scene_Params to load the course with number level. If isSdmc is true,
- * looks for the file in the SD card.
+ * Makes Scene_Params to load the course with number level. If inRomfs is true,
+ * looks for the file in ROM; otherwise looks in savedata.
  */
-Scene_Params Course_MakeParams(unsigned int level, bool isSdmc);
+Scene_Params Course_MakeParams(unsigned int level, bool inRomfs);
 
 /*
  * Clears a circle of terrain of radius centered at (x, y).

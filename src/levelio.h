@@ -35,7 +35,7 @@ typedef struct {
  * Makes a level path suitable for passing to LevelIO_Read or LevelIO_Write and
  * stores it in path. There must be room for at least LEVEL_PATH_MAX characters.
  */
-void LevelIO_MakePath(int levelNum, bool isSdmc, char *path);
+void LevelIO_MakePath(int levelNum, bool inRomfs, char *path);
 
 /*
  * Reads the level file at path and fills in *proj, *width, and *tiles with the

@@ -23,7 +23,7 @@
 #define TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR 0.05
 
 static unsigned int level;
-static bool isSdmc;
+static bool levelInRomfs;
 static bool (*terrain)[LEVEL_HEIGHT];
 
 static Background bg;
@@ -222,17 +222,16 @@ failed:
 	return false;
 }
 
-Scene_Params Course_MakeParams(unsigned int level, bool isSdmc) {
+Scene_Params Course_MakeParams(unsigned int level, bool inRomfs) {
 	return (Scene_Params) { .course = {
 		.level = level,
-		.isSdmc = isSdmc
+		.inRomfs = inRomfs
 	} };
 }
 
 static bool sceneInit(Scene_Params params) {
 	char path[LEVEL_PATH_MAX];
-	LevelIO_MakePath(params.course.level, params.course.isSdmc, path);
-	isSdmc = params.course.isSdmc;
+	LevelIO_MakePath(params.course.level, params.course.inRomfs, path);
 	if (!loadLevel(path)) return false;
 
 	infoText = Text_Create(100, NULL);
@@ -244,6 +243,7 @@ static bool sceneInit(Scene_Params params) {
 	strokeCounter = 0;
 	hasFinished = false;
 	level = params.course.level;
+	levelInRomfs = params.course.inRomfs;
 
 	return true;
 }
@@ -279,7 +279,7 @@ static void checkLaunchInput() {
 
 static void nextLevel() {
 	level++;
-	Scene_SetNext(sceneCourse, Course_MakeParams(level, isSdmc));
+	Scene_SetNext(sceneCourse, Course_MakeParams(level, levelInRomfs));
 }
 
 static void sceneUpdate() {

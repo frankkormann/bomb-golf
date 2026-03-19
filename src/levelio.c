@@ -6,16 +6,16 @@
 #include "rendering/spritesheet.h"
 #include "projectiles/ball.h"
 
-void LevelIO_MakePath(int levelNum, bool isSdmc, char *path) {
-	if (isSdmc) {
+void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
+	if (inRomfs) {
+		sprintf(path, "romfs:/level_%i.bin", levelNum);
+	} else {
 		// Use savedata if we're running as a CIA (native app)
 		#ifdef _CIA
 			sprintf(path, "save:/level_%i.bin", levelNum);
 		#else
 			sprintf(path, "sdmc:/level_%i.bin", levelNum);
 		#endif
-	} else {
-		sprintf(path, "romfs:/level_%i.bin", levelNum);
 	}
 }
 

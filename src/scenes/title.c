@@ -12,7 +12,7 @@
 
 typedef enum {
 	START_ROMFS,
-	START_SDMC,
+	START_SAVED,
 	LEVEL_EDITOR,
 	NUM_OPTIONS
 } Title_Option;
@@ -66,11 +66,11 @@ static void sceneUpdate() {
 		switch (cursor) {
 			case START_ROMFS:
 				Scene_SetNext(sceneCourse,
-						Course_MakeParams(1, false));
+						Course_MakeParams(1, true));
 				break;
-			case START_SDMC:
+			case START_SAVED:
 				Scene_SetNext(sceneCourse,
-						Course_MakeParams(num, true));
+						Course_MakeParams(num, false));
 				break;
 			case LEVEL_EDITOR:
 				Scene_SetNext(sceneEditor, Editor_MakeParams(num));
@@ -95,7 +95,7 @@ static void sceneDraw() {
 		C2D_DrawText(&optionsText[i], 0, 100, 100 + 15 * i, 0, 0.5, 0.5);
 	}
 
-	if (cursor == START_SDMC || cursor == LEVEL_EDITOR) {
+	if (cursor == START_SAVED || cursor == LEVEL_EDITOR) {
 		for (int i = 0; i < num; i++) {
 			C2D_DrawRectSolid(200 + 15 * i, 100 + 15 * cursor, 0, 10, 10,
 					COLOR_LBLUE);
