@@ -18,6 +18,9 @@ follow the instructions for the latest release. You will need to
 
 `make 3dsx` or `make cia`
 
+Note: You should recompile all source files in between building a `3dsx` and
+a `cia`. Some files compile differently depending on the final build type.
+
 ### Dependencies
 
 * [devkitPro](https://devkitpro.org/) for the 3DS
