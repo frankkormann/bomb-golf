@@ -233,7 +233,8 @@ else
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(OUTPUT).cia	:	$(OUTPUT).elf banner.bnr icon.icn $(TOPDIR)/$(RSF)
+$(OUTPUT).cia	:	$(OUTPUT).elf banner.bnr icon.icn $(TOPDIR)/$(RSF) \
+			$(TOPDIR)/$(ROMFS)
 	@makerom -f cia -o $(OUTPUT).cia -target t -elf $(OUTPUT).elf \
 		-icon icon.icn -banner banner.bnr \
 		-rsf $(TOPDIR)/$(RSF) -DROMFS=$(TOPDIR)/$(ROMFS) \
@@ -248,10 +249,10 @@ $(OFILES_SOURCES) : $(HFILES)
 
 $(OUTPUT).elf	:	$(OFILES)
 
-banner.bnr	:
+banner.bnr	:	$(TOPDIR)/$(BANNER_IMAGE) $(TOPDIR)/$(BANNER_AUDIO)
 	@bannertool makebanner -i $(TOPDIR)/$(BANNER_IMAGE) -a $(TOPDIR)/$(BANNER_AUDIO) -o banner.bnr > /dev/null
 
-icon.icn	:
+icon.icn	:	$(APP_ICON)
 	@bannertool makesmdh -i $(APP_ICON) -s "$(APP_TITLE)" -l "$(APP_TITLE)" -p "$(APP_AUTHOR)" -o icon.icn > /dev/null
 
 #---------------------------------------------------------------------------------
