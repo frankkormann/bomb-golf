@@ -10,7 +10,7 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 	if (inRomfs) {
 		sprintf(path, "romfs:/level_%i.bin", levelNum);
 	} else {
-		// Use savedata if we're running as a CIA (native app)
+		// Use save data if we're running as a CIA (native app)
 		#ifdef _CIA
 			sprintf(path, "save:/level_%i.bin", levelNum);
 		#else
