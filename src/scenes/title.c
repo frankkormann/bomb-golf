@@ -6,6 +6,7 @@
 #include "course.h"
 #include "editor.h"
 #include "components/text.h"
+#include "../main.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
 #include "../util/macros.h"
@@ -73,7 +74,7 @@ static void sceneUpdate() {
 
 	if (kDown & KEY_LEFT) levelNum--;
 	if (kDown & KEY_RIGHT) levelNum++;
-	levelNum = clamp(levelNum, 1, 18);
+	levelNum = clamp(levelNum, MIN_LEVEL_NUM, MAX_LEVEL_NUM);
 
 	if (kDown & KEY_A) {
 		switch (cursor) {
@@ -94,7 +95,7 @@ static void sceneUpdate() {
 		}
 	}
 
-	Text_SetContent(levelNumText, "%i / 18", levelNum);
+	Text_SetContent(levelNumText, "%i / %i", levelNum, MAX_LEVEL_NUM);
 }
 
 static void sceneDraw() {
@@ -109,7 +110,8 @@ static void sceneDraw() {
 	}
 
 	if (cursor == START_SAVED || cursor == LEVEL_EDITOR) {
-		C2D_DrawText(&levelNumText->text, 0, 270, 100 + 15 * cursor, 0, 0.5, 0.5);
+		C2D_DrawText(&levelNumText->text, 0, 270, 100 + 15 * cursor, 0, 0.5,
+				0.5);
 	}
 	
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();

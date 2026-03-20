@@ -2,6 +2,7 @@
 #include <citro2d.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "main.h"
 #include "scene.h"
 #include "scenes/title.h"
 #include "rendering/spritesheet.h"
@@ -52,9 +53,10 @@ int main() {
 				fsMakePath(PATH_EMPTY, ""),
 				512,
 				0,
-				18,
+				MAX_LEVEL_NUM - MIN_LEVEL_NUM + 1,
 				getHashTableLength(0),
-				getHashTableLength(18),
+				getHashTableLength(
+						MAX_LEVEL_NUM - MIN_LEVEL_NUM + 1),
 				false
 			);
 		if (R_FAILED(res)) return 1;
