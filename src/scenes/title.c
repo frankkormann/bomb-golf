@@ -5,8 +5,10 @@
 #include "title.h"
 #include "course.h"
 #include "editor.h"
+#include "components/text.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
+#include "../util/macros.h"
 
 #define TITLE_TEXT "Bomb Golf"
 
@@ -28,7 +30,9 @@ static int cursor;
 
 static C2D_TextBuf textBuf;
 
-static int num = 1;
+// Allow value to persist through scene init/exit cycles
+static int levelNum = MIN_LEVEL_NUM;
+static Text levelNumText;
 
 Scene_Params Title_MakeParams() {
 	return (Scene_Params) {};
@@ -36,7 +40,10 @@ Scene_Params Title_MakeParams() {
 
 static bool sceneInit(Scene_Params ignored) {
 	textBuf  = C2D_TextBufNew(256);
-	if (!textBuf) return false;
+	if (!textBuf) goto f_textBuf;
+
+	levelNumText = Text_Create(8, NULL);
+	if (!levelNumText) goto f_levelNumText;
 	
 	C2D_TextParse(&titleText, textBuf, TITLE_TEXT);
 	C2D_TextParse(&cursorText, textBuf, "->");
@@ -48,9 +55,13 @@ static bool sceneInit(Scene_Params ignored) {
 		C2D_TextOptimize(&optionsText[i]);
 	}
 
-	cursor = 0;
-
+	cursor = START_ROMFS;
 	return true;
+
+f_levelNumText:
+	C2D_TextBufDelete(textBuf);
+f_textBuf:
+	return false;
 }
 
 static void sceneUpdate() {
@@ -58,9 +69,11 @@ static void sceneUpdate() {
 
 	if (kDown & KEY_UP) cursor--;
 	if (kDown & KEY_DOWN) cursor++;
+	cursor = clamp(cursor, 0, NUM_OPTIONS - 1);
 
-	if (cursor < 0) cursor = 0;
-	if (cursor > NUM_OPTIONS-1) cursor = NUM_OPTIONS-1;
+	if (kDown & KEY_LEFT) levelNum--;
+	if (kDown & KEY_RIGHT) levelNum++;
+	levelNum = clamp(levelNum, 1, 18);
 
 	if (kDown & KEY_A) {
 		switch (cursor) {
@@ -70,18 +83,18 @@ static void sceneUpdate() {
 				break;
 			case START_SAVED:
 				Scene_SetNext(sceneCourse,
-						Course_MakeParams(num, false));
+						Course_MakeParams(levelNum, false));
 				break;
 			case LEVEL_EDITOR:
-				Scene_SetNext(sceneEditor, Editor_MakeParams(num));
+				Scene_SetNext(sceneEditor,
+						Editor_MakeParams(levelNum));
 				break;
 			default:
 				break;
 		}
 	}
 
-	if (kDown & KEY_LEFT) num--;
-	if (kDown & KEY_RIGHT) num++;
+	Text_SetContent(levelNumText, "%i / 18", levelNum);
 }
 
 static void sceneDraw() {
@@ -96,10 +109,7 @@ static void sceneDraw() {
 	}
 
 	if (cursor == START_SAVED || cursor == LEVEL_EDITOR) {
-		for (int i = 0; i < num; i++) {
-			C2D_DrawRectSolid(200 + 15 * i, 100 + 15 * cursor, 0, 10, 10,
-					COLOR_LBLUE);
-		}
+		C2D_DrawText(&levelNumText->text, 0, 270, 100 + 15 * cursor, 0, 0.5, 0.5);
 	}
 	
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
@@ -109,6 +119,7 @@ static void sceneDraw() {
 
 static void sceneExit() {
 	C2D_TextBufDelete(textBuf);
+	Text_Free(levelNumText);
 }
 
 Scene sceneTitle = &(struct scene) {
