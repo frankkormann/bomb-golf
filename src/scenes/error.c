@@ -29,7 +29,7 @@ static bool sceneInit(Scene_Params params) {
 	if (!textBuf) goto f_textBuf;
 
 	C2D_TextParse(&errText, textBuf, params.error.msg);
-	C2D_TextParse(&infoText, textBuf, KEYCHAR_A ": Back to title");
+	C2D_TextParse(&infoText, textBuf, KEYCHAR_A ": Go to title");
 	C2D_TextOptimize(&errText);
 	C2D_TextOptimize(&infoText);
 
@@ -55,6 +55,10 @@ static void sceneDraw() {
 
 	C2D_DrawText(&errText, 0, 50, 50, 0, 0.5, 0.5);
 	C2D_DrawText(&infoText, 0, 50, 180, 0, 0.5, 0.5);
+
+	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
+	C2D_TargetClear(bottom, COLOR_WHITE);
+	C2D_SceneBegin(bottom);
 }
 
 static void sceneExit() {
