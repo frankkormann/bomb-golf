@@ -40,7 +40,7 @@ Scene_Params Title_MakeParams() {
 }
 
 static bool sceneInit(Scene_Params ignored) {
-	textBuf  = C2D_TextBufNew(256);
+	textBuf = C2D_TextBufNew(256);
 	if (!textBuf) goto f_textBuf;
 
 	levelNumText = Text_Create(8, NULL);
