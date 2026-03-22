@@ -32,38 +32,40 @@ static int projToNum(Projectile proj) {
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width, int *par) {
 	FILE *data = fopen(path, "rb");
-	if (!data) return false;
+	if (!data) goto f_data;
 
-	fread(width, sizeof(*width), 1, data);
-	fread(par, sizeof(*par), 1, data);
+	if (!fread(width, sizeof(*width), 1, data)) goto f_fread1;
+	if (!fread(par,   sizeof(*par),   1, data)) goto f_fread1;
 
 	size_t tilesSize = sizeof(**tiles) * *width / TILE_SIZE;
 	*tiles = malloc(tilesSize);
-	if (!(*tiles)) {
-		fclose(data);
-		return false;
-	}
+	if (!(*tiles)) goto f_tiles;
 
 	int projNum;
 
-	fread(&hole->x, sizeof(hole->x), 1, data);
-	fread(&hole->y, sizeof(hole->y), 1, data);
-	fread(&hole->width, sizeof(hole->width), 1, data);
-	fread(&hole->height, sizeof(hole->height), 1, data);
-	fread(&proj->startX, sizeof(proj->startX), 1, data);
-	fread(&proj->startY, sizeof(proj->startY), 1, data);
-	fread(&projNum, sizeof(projNum), 1, data);
-	fread(**tiles, tilesSize, 1, data);
+	if (!fread(&hole->x,      sizeof(hole->x),      1, data)) goto f_fread2;
+	if (!fread(&hole->y,      sizeof(hole->y),      1, data)) goto f_fread2;
+	if (!fread(&hole->width,  sizeof(hole->width),  1, data)) goto f_fread2;
+	if (!fread(&hole->height, sizeof(hole->height), 1, data)) goto f_fread2;
+	if (!fread(&proj->startX, sizeof(proj->startX), 1, data)) goto f_fread2;
+	if (!fread(&proj->startY, sizeof(proj->startY), 1, data)) goto f_fread2;
+	if (!fread(&projNum,      sizeof(projNum),      1, data)) goto f_fread2;
+	if (!fread(**tiles,       tilesSize,            1, data)) goto f_fread2;
+
+	proj->type = numToProj(projNum);
+	if (!proj->type) goto f_projtype;
 
 	fclose(data);
-
-	if (projNum < 0) {
-		free(tiles);
-		return false;
-	}
-	proj->type = numToProj(projNum);
-	
 	return true;
+
+f_projtype:
+f_fread2:
+	free(*tiles);
+f_tiles:
+f_fread1:
+	fclose(data);
+f_data:
+	return false;
 }
 
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
