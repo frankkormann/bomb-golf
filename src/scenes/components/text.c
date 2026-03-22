@@ -8,7 +8,7 @@ Text Text_Create(size_t maxChars, C2D_Font font) {
 	if (!text) return NULL;
 
 	// Assumes 1 char -> at most 1 glyph
-	text->buf = C2D_TextBufNew(maxChars);
+	text->buf = C2D_TextBufNew(maxChars + 1);
 	if (!text->buf) {
 		free(text);
 		return NULL;
