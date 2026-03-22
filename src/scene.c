@@ -1,7 +1,6 @@
 #include <stddef.h>
 #include "scene.h"
 #include "scenes/scene_internal.h"
-#include "scenes/title.h"
 #include "rendering/animation.h"
 
 static Scene sceneCurrent;
@@ -16,14 +15,12 @@ bool Scene_Start(Scene first, Scene_Params params) {
 
 void Scene_Update() {
 	if (sceneNext) {
+		// Do this shuffling in case Scene_Start calls Scene_SetNext
+		Scene toStart = sceneNext;
+		sceneNext = NULL;
 		Scene_Exit();
 		Animation_Clear(false);
-		if (!Scene_Start(sceneNext, nextParams)
-				&& sceneNext != sceneTitle) {
-			Scene_SetNext(sceneTitle, Title_MakeParams());
-		} else {
-			sceneNext = NULL;
-		}
+		Scene_Start(toStart, nextParams);
 	}
 	if (sceneCurrent) sceneCurrent->update();
 }
