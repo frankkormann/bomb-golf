@@ -5,6 +5,7 @@
 #include "title.h"
 #include "course.h"
 #include "editor.h"
+#include "error.h"
 #include "components/text.h"
 #include "../main.h"
 #include "../rendering/colors.h"
@@ -40,11 +41,19 @@ Scene_Params Title_MakeParams() {
 }
 
 static bool sceneInit(Scene_Params ignored) {
+	char *errMsg = "";
+
 	textBuf = C2D_TextBufNew(256);
-	if (!textBuf) goto f_textBuf;
+	if (!textBuf) {
+		errMsg = "Out of memory";
+		goto f_textBuf;
+	}
 
 	levelNumText = Text_Create(8, NULL);
-	if (!levelNumText) goto f_levelNumText;
+	if (!levelNumText) {
+		errMsg = "Out of memory";
+		goto f_levelNumText;
+	}
 	
 	C2D_TextParse(&titleText, textBuf, TITLE_TEXT);
 	C2D_TextParse(&cursorText, textBuf, "->");
@@ -62,6 +71,7 @@ static bool sceneInit(Scene_Params ignored) {
 f_levelNumText:
 	C2D_TextBufDelete(textBuf);
 f_textBuf:
+	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
 	return false;
 }
 

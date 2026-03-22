@@ -5,6 +5,7 @@
 #include "main.h"
 #include "scene.h"
 #include "scenes/title.h"
+#include "scenes/error.h"
 #include "rendering/spritesheet.h"
 #include "rendering/rendertarget.h"
 #include "rendering/animation.h"
@@ -59,11 +60,13 @@ int main() {
 						MAX_LEVEL_NUM - MIN_LEVEL_NUM + 1),
 				false
 			);
-		if (R_FAILED(res)) return 1;
+		if (R_FAILED(res)) goto f_savedata;
 		res = archiveMount(ARCHIVE_SAVEDATA, fsMakePath(PATH_EMPTY, ""),
 				"save");
-		if (R_FAILED(res)) return 1;
-		//TODO Have an error scene
+		if (R_FAILED(res)) goto f_savedata;
+f_savedata:
+		Scene_SetNext(sceneError,
+				Error_MakeParams("Failed to mount save data"));
 	}
 #endif
 

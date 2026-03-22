@@ -7,6 +7,7 @@
 #include "scene_internal.h"
 #include "course.h"
 #include "title.h"
+#include "error.h"
 #include "components/text.h"
 #include "../projectile.h"
 #include "../projectiles/ball.h"
@@ -173,16 +174,32 @@ static void setTerrainForTile(Tile tile, int x, int y) {
 	}
 }
 
-static bool loadLevel(char path[]) {
+Scene_Params Course_MakeParams(unsigned int level, bool inRomfs) {
+	return (Scene_Params) { .course = {
+		.level = level,
+		.inRomfs = inRomfs
+	} };
+}
+
+static bool sceneInit(Scene_Params params) {
+	char *errMsg = "";  // Fill this in whenever you goto f_???
+
+	char path[LEVEL_PATH_MAX];
+	LevelIO_MakePath(params.course.level, params.course.inRomfs, path);
+
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
 	if (!LevelIO_Read(path, &hole, &proj, &tiles, &fieldWidth, &par)) {
-		return false;
+		errMsg = "Level file is malformed or doesn't exist";
+		goto f_LevelIORead;
 	}
 
 	terrain = malloc(sizeof(*terrain) * fieldWidth);
-	if (!terrain) goto failed;
+	if (!terrain) {
+		errMsg = "Out of memory";
+		goto f_terrain;
+	}
 
 	for (int x = 0; x < fieldWidth; x++) {
 		for (int y = 0; y < LEVEL_HEIGHT; y++) {
@@ -191,7 +208,10 @@ static bool loadLevel(char path[]) {
 	}
 
 	bg = BG_Create(fieldWidth, LEVEL_HEIGHT, COLOR_BLUE);
-	if (!bg) goto failed;
+	if (!bg) {
+		errMsg = "Out of memory";
+		goto f_bg;
+	}
 
 	for (int x = 0; x < fieldWidth / TILE_SIZE; x++) {
 		for (int y = 0; y < LEVEL_HEIGHT / TILE_SIZE; y++)  {
@@ -213,31 +233,10 @@ static bool loadLevel(char path[]) {
 	Projectile_SetType(proj.type);
 	Projectile_SetPos(proj.startX, proj.startY);
 
-	return true;
-
-failed:
-	if (tiles) free(tiles);
-	if (terrain) free(terrain);
-	if (bg) BG_Free(bg);
-	return false;
-}
-
-Scene_Params Course_MakeParams(unsigned int level, bool inRomfs) {
-	return (Scene_Params) { .course = {
-		.level = level,
-		.inRomfs = inRomfs
-	} };
-}
-
-static bool sceneInit(Scene_Params params) {
-	char path[LEVEL_PATH_MAX];
-	LevelIO_MakePath(params.course.level, params.course.inRomfs, path);
-	if (!loadLevel(path)) return false;
-
 	infoText = Text_Create(100, NULL);
 	if (!infoText) {
-		BG_Free(bg);
-		return false;
+		errMsg = "Out of memory";
+		goto f_infoText;
 	}
 
 	strokeCounter = 0;
@@ -246,6 +245,16 @@ static bool sceneInit(Scene_Params params) {
 	levelInRomfs = params.course.inRomfs;
 
 	return true;
+
+f_infoText:
+	BG_Free(bg);
+f_bg:
+	free(terrain);
+f_terrain:
+	free(tiles);
+f_LevelIORead:
+	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
+	return false;
 }
 
 static void calculateLaunchVelocity(float *velX, float *velY) {

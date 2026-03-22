@@ -6,6 +6,7 @@
 #include "scene_internal.h"
 #include "editor.h"
 #include "title.h"
+#include "error.h"
 #include "components/text.h"
 #include "components/tileselector.h"
 #include "../rendering/rendertarget.h"
@@ -51,8 +52,13 @@ Scene_Params Editor_MakeParams(unsigned int level) {
 static bool handleTouchInput(void *ignored);
 
 static bool sceneInit(Scene_Params params) {
+	char *errMsg = "";
+
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
-	if (!bg) goto failed;
+	if (!bg) {
+		errMsg = "Out of memory";
+		goto f_bg;
+	}
 
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.editor.level, false, path);
@@ -62,7 +68,10 @@ static bool sceneInit(Scene_Params params) {
 	if (LevelIO_Read(path, &hole, &proj, &tiles, &width, &par)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
-		if (!newTiles) goto failed;
+		if (!newTiles) {
+			errMsg = "Out of memory";
+			goto f_newTiles;
+		}
 		tiles = newTiles;
 
 		for (int x = width / TILE_SIZE; x < LEVEL_MAX_WIDTH_TILES; x++) {
@@ -84,7 +93,10 @@ static bool sceneInit(Scene_Params params) {
 		}
 	} else {
 		tiles = malloc(sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
-		if (!tiles) goto failed;
+		if (!tiles) {
+			errMsg = "Out of memory";
+			goto f_tiles;
+		}
 
 		for (int x = 0; x < LEVEL_MAX_WIDTH_TILES; x++) {
 			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
@@ -98,10 +110,16 @@ static bool sceneInit(Scene_Params params) {
 	}
 
 	infoText = Text_Create(50, NULL);
-	if (!infoText) goto failed;
+	if (!infoText) {
+		errMsg = "Out of memory";
+		goto f_infoText;
+	}
 
 	textBuf = C2D_TextBufNew(256);
-	if (!textBuf) goto failed;
+	if (!textBuf) {
+		errMsg = "Out of memory";
+		goto f_textBuf;
+	}
 	C2D_TextParse(&controlsText1, textBuf,
 			KEYCHAR_A ": Save and exit\n"
 			KEYCHAR_B ": Exit without saving\n"
@@ -115,10 +133,16 @@ static bool sceneInit(Scene_Params params) {
 	C2D_TextOptimize(&controlsText1);
 	C2D_TextOptimize(&controlsText2);
 
-	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_SKY, 0))) goto failed;
+	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_SKY, 0))) {
+		errMsg = "Out of memory";
+		goto f_TileSelector;
+	}
 
 	touchDispatcher = Dispatcher_Create();
-	if (!touchDispatcher) goto failed;
+	if (!touchDispatcher) {
+		errMsg = "Out of memory";
+		goto f_touchDispatcher;
+	}
 	Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
 			.priority = 0, NULL, handleTouchInput });
 	TileSelector_RegisterForTouchEvents(touchDispatcher, 1);
@@ -129,12 +153,19 @@ static bool sceneInit(Scene_Params params) {
 
 	return true;
 
-failed:
-	if (bg) BG_Free(bg);
-	if (tiles) free(tiles);
-	if (infoText) Text_Free(infoText);
-	if (touchDispatcher) Dispatcher_Free(touchDispatcher);
-	if (textBuf) C2D_TextBufDelete(textBuf);
+f_touchDispatcher:
+	TileSelector_Exit();
+f_TileSelector:
+	C2D_TextBufDelete(textBuf);
+f_textBuf:
+	Text_Free(infoText);
+f_infoText:
+f_newTiles:
+	free(tiles);
+f_tiles:
+	BG_Free(bg);
+f_bg:
+	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
 	return false;
 }
 
@@ -229,7 +260,11 @@ static void sceneUpdate() {
 	if (kDown & KEY_A) {
 		if (exportLevel()) {
 			Scene_SetNext(sceneTitle, Title_MakeParams());
-			//TODO Have an error scene
+			return;
+		} else {
+			//TODO Figure out better solution than kicking user out
+			Scene_SetNext(sceneError,
+					Error_MakeParams("Failed to save file"));
 			return;
 		}
 	}
