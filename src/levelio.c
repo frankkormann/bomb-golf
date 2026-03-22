@@ -19,12 +19,13 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 	}
 }
 
-// Projectile is really a pointer, so convert to int for serialization
+// Projectile is really a pointer, so convert from int for serialization
 static Projectile numToProj(int num) {
 	if (num == 0) return projectileBall;
 	return NULL;
 }
 
+// Projectile is really a pointer, so convert to int for serialization
 static int projToNum(Projectile proj) {
 	if (proj == projectileBall) return 0;
 	return -1;
@@ -70,23 +71,27 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
 		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width, int par) {
 	FILE *data = fopen(path, "wb");
-	if (!data) return false;
+	if (!data) goto f_data;
 
 	size_t tilesSize = sizeof(*tiles) * width / TILE_SIZE;
 	int projNum = projToNum(proj.type);
 
-	fwrite(&width, sizeof(width), 1, data);
-	fwrite(&par, sizeof(par), 1, data);
-	fwrite(&hole.x, sizeof(hole.x), 1, data);
-	fwrite(&hole.y, sizeof(hole.y), 1, data);
-	fwrite(&hole.width, sizeof(hole.width), 1, data);
-	fwrite(&hole.height, sizeof(hole.height), 1, data);
-	fwrite(&proj.startX, sizeof(proj.startX), 1, data);
-	fwrite(&proj.startY, sizeof(proj.startY), 1, data);
-	fwrite(&projNum, sizeof(projNum), 1, data);
-	fwrite(tiles, tilesSize, 1, data);
+	if (!fwrite(&width,       sizeof(width),       1, data)) goto f_fwrite;
+	if (!fwrite(&par,         sizeof(par),         1, data)) goto f_fwrite;
+	if (!fwrite(&hole.x,      sizeof(hole.x),      1, data)) goto f_fwrite;
+	if (!fwrite(&hole.y,      sizeof(hole.y),      1, data)) goto f_fwrite;
+	if (!fwrite(&hole.width,  sizeof(hole.width),  1, data)) goto f_fwrite;
+	if (!fwrite(&hole.height, sizeof(hole.height), 1, data)) goto f_fwrite;
+	if (!fwrite(&proj.startX, sizeof(proj.startX), 1, data)) goto f_fwrite;
+	if (!fwrite(&proj.startY, sizeof(proj.startY), 1, data)) goto f_fwrite;
+	if (!fwrite(&projNum,     sizeof(projNum),     1, data)) goto f_fwrite;
+	if (!fwrite(tiles,        tilesSize,           1, data)) goto f_fwrite;
 
 	fclose(data);
-
 	return true;
+
+f_fwrite:
+	fclose(data);
+f_data:
+	return false;
 }
