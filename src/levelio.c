@@ -1,7 +1,9 @@
 #include <malloc.h>
 #include <stddef.h>
+#include <3ds.h>
 #include "levelio.h"
 #include "tile.h"
+#include "savedata.h"
 #include "rendering/background.h"
 #include "rendering/spritesheet.h"
 #include "projectiles/ball.h"
@@ -10,12 +12,8 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 	if (inRomfs) {
 		sprintf(path, "romfs:/level_%i.bin", levelNum);
 	} else {
-		// Use save data if we're running as a CIA (native app)
-		#ifdef _CIA
-			sprintf(path, "save:/level_%i.bin", levelNum);
-		#else
-			sprintf(path, "sdmc:/level_%i.bin", levelNum);
-		#endif
+		sprintf(path, "%s:/level_%i.bin", SaveData_GetDeviceName(),
+				levelNum);
 	}
 }
 

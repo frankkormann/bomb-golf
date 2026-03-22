@@ -7,12 +7,14 @@
 #include "editor.h"
 #include "error.h"
 #include "components/text.h"
-#include "../main.h"
+#include "../savedata.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
 #include "../util/macros.h"
 
 #define TITLE_TEXT "Bomb Golf"
+#define MIN_LEVEL_NUM 1
+#define MAX_LEVEL_NUM (MIN_LEVEL_NUM - 1 + SAVEDATA_NUM_LEVELS)
 
 typedef enum {
 	START_ROMFS,
