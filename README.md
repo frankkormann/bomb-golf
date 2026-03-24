@@ -1,4 +1,4 @@
-# Bomb Golf
+<img src="README_title.png" alt="drawing" width="500"/>
 
 Explode your ball to reshape the course or get a boost in mid-air.
 
