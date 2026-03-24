@@ -26,7 +26,8 @@ typedef enum {
 
 	SPRITE_BUTTON_EXPAND,
 	SPRITE_BUTTON_SHRINK,
-	SPRITE_HOTBAR_OVERLAY
+	SPRITE_HOTBAR_OVERLAY,
+	SPRITE_TITLE
 } SpriteSheet_Sprite;
 
 // These values are written directly into level files, so be careful when

@@ -10,6 +10,7 @@
 #include "../savedata.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
+#include "../rendering/spritesheet.h"
 #include "../util/macros.h"
 
 #define TITLE_TEXT "Bomb Golf"
@@ -112,10 +113,15 @@ static void sceneUpdate() {
 
 static void sceneDraw() {
 	C3D_RenderTarget *top = RenderTarget_GetTop();
-	C2D_TargetClear(top, COLOR_WHITE);
+	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);
 
-	C2D_DrawText(&titleText, 0, 160, 50, 0, 1, 1);
+	SpriteSheet_Draw(SPRITE_TITLE, 200, 120, 1, 0, false, false);
+	
+	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
+	C2D_TargetClear(bottom, COLOR_WHITE);
+	C2D_SceneBegin(bottom);
+
 	C2D_DrawText(&cursorText, 0, 70, 100 + 15 * cursor, 0, 0.5, 0.5);
 	for (size_t i = 0; i < NUM_OPTIONS; i++) {
 		C2D_DrawText(&optionsText[i], 0, 100, 100 + 15 * i, 0, 0.5, 0.5);
@@ -125,10 +131,6 @@ static void sceneDraw() {
 		C2D_DrawText(&levelNumText->text, 0, 270, 100 + 15 * cursor, 0, 0.5,
 				0.5);
 	}
-	
-	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
-	C2D_TargetClear(bottom, COLOR_WHITE);
-	C2D_SceneBegin(bottom);
 }
 
 static void sceneExit() {
