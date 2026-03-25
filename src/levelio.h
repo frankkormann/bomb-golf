@@ -6,7 +6,6 @@
 #define LEVELIO_H
 
 #include <stdbool.h>
-#include "rendering/background.h"
 #include "projectile.h"
 #include "tile.h"
 

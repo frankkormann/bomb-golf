@@ -4,7 +4,6 @@
 #include "levelio.h"
 #include "tile.h"
 #include "savedata.h"
-#include "rendering/background.h"
 #include "rendering/spritesheet.h"
 #include "projectiles/ball.h"
 

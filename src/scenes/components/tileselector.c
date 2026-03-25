@@ -4,8 +4,8 @@
 #include <citro2d.h>
 #include "tileselector.h"
 #include "button.h"
+#include "background.h"
 #include "../../tile.h"
-#include "../../rendering/background.h"
 #include "../../rendering/colors.h"
 #include "../../util/touchinput.h"
 #include "../../util/macros.h"

@@ -2,9 +2,9 @@
 #include <malloc.h>
 #include <stdbool.h>
 #include "background.h"
-#include "../util/queue.h"
-#include "../rendering/spritesheet.h"
-#include "../tile.h"
+#include "../../util/queue.h"
+#include "../../rendering/spritesheet.h"
+#include "../../tile.h"
 
 #define MAX_TO_DRAW_PER_FRAME (C2D_DEFAULT_MAX_OBJECTS - 200)
 

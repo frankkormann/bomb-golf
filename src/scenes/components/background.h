@@ -15,7 +15,7 @@
 
 #include <3ds.h>
 #include <stdbool.h>
-#include "../tile.h"
+#include "../../tile.h"
 
 typedef struct background* Background;
 
