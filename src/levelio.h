@@ -37,20 +37,26 @@ typedef struct {
 void LevelIO_MakePath(int levelNum, bool inRomfs, char *path);
 
 /*
- * Reads the level file at path and fills in *proj, *width, and *tiles with the
- * data therein. *tiles is allocated with length *width.
+ * Reads the level file at path and fills in *proj, *width, and **tiles with
+ * the data therein.
+ *
+ * **tiles is allocated with length *width / TILE_SIZE.
+ * **name is allocated with a null terminator.
  *
  * Returns false if an error occurred. *tiles will not be allocated if false is
  * returned.
  */
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width, int *par);
+		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width, int *par,
+		char **name);
 
 /*
  * Writes a level to the file at path, overwriting it if it already exists.
+ * name should be null-terminated.
  *
  * Returns false if an error occurred.
  */
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
-		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width, int par);
+		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width, int par,
+		const char *name);
 #endif

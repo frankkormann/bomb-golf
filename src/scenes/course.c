@@ -190,10 +190,12 @@ static bool sceneInit(Scene_Params params) {
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
-	if (!LevelIO_Read(path, &hole, &proj, &tiles, &fieldWidth, &par)) {
+	char *name;  // TODO display level name
+	if (!LevelIO_Read(path, &hole, &proj, &tiles, &fieldWidth, &par, &name)) {
 		errMsg = "Level file is malformed or doesn't exist";
 		goto f_LevelIORead;
 	}
+	free(name);
 
 	terrain = malloc(sizeof(*terrain) * fieldWidth);
 	if (!terrain) {

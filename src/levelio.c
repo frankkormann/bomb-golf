@@ -1,5 +1,6 @@
 #include <malloc.h>
 #include <stddef.h>
+#include <string.h>
 #include <3ds.h>
 #include "levelio.h"
 #include "tile.h"
@@ -29,7 +30,8 @@ static int projToNum(Projectile proj) {
 }
 
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width, int *par) {
+		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width, int *par,
+		char **name) {
 	FILE *data = fopen(path, "rb");
 	if (!data) goto f_data;
 
@@ -41,6 +43,7 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 	if (!(*tiles)) goto f_tiles;
 
 	int projNum;
+	size_t nameSize;
 
 	if (!fread(&hole->x,      sizeof(hole->x),      1, data)) goto f_fread2;
 	if (!fread(&hole->y,      sizeof(hole->y),      1, data)) goto f_fread2;
@@ -50,6 +53,12 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 	if (!fread(&proj->startY, sizeof(proj->startY), 1, data)) goto f_fread2;
 	if (!fread(&projNum,      sizeof(projNum),      1, data)) goto f_fread2;
 	if (!fread(**tiles,       tilesSize,            1, data)) goto f_fread2;
+	if (!fread(&nameSize,     sizeof(nameSize),     1, data)) goto f_fread2;
+
+	*name = malloc(nameSize);
+	if (!(*name)) goto f_name;
+
+	if (!fread(*name, nameSize, 1, data)) goto f_fread3;
 
 	proj->type = numToProj(projNum);
 	if (!proj->type) goto f_projtype;
@@ -58,6 +67,9 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 	return true;
 
 f_projtype:
+f_fread3:
+	free(*name);
+f_name:
 f_fread2:
 	free(*tiles);
 f_tiles:
@@ -68,12 +80,15 @@ f_data:
 }
 
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
-		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width, int par) {
+		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width, int par,
+		const char *name) {
 	FILE *data = fopen(path, "wb");
 	if (!data) goto f_data;
 
 	size_t tilesSize = sizeof(*tiles) * width / TILE_SIZE;
 	int projNum = projToNum(proj.type);
+
+	size_t nameSize = (strlen(name) + 1) * sizeof(char);
 
 	if (!fwrite(&width,       sizeof(width),       1, data)) goto f_fwrite;
 	if (!fwrite(&par,         sizeof(par),         1, data)) goto f_fwrite;
@@ -85,6 +100,8 @@ bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
 	if (!fwrite(&proj.startY, sizeof(proj.startY), 1, data)) goto f_fwrite;
 	if (!fwrite(&projNum,     sizeof(projNum),     1, data)) goto f_fwrite;
 	if (!fwrite(tiles,        tilesSize,           1, data)) goto f_fwrite;
+	if (!fwrite(&nameSize,    sizeof(nameSize),    1, data)) goto f_fwrite;
+	if (!fwrite(name,         nameSize,            1, data)) goto f_fwrite;
 
 	fclose(data);
 	return true;

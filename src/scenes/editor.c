@@ -24,6 +24,9 @@
 
 #define SCROLL_UNIT TILE_SIZE
 
+// Not including null terminator
+#define LEVEL_TITLE_MAX 16
+
 static Background bg;
 static float scroll;
 
@@ -36,7 +39,7 @@ static unsigned int level;
 
 static enum { INDIV, FILL } brushType;
 
-static Text infoText, controlsText1, controlsText2;
+static Text infoText, controlsText1, controlsText2, levelTitleText;
 
 static Dispatcher touchDispatcher;
 
@@ -58,12 +61,19 @@ static bool sceneInit(Scene_Params params) {
 		goto f_bg;
 	}
 
+	levelTitleText = Text_Create(LEVEL_TITLE_MAX + 1);
+	if (!levelTitleText) {
+		errMsg = "Out of memory";
+		goto f_levelTitleText;
+	}
+
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.editor.level, false, path);
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	int width;
-	if (LevelIO_Read(path, &hole, &proj, &tiles, &width, &par)) {
+	char *name;
+	if (LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!newTiles) {
@@ -89,6 +99,9 @@ static bool sceneInit(Scene_Params params) {
 						y * TILE_SIZE, false);
 			}
 		}
+
+		Text_SetContent(levelTitleText, name);
+		free(name);
 	} else {
 		tiles = malloc(sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!tiles) {
@@ -105,6 +118,8 @@ static bool sceneInit(Scene_Params params) {
 		holeX = holeY = 0;
 		projX = 40 + (TILE_SIZE / 2);
 		projY = 190 + (TILE_SIZE / 2);
+
+		Text_SetContent(levelTitleText, "");
 	}
 
 	infoText = Text_Create(50);
@@ -136,7 +151,6 @@ static bool sceneInit(Scene_Params params) {
 			"%c (hold) + touchscreen: Move hole",
 			TEXT_KEY_DPAD, TEXT_KEY_DUP, TEXT_KEY_DDOWN
 		);
-
 
 	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_SKY, 0))) {
 		errMsg = "Out of memory";
@@ -170,6 +184,8 @@ f_infoText:
 f_newTiles:
 	free(tiles);
 f_tiles:
+	Text_Free(levelTitleText);
+f_levelTitleText:
 	BG_Free(bg);
 f_bg:
 	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
@@ -192,8 +208,20 @@ static bool exportLevel() {
 		}
 	}
 
+	SwkbdState keyboard;
+	SwkbdButton pressedButton;
+	char buf[LEVEL_TITLE_MAX + 1];
+	swkbdInit(&keyboard, SWKBD_TYPE_QWERTY, 2, LEVEL_TITLE_MAX);
+	swkbdSetValidation(&keyboard, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
+	swkbdSetHintText(&keyboard, "Enter a name");
+
+	pressedButton = swkbdInputText(&keyboard, buf, LEVEL_TITLE_MAX + 1);
+	if (pressedButton != SWKBD_BUTTON_CONFIRM) {
+		return false;
+	}
+
 	return LevelIO_Write(path, hole, proj, tiles, (tilesMaxX + 1) * TILE_SIZE,
-			par);
+			par, buf);
 }
 
 static void changeTile(int tileX, int tileY, Tile newTile) {
@@ -319,6 +347,7 @@ static void sceneDraw() {
 	Text_Draw(controlsText1, 10, 14, 0, 1);
 	Text_Draw(controlsText2, 160, 14, 0, 1);
 	Text_Draw(infoText, 10, 180, 0, 1);
+	Text_Draw(levelTitleText, 10, 220, 0, 1);
 }
 
 static void sceneExit() {
@@ -327,6 +356,7 @@ static void sceneExit() {
 	Text_Free(infoText);
 	Text_Free(controlsText1);
 	Text_Free(controlsText2);
+	Text_Free(levelTitleText);
 	Dispatcher_Free(touchDispatcher);
 	TileSelector_Exit();
 }
