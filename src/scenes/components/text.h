@@ -1,32 +1,40 @@
 /*
- * Text that can easily be changed. Handles coordination of C2D_Text with a
- * C2D_TextBuf.
- *
- * To draw, use C2D_DrawText.
- *
- * For static text, it's more efficient to have one C2D_TextBuf provide text
- * for multiple C2D_Text objects, so you should not use this component.
+ * Text using the game's custom font.
  */
 
 #ifndef TEXT_H
 #define TEXT_H
 
+#define TEXT_KEY_A '\200'
+#define TEXT_KEY_B '\201'
+#define TEXT_KEY_X '\202'
+#define TEXT_KEY_Y '\203'
+#define TEXT_KEY_L '\204'
+#define TEXT_KEY_R '\205'
+#define TEXT_KEY_DPAD '\206'
+#define TEXT_KEY_DUP '\207'
+#define TEXT_KEY_DDOWN '\210'
+#define TEXT_KEY_DLEFT '\211'
+#define TEXT_KEY_DRIGHT '\212'
+
 typedef struct text *Text;
 
-struct text {
-	C2D_Text text;
-	C2D_TextBuf buf;
-	C2D_Font font;
-	size_t maxChars;
-};
+/*
+ * Loads the custom font. Must be called before any Texts are created.
+ *
+ * Returns false on failure.
+ */
+bool Text_Init();
+
+void Text_Exit();
 
 /*
- * Creates a Text object that can hold at most maxGlyphs glyphs. Displays
- * content using font. If font is NULL, a system font is used.
+ * Creates a Text object that can hold at most maxChars characters, including
+ * the null terminator.
  *
  * Returns the Text or NULL on failure.
  */
-Text Text_Create(size_t maxChars, C2D_Font font);
+Text Text_Create(size_t maxChars);
 
 void Text_Free(Text text);
 
@@ -34,8 +42,11 @@ void Text_Free(Text text);
  * Uses printf to obtain a string using the given format and arguments, then
  * sets text to display that string.
  *
- * Returns a pointer to the last character which was successfully processed.
+ * If text wasn't initialized with enough space, only part of the string will
+ * be displayed.
  */
-char* Text_SetContent(Text text, char *format, ...);
+void Text_SetContent(Text text, char *format, ...);
+
+void Text_Draw(Text text, float x, float y, float depth, int size);
 
 #endif
