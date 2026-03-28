@@ -53,12 +53,16 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 	if (!fread(&proj->startY, sizeof(proj->startY), 1, data)) goto f_fread2;
 	if (!fread(&projNum,      sizeof(projNum),      1, data)) goto f_fread2;
 	if (!fread(**tiles,       tilesSize,            1, data)) goto f_fread2;
-	if (!fread(&nameSize,     sizeof(nameSize),     1, data)) goto f_fread2;
 
-	*name = malloc(nameSize);
-	if (!(*name)) goto f_name;
-
-	if (!fread(*name, nameSize, 1, data)) goto f_fread3;
+	// Maintain compatibility with nameless levels
+	if (fread(&nameSize, sizeof(nameSize), 1, data)) {
+		*name = malloc(nameSize);
+		if (!(*name)) goto f_name;
+		if (!fread(*name, nameSize, 1, data)) goto f_fread3;
+	} else {
+		*name = malloc(sizeof('\0'));
+		(*name)[0] = '\0';
+	}
 
 	proj->type = numToProj(projNum);
 	if (!proj->type) goto f_projtype;
