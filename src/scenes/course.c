@@ -233,7 +233,7 @@ static bool sceneInit(Scene_Params params) {
 	Projectile_SetType(proj.type);
 	Projectile_SetPos(proj.startX, proj.startY);
 
-	infoText = Text_Create(100, NULL);
+	infoText = Text_Create(100);
 	if (!infoText) {
 		errMsg = "Out of memory";
 		goto f_infoText;
@@ -319,7 +319,7 @@ static void sceneUpdate() {
 
 	Projectile_Update();
 
-	Text_SetContent(infoText, "Strokes: %i\nPar:       %i", strokeCounter, par);
+	Text_SetContent(infoText, "Strokes: %i\nPar:     %i", strokeCounter, par);
 }
 
 static void plotTrajectoryPoint(float initX, float initY, float velX, float velY,
@@ -370,7 +370,7 @@ static void sceneDraw() {
 
 	BG_DrawFit(bg, 0, 0, 0, 400, 240);
 
-	C2D_DrawText(&infoText->text, 0, 10, 20, 0, 0.5, 0.5);
+	Text_Draw(infoText, 10, 20, 0, 1);
 }
 
 static void sceneExit() {

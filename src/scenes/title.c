@@ -13,7 +13,6 @@
 #include "../rendering/spritesheet.h"
 #include "../util/macros.h"
 
-#define TITLE_TEXT "Bomb Golf"
 #define MIN_LEVEL_NUM 1
 #define MAX_LEVEL_NUM (MIN_LEVEL_NUM - 1 + SAVEDATA_NUM_LEVELS)
 
@@ -30,10 +29,8 @@ static char *options[] = {
 	"Level Editor"
 };
 
-static C2D_Text titleText, cursorText, optionsText[NUM_OPTIONS];
+static Text cursorText, optionsText[NUM_OPTIONS];
 static int cursor;
-
-static C2D_TextBuf textBuf;
 
 // Allow value to persist through scene init/exit cycles
 static int levelNum = MIN_LEVEL_NUM;
@@ -46,34 +43,39 @@ Scene_Params Title_MakeParams() {
 static bool sceneInit(Scene_Params ignored) {
 	char *errMsg = "";
 
-	textBuf = C2D_TextBufNew(256);
-	if (!textBuf) {
+	cursorText = Text_Create(3);
+	if (!cursorText) {
 		errMsg = "Out of memory";
-		goto f_textBuf;
+		goto f_cursorText;
 	}
+	Text_SetContent(cursorText, "->");
 
-	levelNumText = Text_Create(8, NULL);
+	levelNumText = Text_Create(10);
 	if (!levelNumText) {
 		errMsg = "Out of memory";
 		goto f_levelNumText;
 	}
-	
-	C2D_TextParse(&titleText, textBuf, TITLE_TEXT);
-	C2D_TextParse(&cursorText, textBuf, "->");
-	C2D_TextOptimize(&titleText);
-	C2D_TextOptimize(&cursorText);
 
 	for (size_t i = 0; i < NUM_OPTIONS; i++) {
-		C2D_TextParse(&optionsText[i], textBuf, options[i]);
-		C2D_TextOptimize(&optionsText[i]);
+		optionsText[i] = Text_Create(strlen(options[i]) + 1);
+		if (!optionsText[i]) {
+			errMsg = "Out of memory";
+			goto f_optionsText;
+		}
+		Text_SetContent(optionsText[i], options[i]);
 	}
 
 	cursor = START_ROMFS;
 	return true;
 
+f_optionsText:
+	for (size_t i = 0; i < NUM_OPTIONS; i++) {
+		if (optionsText[i]) Text_Free(optionsText[i]);
+	}
+	Text_Free(levelNumText);
 f_levelNumText:
-	C2D_TextBufDelete(textBuf);
-f_textBuf:
+	Text_Free(cursorText);
+f_cursorText:
 	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
 	return false;
 }
@@ -117,25 +119,28 @@ static void sceneDraw() {
 	C2D_SceneBegin(top);
 
 	SpriteSheet_Draw(SPRITE_TITLE, 200, 120, 1, 0, false, false);
-	
+
+
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
 	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
 
-	C2D_DrawText(&cursorText, 0, 70, 100 + 15 * cursor, 0, 0.5, 0.5);
+	Text_Draw(cursorText, 70, 100 + 16 * cursor, 0, 1);
 	for (size_t i = 0; i < NUM_OPTIONS; i++) {
-		C2D_DrawText(&optionsText[i], 0, 100, 100 + 15 * i, 0, 0.5, 0.5);
+		Text_Draw(optionsText[i], 100, 100 + 16 * i, 0, 1);
 	}
 
 	if (cursor == START_SAVED || cursor == LEVEL_EDITOR) {
-		C2D_DrawText(&levelNumText->text, 0, 270, 100 + 15 * cursor, 0, 0.5,
-				0.5);
+		Text_Draw(levelNumText, 230, 100 + 15 * cursor, 0, 1);
 	}
 }
 
 static void sceneExit() {
-	C2D_TextBufDelete(textBuf);
+	Text_Free(cursorText);
 	Text_Free(levelNumText);
+	for (size_t i = 0; i < NUM_OPTIONS; i++) {
+		Text_Free(optionsText[i]);
+	}
 }
 
 Scene sceneTitle = &(struct scene) {

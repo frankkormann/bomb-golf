@@ -6,6 +6,7 @@
 #include "scene.h"
 #include "scenes/title.h"
 #include "scenes/error.h"
+#include "scenes/components/text.h"
 #include "rendering/spritesheet.h"
 #include "rendering/rendertarget.h"
 #include "rendering/animation.h"
@@ -20,6 +21,7 @@ int main() {
 	C2D_Prepare();
 	
 	SpriteSheet_Init();
+	Text_Init();
 	Scene_Start(sceneTitle, Title_MakeParams());
 
 	if (!SaveData_Mount()) {
@@ -45,6 +47,7 @@ int main() {
 
 	SaveData_Unmount();
 	Scene_Exit();
+	Text_Exit();
 	SpriteSheet_Exit();
 	RenderTarget_DeleteAll();
 	C2D_Fini();

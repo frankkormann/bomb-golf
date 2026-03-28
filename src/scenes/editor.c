@@ -36,9 +36,7 @@ static unsigned int level;
 
 static enum { INDIV, FILL } brushType;
 
-static Text infoText;
-static C2D_Text controlsText1, controlsText2;
-static C2D_TextBuf textBuf;
+static Text infoText, controlsText1, controlsText2;
 
 static Dispatcher touchDispatcher;
 
@@ -109,29 +107,36 @@ static bool sceneInit(Scene_Params params) {
 		projY = 190 + (TILE_SIZE / 2);
 	}
 
-	infoText = Text_Create(50, NULL);
+	infoText = Text_Create(50);
 	if (!infoText) {
 		errMsg = "Out of memory";
 		goto f_infoText;
 	}
 
-	textBuf = C2D_TextBufNew(256);
-	if (!textBuf) {
+	controlsText1 = Text_Create(128);
+	if (!controlsText1) {
 		errMsg = "Out of memory";
-		goto f_textBuf;
+		goto f_controlsText1;
 	}
-	C2D_TextParse(&controlsText1, textBuf,
-			KEYCHAR_A ": Save and exit\n"
-			KEYCHAR_B ": Exit without saving\n"
-			KEYCHAR_L ", " KEYCHAR_R ": Switch brush"
+	controlsText2 = Text_Create(128);
+	if (!controlsText2) {
+		errMsg = "Out of memory";
+		goto f_controlsText2;
+	}
+
+	Text_SetContent(controlsText1,
+			"%c: Save and exit\n"
+			"%c: Exit without saving\n"
+			"%c, %c: Switch brush",
+			TEXT_KEY_A, TEXT_KEY_B, TEXT_KEY_L, TEXT_KEY_R
 		);
-	C2D_TextParse(&controlsText2, textBuf,
-			KEYCHAR_DPAD "←, →: Change par\n"
-			KEYCHAR_DPAD "↑ (hold) + touchscreen: Move ball\n"
-			KEYCHAR_DPAD "↓ (hold) + touchscreen: Move hole"
+	Text_SetContent(controlsText2,
+			"%c: Change par\n"
+			"%c (hold) + touchscreen: Move ball\n"
+			"%c (hold) + touchscreen: Move hole",
+			TEXT_KEY_DPAD, TEXT_KEY_DUP, TEXT_KEY_DDOWN
 		);
-	C2D_TextOptimize(&controlsText1);
-	C2D_TextOptimize(&controlsText2);
+
 
 	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_SKY, 0))) {
 		errMsg = "Out of memory";
@@ -156,8 +161,10 @@ static bool sceneInit(Scene_Params params) {
 f_touchDispatcher:
 	TileSelector_Exit();
 f_TileSelector:
-	C2D_TextBufDelete(textBuf);
-f_textBuf:
+	Text_Free(controlsText2);
+f_controlsText2:
+	Text_Free(controlsText1);
+f_controlsText1:
 	Text_Free(infoText);
 f_infoText:
 f_newTiles:
@@ -309,18 +316,19 @@ static void sceneDraw() {
 
 	BG_DrawFit(bg, 0, 0, 0, 400, 240);
 
-	C2D_DrawText(&controlsText1, 0, 10, 14, 0, 0.5, 0.5);
-	C2D_DrawText(&controlsText2, 0, 160, 14, 0, 0.5, 0.5);
-	C2D_DrawText(&infoText->text, 0, 10, 180, 0, 0.5, 0.5);
+	Text_Draw(controlsText1, 10, 14, 0, 1);
+	Text_Draw(controlsText2, 160, 14, 0, 1);
+	Text_Draw(infoText, 10, 180, 0, 1);
 }
 
 static void sceneExit() {
 	BG_Free(bg);
 	free(tiles);
 	Text_Free(infoText);
+	Text_Free(controlsText1);
+	Text_Free(controlsText2);
 	Dispatcher_Free(touchDispatcher);
 	TileSelector_Exit();
-	C2D_TextBufDelete(textBuf);
 }
 
 Scene sceneEditor = &(struct scene) {
