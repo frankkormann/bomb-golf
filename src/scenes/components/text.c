@@ -131,7 +131,7 @@ void Text_Draw(Text text, float x, float y, float depth, int size) {
 			}
 
 		}
-		if (glyphIndex > 0) {
+		if (glyphIndex >= 0) {
 			cx += drawGlyph(glyphIndex, cx, cy, depth, size)
 					+ (GLYPH_SPACING * size);
 			glyphIndex = -1;
