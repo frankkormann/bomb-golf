@@ -52,7 +52,11 @@ typedef enum {
 	NUM_TILES
 } SpriteSheet_TileSprite;
 
-void SpriteSheet_Init();
+/*
+ * Returns false on failure.
+ */
+bool SpriteSheet_Init();
+
 void SpriteSheet_Exit();
 
 C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite);

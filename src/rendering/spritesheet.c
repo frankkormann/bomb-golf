@@ -5,9 +5,17 @@
 static C2D_SpriteSheet spriteSheet;
 static C2D_SpriteSheet tileSheet;
 
-void SpriteSheet_Init() {
+bool SpriteSheet_Init() {
 	spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
+	if (!spriteSheet) return false;
+
 	tileSheet = C2D_SpriteSheetLoad("romfs:/gfx/tiles.t3x");
+	if (!tileSheet) {
+		C2D_SpriteSheetFree(spriteSheet);
+		return false;
+	}
+
+	return true;
 }
 
 void SpriteSheet_Exit() {
@@ -59,3 +67,4 @@ void SpriteSheet_DrawTile(SpriteSheet_TileSprite tile, float x, float y, float d
 		.angle = angle
 	}, NULL);
 }
+
