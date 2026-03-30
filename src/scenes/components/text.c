@@ -61,8 +61,10 @@ void Text_SetContent(Text text, char *format, ...) {
 }
 
 // Returns the drawn width
-float drawGlyph(int index, float x, float y, float depth, int size) {
+float drawGlyph(int index, float x, float y, float depth, u32 color, int size) {
 	C2D_Image img = C2D_SpriteSheetGetImage(fontSheet, index);
+	C2D_ImageTint tint;
+	C2D_PlainImageTint(&tint, color, 1);
 	float width = img.subtex->width * size;
 	C2D_DrawImage(img, &(C2D_DrawParams) {
 		.pos = {
@@ -74,11 +76,11 @@ float drawGlyph(int index, float x, float y, float depth, int size) {
 		.center = { 0, 0 },
 		.depth = depth,
 		.angle = 0
-	}, NULL);
+	}, &tint);
 	return width;
 }
 
-void Text_Draw(Text text, float x, float y, float depth, int size) {
+void Text_Draw(Text text, float x, float y, float depth, u32 color, int size) {
 	float cx = x;
 	float cy = y;
 	int glyphIndex = -1;
@@ -131,7 +133,7 @@ void Text_Draw(Text text, float x, float y, float depth, int size) {
 
 		}
 		if (glyphIndex >= 0) {
-			cx += drawGlyph(glyphIndex, cx, cy, depth, size)
+			cx += drawGlyph(glyphIndex, cx, cy, depth, color, size)
 					+ (GLYPH_SPACING * size);
 			glyphIndex = -1;
 		}

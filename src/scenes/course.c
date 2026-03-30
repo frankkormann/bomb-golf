@@ -372,7 +372,7 @@ static void sceneDraw() {
 
 	BG_DrawFit(bg, 0, 0, 0, 400, 240);
 
-	Text_Draw(infoText, 10, 10, 0, 1);
+	Text_Draw(infoText, 10, 10, 0, COLOR_DGREEN, 1);
 }
 
 static void sceneExit() {

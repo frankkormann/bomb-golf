@@ -49,6 +49,6 @@ void Text_Free(Text text);
  */
 void Text_SetContent(Text text, char *format, ...);
 
-void Text_Draw(Text text, float x, float y, float depth, int size);
+void Text_Draw(Text text, float x, float y, float depth, u32 color, int size);
 
 #endif
