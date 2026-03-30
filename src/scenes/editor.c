@@ -142,7 +142,7 @@ static bool sceneInit(Scene_Params params) {
 	Text_SetContent(controlsText1,
 			"%c: Save and exit\n"
 			"%c: Exit without saving\n"
-			"%c, %c: Switch brush",
+			"%c/%c: Switch brush",
 			TEXT_KEY_A, TEXT_KEY_B, TEXT_KEY_L, TEXT_KEY_R
 		);
 	Text_SetContent(controlsText2,
