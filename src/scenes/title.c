@@ -6,111 +6,74 @@
 #include "course.h"
 #include "editor.h"
 #include "error.h"
+#include "components/button.h"
 #include "components/text.h"
-#include "../savedata.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/spritesheet.h"
-#include "../util/macros.h"
+#include "../util/dispatcher.h"
 
-#define MIN_LEVEL_NUM 1
-#define MAX_LEVEL_NUM (MIN_LEVEL_NUM - 1 + SAVEDATA_NUM_LEVELS)
+#define BUTTON_X 60
+#define BUTTON_START_Y 45
+#define BUTTON_EDITOR_Y 135
 
-typedef enum {
-	START_ROMFS,
-	START_SAVED,
-	LEVEL_EDITOR,
-	NUM_OPTIONS
-} Title_Option;
+static Text   startText,   editorText;
+static Button startButton, editorButton;
 
-static char *options[] = {
-	"Start",
-	"Start [Custom]",
-	"Level Editor"
-};
-
-static Text cursorText, optionsText[NUM_OPTIONS];
-static int cursor;
-
-// Allow value to persist through scene init/exit cycles
-static int levelNum = MIN_LEVEL_NUM;
-static Text levelNumText;
+static Dispatcher touchDispatcher;
 
 Scene_Params Title_MakeParams() {
 	return (Scene_Params) {};
 }
 
+static void startGame() {
+	Scene_SetNext(sceneCourse, Course_MakeParams(1, true));
+}
+
+static void openEditor() {
+	//TODO Custom level select scene
+	Scene_SetNext(sceneEditor, Editor_MakeParams(1));
+}
+
 static bool sceneInit(Scene_Params ignored) {
-	char *errMsg = "";
+	startText = Text_Create(8);
+	if (!startText) goto f_startText;
+	Text_SetContent(startText, "Start");
 
-	cursorText = Text_Create(3);
-	if (!cursorText) {
-		errMsg = "Out of memory";
-		goto f_cursorText;
-	}
-	Text_SetContent(cursorText, "->");
+	editorText = Text_Create(16);
+	if (!editorText) goto f_editorText;
+	Text_SetContent(editorText, "Level Editor");
 
-	levelNumText = Text_Create(10);
-	if (!levelNumText) {
-		errMsg = "Out of memory";
-		goto f_levelNumText;
-	}
+	touchDispatcher = Dispatcher_Create();
+	if (!touchDispatcher) goto f_touchDispatcher;
 
-	for (size_t i = 0; i < NUM_OPTIONS; i++) {
-		optionsText[i] = Text_Create(strlen(options[i]) + 1);
-		if (!optionsText[i]) {
-			errMsg = "Out of memory";
-			goto f_optionsText;
-		}
-		Text_SetContent(optionsText[i], options[i]);
-	}
+	startButton = Button_Create(BUTTON_X, BUTTON_START_Y, SPRITE_TITLE_BUTTON,
+			startGame);
+	if (!startButton) goto f_startButton;
+	Button_RegisterForTouchEvents(startButton, touchDispatcher, 1);
 
-	cursor = START_ROMFS;
+	editorButton = Button_Create(BUTTON_X, BUTTON_EDITOR_Y, SPRITE_TITLE_BUTTON,
+			openEditor);
+	if (!editorButton) goto f_editorButton;
+	Button_RegisterForTouchEvents(editorButton, touchDispatcher, 1);
+
 	return true;
 
-f_optionsText:
-	for (size_t i = 0; i < NUM_OPTIONS; i++) {
-		if (optionsText[i]) Text_Free(optionsText[i]);
-	}
-	Text_Free(levelNumText);
-f_levelNumText:
-	Text_Free(cursorText);
-f_cursorText:
-	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
+f_editorButton:
+	Button_Free(startButton);
+f_startButton:
+	Dispatcher_Free(touchDispatcher);
+f_touchDispatcher:
+	Text_Free(editorText);
+f_editorText:
+	Text_Free(startText);
+f_startText:
+	Scene_SetNext(sceneError, Error_MakeParams("Out of memory"));
 	return false;
 }
 
 static void sceneUpdate() {
-	u32 kDown = hidKeysDown();
-
-	if (kDown & KEY_UP) cursor--;
-	if (kDown & KEY_DOWN) cursor++;
-	cursor = clamp(cursor, 0, NUM_OPTIONS - 1);
-
-	if (kDown & KEY_LEFT) levelNum--;
-	if (kDown & KEY_RIGHT) levelNum++;
-	levelNum = clamp(levelNum, MIN_LEVEL_NUM, MAX_LEVEL_NUM);
-
-	if (kDown & KEY_A) {
-		switch (cursor) {
-			case START_ROMFS:
-				Scene_SetNext(sceneCourse,
-						Course_MakeParams(1, true));
-				break;
-			case START_SAVED:
-				Scene_SetNext(sceneCourse,
-						Course_MakeParams(levelNum, false));
-				break;
-			case LEVEL_EDITOR:
-				Scene_SetNext(sceneEditor,
-						Editor_MakeParams(levelNum));
-				break;
-			default:
-				break;
-		}
-	}
-
-	Text_SetContent(levelNumText, "%i / %i", levelNum, MAX_LEVEL_NUM);
+	Dispatcher_DispatchEvent(touchDispatcher);
 }
 
 static void sceneDraw() {
@@ -122,25 +85,20 @@ static void sceneDraw() {
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
-	C2D_TargetClear(bottom, COLOR_WHITE);
+	C2D_TargetClear(bottom, COLOR_LGRAY);
 	C2D_SceneBegin(bottom);
 
-	Text_Draw(cursorText, 70, 100 + TEXT_LINE_HEIGHT * cursor, 0, 1);
-	for (size_t i = 0; i < NUM_OPTIONS; i++) {
-		Text_Draw(optionsText[i], 100, 100 + TEXT_LINE_HEIGHT * i, 0, 1);
-	}
-
-	if (cursor == START_SAVED || cursor == LEVEL_EDITOR) {
-		Text_Draw(levelNumText, 230, 100 + TEXT_LINE_HEIGHT * cursor, 0, 1);
-	}
+	Button_Draw(startButton, 0);
+	Text_Draw(startText, BUTTON_X + 20, BUTTON_START_Y + 10, 0, COLOR_LGRAY, 2);
+	Button_Draw(editorButton, 0);
+	Text_Draw(editorText, BUTTON_X +20, BUTTON_EDITOR_Y + 10, 0, COLOR_LGRAY, 2);
 }
 
 static void sceneExit() {
-	Text_Free(cursorText);
-	Text_Free(levelNumText);
-	for (size_t i = 0; i < NUM_OPTIONS; i++) {
-		Text_Free(optionsText[i]);
-	}
+	Text_Free(startText);
+	Text_Free(editorText);
+	Button_Free(startButton);
+	Button_Free(editorButton);
 }
 
 Scene sceneTitle = &(struct scene) {
