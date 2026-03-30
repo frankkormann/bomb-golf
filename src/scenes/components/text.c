@@ -12,7 +12,6 @@
 
 #define SPACE_WIDTH 5
 #define GLYPH_SPACING 1
-#define LINE_HEIGHT 16
 
 struct text {
 	size_t maxChars;
@@ -90,7 +89,7 @@ void Text_Draw(Text text, float x, float y, float depth, int size) {
 			switch (text->content[i]) {
 				case '\n':
 					cx = x;
-					cy += LINE_HEIGHT * size;
+					cy += TEXT_LINE_HEIGHT * size;
 					break;
 				case ' ':
 					cx += (SPACE_WIDTH + GLYPH_SPACING) * size;

@@ -25,7 +25,7 @@ typedef enum {
 
 static char *options[] = {
 	"Start",
-	"Start (Custom)",
+	"Start [Custom]",
 	"Level Editor"
 };
 
@@ -125,13 +125,13 @@ static void sceneDraw() {
 	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
 
-	Text_Draw(cursorText, 70, 100 + 16 * cursor, 0, 1);
+	Text_Draw(cursorText, 70, 100 + TEXT_LINE_HEIGHT * cursor, 0, 1);
 	for (size_t i = 0; i < NUM_OPTIONS; i++) {
-		Text_Draw(optionsText[i], 100, 100 + 16 * i, 0, 1);
+		Text_Draw(optionsText[i], 100, 100 + TEXT_LINE_HEIGHT * i, 0, 1);
 	}
 
 	if (cursor == START_SAVED || cursor == LEVEL_EDITOR) {
-		Text_Draw(levelNumText, 230, 100 + 15 * cursor, 0, 1);
+		Text_Draw(levelNumText, 230, 100 + TEXT_LINE_HEIGHT * cursor, 0, 1);
 	}
 }
 

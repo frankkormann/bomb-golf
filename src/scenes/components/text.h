@@ -17,6 +17,8 @@
 #define TEXT_KEY_DLEFT '\211'
 #define TEXT_KEY_DRIGHT '\212'
 
+#define TEXT_LINE_HEIGHT 20
+
 typedef struct text *Text;
 
 /*
