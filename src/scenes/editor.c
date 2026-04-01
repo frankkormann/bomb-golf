@@ -24,9 +24,6 @@
 
 #define SCROLL_UNIT TILE_SIZE
 
-// Not including null terminator
-#define LEVEL_TITLE_MAX 16
-
 static Background bg;
 static float scroll;
 
@@ -61,7 +58,7 @@ static bool sceneInit(Scene_Params params) {
 		goto f_bg;
 	}
 
-	levelTitleText = Text_Create(LEVEL_TITLE_MAX + 1);
+	levelTitleText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
 	if (!levelTitleText) {
 		errMsg = "Out of memory";
 		goto f_levelTitleText;
@@ -210,12 +207,12 @@ static bool exportLevel() {
 
 	SwkbdState keyboard;
 	SwkbdButton pressedButton;
-	char buf[LEVEL_TITLE_MAX + 1];
-	swkbdInit(&keyboard, SWKBD_TYPE_QWERTY, 2, LEVEL_TITLE_MAX);
+	char buf[EDITOR_LEVEL_NAME_MAX + 1];
+	swkbdInit(&keyboard, SWKBD_TYPE_QWERTY, 2, EDITOR_LEVEL_NAME_MAX);
 	swkbdSetValidation(&keyboard, SWKBD_NOTEMPTY_NOTBLANK, 0, 0);
 	swkbdSetHintText(&keyboard, "Enter a name");
 
-	pressedButton = swkbdInputText(&keyboard, buf, LEVEL_TITLE_MAX + 1);
+	pressedButton = swkbdInputText(&keyboard, buf, EDITOR_LEVEL_NAME_MAX + 1);
 	if (pressedButton != SWKBD_BUTTON_CONFIRM) {
 		return false;
 	}

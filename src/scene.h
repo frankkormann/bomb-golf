@@ -15,12 +15,14 @@ typedef union scene_params Scene_Params;
 #include "scenes/editor.h"
 #include "scenes/title.h"
 #include "scenes/error.h"
+#include "scenes/levelselector.h"
 
 union scene_params {
 	Course_Params course;
 	Editor_Params editor;
 	Title_Params title;
 	Error_Params error;
+	LevelSelector_Params levelselector;
 };
 
 /*

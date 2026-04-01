@@ -1,10 +1,11 @@
+#include <stdbool.h>
 #include <3ds.h>
 #include <citro2d.h>
 #include "../scene.h"
 #include "scene_internal.h"
 #include "title.h"
 #include "course.h"
-#include "editor.h"
+#include "levelselector.h"
 #include "error.h"
 #include "components/button.h"
 #include "components/text.h"
@@ -31,8 +32,7 @@ static void startGame() {
 }
 
 static void openEditor() {
-	//TODO Custom level select scene
-	Scene_SetNext(sceneEditor, Editor_MakeParams(1));
+	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(1));
 }
 
 static bool sceneInit(Scene_Params ignored) {
