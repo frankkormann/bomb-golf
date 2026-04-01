@@ -23,9 +23,12 @@
 #define BUTTON_Y_START 12
 #define BUTTON_GAP_X 50
 #define BUTTON_GAP_Y 73
+#define LABEL_REL_X 5
+#define LABEL_REL_Y 2
 
 static Dispatcher touchDispatcher;
 static Button buttons[NUM_BUTTON_ROWS][NUM_BUTTON_COLUMNS];
+static Text buttonLabels[NUM_BUTTON_ROWS][NUM_BUTTON_COLUMNS];
 
 static Text nameText;
 
@@ -69,6 +72,11 @@ static bool sceneInit(Scene_Params ignored) {
 			if (!buttons[r][c]) goto f_buttons;
 			Button_RegisterForTouchEvents(buttons[r][c], touchDispatcher,
 					0);
+
+			buttonLabels[r][c] = Text_Create(3);
+			if (!buttonLabels[r][c]) goto f_buttons;
+			Text_SetContent(buttonLabels[r][c], "%i",
+					1 + r + c * NUM_BUTTON_ROWS);
 		}
 	}
 
@@ -82,6 +90,7 @@ f_buttons:
 	for (size_t r = 0; r < NUM_BUTTON_ROWS; r++) {
 		for (size_t c = 0; c < NUM_BUTTON_COLUMNS; c++) {
 			if (buttons[r][c]) Button_Free(buttons[r][c]);
+			if (buttonLabels[r][c]) Text_Free(buttonLabels[r][c]);
 		}
 	}
 	Dispatcher_Free(touchDispatcher);
@@ -115,6 +124,12 @@ static void sceneDraw() {
 	for (size_t r = 0; r < NUM_BUTTON_ROWS; r++) {
 		for (size_t c = 0; c < NUM_BUTTON_COLUMNS; c++) {
 			Button_Draw(buttons[r][c], 0);
+			Text_Draw(buttonLabels[r][c],
+					LABEL_REL_X + BUTTON_X_START
+						+ (BUTTON_GAP_X) * r,
+					LABEL_REL_Y + BUTTON_Y_START
+						+ (BUTTON_GAP_Y) * c,
+					1, COLOR_LGRAY, 1);
 		}
 	}
 }
