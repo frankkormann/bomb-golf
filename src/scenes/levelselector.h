@@ -2,8 +2,8 @@
  * Scene for selecting a custom level to play/edit.
  */
 
-#ifndef LEVEL_SELECTOR_H
-#define LEVEL_SELECTOR_H
+#ifndef LEVELSELECTOR_H
+#define LEVELSELECTOR_H
 
 typedef struct {} LevelSelector_Params;
 

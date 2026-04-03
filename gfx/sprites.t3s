@@ -18,4 +18,7 @@ button_shrink.png
 hotbar_overlay.png
 title.png
 title_button.png
-level_selector_button.png
+level_card_background.png
+level_edit_button.png
+level_play_button.png
+level_play_button_disabled.png
