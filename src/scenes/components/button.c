@@ -9,17 +9,19 @@ struct button {
 	float x;
 	float y;
 	SpriteSheet_Sprite icon;
-	void (*onTouch)(void);
+	void *onTouchParam;
+	void (*onTouch)(void* param);
 };
 
 Button Button_Create(float x, float y, SpriteSheet_Sprite icon,
-		void (*onTouch)(void)) {
+		void *onTouchParam, void (*onTouch)(void* param)) {
 	Button button = malloc(sizeof(struct button));
 	if (!button) return NULL;
 
 	button->x = x;
 	button->y = y;
 	button->icon = icon;
+	button->onTouchParam = onTouchParam;
 	button->onTouch = onTouch;
 
 	return button;
@@ -45,7 +47,7 @@ static bool handleTouch(void* buttonParam) {
 	if (!touchWithinBounds(button, touch.start)) return false;
 
 	if (touchWithinBounds(button, touch.end) && TouchInput_JustFinished()) {
-		button->onTouch();
+		button->onTouch(button->onTouchParam);
 	}
 
 	return true;

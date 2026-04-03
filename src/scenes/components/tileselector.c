@@ -41,12 +41,12 @@ static Background popupBg;
 static Button buttonExpand;
 static Button buttonShrink;
 
-static void handleExpand() {
+static void handleExpand(void *ignored) {
 	mode = mode == HIDDEN ? HOTBAR
 	     : mode == HOTBAR ? POPUP_MENU
 	     : mode;
 }
-static void handleShrink() {
+static void handleShrink(void *ignored) {
 	mode = mode == POPUP_MENU ? HOTBAR
 	     : mode == HOTBAR ? HIDDEN
 	     : mode;
@@ -65,11 +65,11 @@ bool TileSelector_Init(Tile defaultTile) {
 	if (!popupBg) goto fail_popupBg;
 
 	buttonExpand = Button_Create(HOTBAR_X + HOTBAR_WIDTH + 5, HOTBAR_Y,
-			SPRITE_BUTTON_EXPAND, handleExpand);
+			SPRITE_BUTTON_EXPAND, NULL, handleExpand);
 	if (!buttonExpand) goto fail_buttonExpand;
 
 	buttonShrink = Button_Create(HOTBAR_X + HOTBAR_WIDTH + 23, HOTBAR_Y,
-			SPRITE_BUTTON_SHRINK, handleShrink);
+			SPRITE_BUTTON_SHRINK, NULL, handleShrink);
 	if (!buttonShrink) goto fail_buttonShrink;
 
 	mode = HOTBAR;

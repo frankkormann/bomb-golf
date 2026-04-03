@@ -27,11 +27,11 @@ Scene_Params Title_MakeParams() {
 	return (Scene_Params) {};
 }
 
-static void startGame() {
+static void startGame(void *ignored) {
 	Scene_SetNext(sceneCourse, Course_MakeParams(1, true));
 }
 
-static void openEditor() {
+static void openEditor(void *ignored) {
 	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(1));
 }
 
@@ -48,12 +48,12 @@ static bool sceneInit(Scene_Params ignored) {
 	if (!touchDispatcher) goto f_touchDispatcher;
 
 	startButton = Button_Create(BUTTON_X, BUTTON_START_Y, SPRITE_TITLE_BUTTON,
-			startGame);
+			NULL, startGame);
 	if (!startButton) goto f_startButton;
 	Button_RegisterForTouchEvents(startButton, touchDispatcher, 1);
 
 	editorButton = Button_Create(BUTTON_X, BUTTON_EDITOR_Y, SPRITE_TITLE_BUTTON,
-			openEditor);
+			NULL, openEditor);
 	if (!editorButton) goto f_editorButton;
 	Button_RegisterForTouchEvents(editorButton, touchDispatcher, 1);
 

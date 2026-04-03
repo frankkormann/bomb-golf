@@ -17,7 +17,8 @@ typedef struct button *Button;
  *
  * Returns NULL if an error occurs.
  */
-Button Button_Create(float x, float y, SpriteSheet_Sprite icon, void (*onTouch)(void));
+Button Button_Create(float x, float y, SpriteSheet_Sprite icon,
+		void *onTouchParam, void (*onTouch)(void* param));
 
 void Button_Free(Button button);
 
