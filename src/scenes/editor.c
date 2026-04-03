@@ -5,7 +5,7 @@
 #include "../scene.h"
 #include "scene_internal.h"
 #include "editor.h"
-#include "title.h"
+#include "levelselector.h"
 #include "error.h"
 #include "components/text.h"
 #include "components/tileselector.h"
@@ -272,7 +272,7 @@ static void sceneUpdate() {
 	u32 kHeld = hidKeysHeld();
 
 	if (kDown & KEY_B) {
-		Scene_SetNext(sceneTitle, Title_MakeParams());
+		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams());
 		return;
 	}
 
@@ -291,7 +291,8 @@ static void sceneUpdate() {
 
 	if (kDown & KEY_A) {
 		if (exportLevel()) {
-			Scene_SetNext(sceneTitle, Title_MakeParams());
+			Scene_SetNext(sceneLevelSelector,
+					LevelSelector_MakeParams());
 			return;
 		} else {
 			//TODO Figure out better solution than kicking user out
