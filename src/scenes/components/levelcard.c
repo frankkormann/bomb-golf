@@ -68,7 +68,7 @@ LevelCard LevelCard_Create(float x, float y, int levelNum,
 
 	levelCard->numberText = Text_Create(3);  // Two-digit numbers
 	if (!levelCard->numberText) goto f_numberText;
-	Text_SetContent(levelCard->numberText, "%i", levelNum);
+	Text_SetContent(levelCard->numberText, "%i", levelNum + 1);
 
 	levelCard->x = x;
 	levelCard->y = y;
