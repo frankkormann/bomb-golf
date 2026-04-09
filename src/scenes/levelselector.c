@@ -8,6 +8,7 @@
 #include "title.h"
 #include "components/levelcard.h"
 #include "components/text.h"
+#include "components/background.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../util/dispatcher.h"
@@ -15,6 +16,8 @@
 
 #define NUM_LEVEL_ROWS 6
 #define NUM_LEVEL_COLUMNS 3
+
+#define LEVEL_PREVIEW_BORDER 10
 
 #define BUTTON_X_START 12
 #define BUTTON_Y_START 12
@@ -25,6 +28,7 @@ static Dispatcher touchDispatcher;
 static LevelCard levelCards[NUM_LEVEL_ROWS][NUM_LEVEL_COLUMNS];
 
 static Text nameText;
+static Background levelPreview;
 
 Scene_Params LevelSelector_MakeParams() {
 	return (Scene_Params) {};
@@ -40,7 +44,14 @@ static void displayLevel(int levelNum) {
 	char *name;
 
 	if (!LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) return;
-	free(tiles);  // Don't need this
+	BG_ClearAll(levelPreview);
+	for (int x = 0; x < width / TILE_SIZE; x++) {
+		for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
+			BG_DrawTile(levelPreview, tiles[x][y], x * TILE_SIZE,
+					y * TILE_SIZE, false);
+		}
+	}
+	free(tiles);
 
 	Text_SetContent(nameText, "%s", name);
 	free(name);
@@ -55,7 +66,7 @@ static bool sceneInit(Scene_Params ignored) {
 			levelCards[r][c] = LevelCard_Create(
 					BUTTON_X_START + (BUTTON_GAP_X) * r,
 					BUTTON_Y_START + (BUTTON_GAP_Y) * c,
-					r + c * NUM_LEVEL_COLUMNS,
+					r + c * NUM_LEVEL_ROWS,
 					displayLevel
 				);
 			if (!levelCards[r][c]) goto f_levelCards;
@@ -66,11 +77,18 @@ static bool sceneInit(Scene_Params ignored) {
 		}
 	}
 
-	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX);
+	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
 	if (!nameText) goto f_nameText;
+
+	levelPreview = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
+	if (!levelPreview) goto f_levelPreview;
+
+	displayLevel(0);
 
 	return true;
 
+f_levelPreview:
+	Text_Free(nameText);
 f_nameText:
 f_levelCards:
 	for (size_t r = 0; r < NUM_LEVEL_ROWS; r++) {
@@ -82,6 +100,17 @@ f_levelCards:
 f_touchDispatcher:
 	Scene_SetNext(sceneError, Error_MakeParams("Out of memory"));
 	return false;
+}
+
+static void sceneExit() {
+	Dispatcher_Free(touchDispatcher);
+	for (size_t r = 0; r < NUM_LEVEL_ROWS; r++) {
+		for (size_t c = 0; c < NUM_LEVEL_COLUMNS; c++) {
+			LevelCard_Free(levelCards[r][c]);
+		}
+	}
+	Text_Free(nameText);
+	BG_Free(levelPreview);
 }
 
 static void sceneUpdate() {
@@ -96,11 +125,16 @@ static void sceneUpdate() {
 }
 
 static void sceneDraw() {
+	BG_UpdateGraphics(levelPreview);
+
 	C3D_RenderTarget *top = RenderTarget_GetTop();
 	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);
 
 	Text_Draw(nameText, 10, 10, 0, COLOR_DGREEN, 1);
+	float scale = (float)(400 - 2*LEVEL_PREVIEW_BORDER) / LEVEL_MAX_WIDTH;
+	BG_Draw(levelPreview, LEVEL_PREVIEW_BORDER, 120 - (LEVEL_HEIGHT*scale)/2,
+			0, scale, scale);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
@@ -110,14 +144,6 @@ static void sceneDraw() {
 	for (size_t r = 0; r < NUM_LEVEL_ROWS; r++) {
 		for (size_t c = 0; c < NUM_LEVEL_COLUMNS; c++) {
 			LevelCard_Draw(levelCards[r][c], 0);
-		}
-	}
-}
-
-static void sceneExit() {
-	for (size_t r = 0; r < NUM_LEVEL_ROWS; r++) {
-		for (size_t c = 0; c < NUM_LEVEL_COLUMNS; c++) {
-			LevelCard_Free(levelCards[r][c]);
 		}
 	}
 }
