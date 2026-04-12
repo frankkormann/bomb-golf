@@ -33,7 +33,7 @@
 static Dispatcher touchDispatcher;
 static LevelCard levelCards[NUM_LEVEL_ROWS][NUM_LEVEL_COLUMNS];
 
-static Text nameText, infoText;
+static Text nameText, parText, infoText;
 static Background levelPreview;
 static bool levelIsSelected;
 
@@ -67,6 +67,9 @@ static void displayLevel(int levelNum) {
 
 	Text_SetContent(nameText, "%s", name);
 	free(name);
+
+	Text_SetContent(parText, "Par %i", par);
+
 	levelIsSelected = true;
 }
 
@@ -93,6 +96,9 @@ static bool sceneInit(Scene_Params ignored) {
 	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
 	if (!nameText) goto f_nameText;
 
+	parText = Text_Create(9);
+	if (!parText) goto f_parText;
+
 	infoText = Text_Create(32);
 	if (!infoText) goto f_infoText;
 	Text_SetContent(infoText, "Tap a level number to preview");
@@ -107,6 +113,8 @@ static bool sceneInit(Scene_Params ignored) {
 f_levelPreview:
 	Text_Free(infoText);
 f_infoText:
+	Text_Free(parText);
+f_parText:
 	Text_Free(nameText);
 f_nameText:
 f_levelCards:
@@ -129,6 +137,7 @@ static void sceneExit() {
 		}
 	}
 	Text_Free(nameText);
+	Text_Free(parText);
 	Text_Free(infoText);
 	BG_Free(levelPreview);
 }
@@ -146,6 +155,8 @@ static void sceneUpdate() {
 
 static void drawLevelPreview() {
 	Text_Draw(nameText, LEVEL_NAME_X, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
+	Text_DrawRight(parText, 390, LEVEL_NAME_Y + TEXT_LINE_HEIGHT, 0,
+			COLOR_DGREEN, 1);
 
 	float scale = (float)(LEVEL_PREVIEW_WIDTH) / LEVEL_MAX_WIDTH;
 	BG_Draw(levelPreview, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y + TILE_SIZE, 0, scale,
