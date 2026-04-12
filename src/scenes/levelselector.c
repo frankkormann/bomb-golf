@@ -11,18 +11,24 @@
 #include "components/background.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
+#include "../rendering/spritesheet.h"
 #include "../util/dispatcher.h"
 #include "../levelio.h"
+
+#define LEVEL_NAME_X 10
+#define LEVEL_NAME_Y 10
+
+#define LEVEL_PREVIEW_X 10
+#define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + TEXT_LINE_HEIGHT + 10)
+#define LEVEL_PREVIEW_WIDTH 380
 
 #define NUM_LEVEL_ROWS 6
 #define NUM_LEVEL_COLUMNS 3
 
-#define LEVEL_PREVIEW_BORDER 10
-
-#define BUTTON_X_START 12
-#define BUTTON_Y_START 12
-#define BUTTON_GAP_X 50
-#define BUTTON_GAP_Y 73
+#define CARD_X_START 12
+#define CARD_Y_START 12
+#define CARD_GAP_X 50
+#define CARD_GAP_Y 73
 
 static Dispatcher touchDispatcher;
 static LevelCard levelCards[NUM_LEVEL_ROWS][NUM_LEVEL_COLUMNS];
@@ -64,8 +70,8 @@ static bool sceneInit(Scene_Params ignored) {
 	for (size_t r = 0; r < NUM_LEVEL_ROWS; r++) {
 		for (size_t c = 0; c < NUM_LEVEL_COLUMNS; c++) {
 			levelCards[r][c] = LevelCard_Create(
-					BUTTON_X_START + (BUTTON_GAP_X) * r,
-					BUTTON_Y_START + (BUTTON_GAP_Y) * c,
+					CARD_X_START + (CARD_GAP_X) * r,
+					CARD_Y_START + (CARD_GAP_Y) * c,
 					r + c * NUM_LEVEL_ROWS,
 					displayLevel
 				);
@@ -131,10 +137,43 @@ static void sceneDraw() {
 	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);
 
-	Text_Draw(nameText, 10, 10, 0, COLOR_DGREEN, 1);
-	float scale = (float)(400 - 2*LEVEL_PREVIEW_BORDER) / LEVEL_MAX_WIDTH;
-	BG_Draw(levelPreview, LEVEL_PREVIEW_BORDER, 120 - (LEVEL_HEIGHT*scale)/2,
-			0, scale, scale);
+	Text_Draw(nameText, LEVEL_NAME_X, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
+
+	float scale = (float)(LEVEL_PREVIEW_WIDTH) / LEVEL_MAX_WIDTH;
+	BG_Draw(levelPreview, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y + TILE_SIZE, 0, scale,
+			scale);
+
+	for (int x = LEVEL_PREVIEW_X; x <= LEVEL_PREVIEW_WIDTH; x += TILE_SIZE) {
+		SpriteSheet_Draw(SPRITE_GUI_BORDER, x, LEVEL_PREVIEW_Y, 0,
+				M_PI/2, true, false);
+		SpriteSheet_Draw(SPRITE_GUI_BORDER, x,
+				LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE, 0,
+				M_PI/2, false, false);
+	}
+	for (int y = LEVEL_PREVIEW_Y + TILE_SIZE;
+			y <= LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE;
+			y += TILE_SIZE) {
+		SpriteSheet_Draw(SPRITE_GUI_BORDER, 0, y, 0, 0, true, false);
+		SpriteSheet_Draw(SPRITE_GUI_BORDER,
+				LEVEL_PREVIEW_X + LEVEL_PREVIEW_WIDTH, y, 0,
+				0, false, false);
+	}
+	SpriteSheet_Draw(SPRITE_GUI_BORDER_CORNER,
+			0,
+			LEVEL_PREVIEW_Y, 0,
+			0, false, false);
+	SpriteSheet_Draw(SPRITE_GUI_BORDER_CORNER,
+			LEVEL_PREVIEW_X + LEVEL_PREVIEW_WIDTH,
+			LEVEL_PREVIEW_Y, 0,
+			M_PI/2, false, false);
+	SpriteSheet_Draw(SPRITE_GUI_BORDER_CORNER,
+			0,
+			LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE, 0,
+			M_PI/2, true, true);
+	SpriteSheet_Draw(SPRITE_GUI_BORDER_CORNER,
+			LEVEL_PREVIEW_X + LEVEL_PREVIEW_WIDTH,
+			LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE, 0,
+			0, true, true);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
