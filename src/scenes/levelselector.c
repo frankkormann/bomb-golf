@@ -33,8 +33,9 @@
 static Dispatcher touchDispatcher;
 static LevelCard levelCards[NUM_LEVEL_ROWS][NUM_LEVEL_COLUMNS];
 
-static Text nameText;
+static Text nameText, infoText;
 static Background levelPreview;
+static bool levelIsSelected;
 
 Scene_Params LevelSelector_MakeParams() {
 	return (Scene_Params) {};
@@ -43,13 +44,18 @@ Scene_Params LevelSelector_MakeParams() {
 static void displayLevel(int levelNum) {
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(levelNum, false, path);
-	LevelIO_Hole hole;	//TODO Maybe allow passing NULLs?
+	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
 	int width, par;
 	char *name;
 
-	if (!LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) return;
+	if (!LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) {
+		// Spaces to maintain center alignment
+		Text_SetContent(infoText, "     Level does not exist");
+		levelIsSelected = false;
+		return;
+	}
 	BG_ClearAll(levelPreview);
 	for (int x = 0; x < width / TILE_SIZE; x++) {
 		for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
@@ -61,6 +67,7 @@ static void displayLevel(int levelNum) {
 
 	Text_SetContent(nameText, "%s", name);
 	free(name);
+	levelIsSelected = true;
 }
 
 static bool sceneInit(Scene_Params ignored) {
@@ -86,14 +93,20 @@ static bool sceneInit(Scene_Params ignored) {
 	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
 	if (!nameText) goto f_nameText;
 
+	infoText = Text_Create(32);
+	if (!infoText) goto f_infoText;
+	Text_SetContent(infoText, "Tap a level number to preview");
+
 	levelPreview = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!levelPreview) goto f_levelPreview;
 
-	displayLevel(0);
+	levelIsSelected = false;
 
 	return true;
 
 f_levelPreview:
+	Text_Free(infoText);
+f_infoText:
 	Text_Free(nameText);
 f_nameText:
 f_levelCards:
@@ -116,6 +129,7 @@ static void sceneExit() {
 		}
 	}
 	Text_Free(nameText);
+	Text_Free(infoText);
 	BG_Free(levelPreview);
 }
 
@@ -130,13 +144,7 @@ static void sceneUpdate() {
 	Dispatcher_DispatchEvent(touchDispatcher);
 }
 
-static void sceneDraw() {
-	BG_UpdateGraphics(levelPreview);
-
-	C3D_RenderTarget *top = RenderTarget_GetTop();
-	C2D_TargetClear(top, COLOR_LGRAY);
-	C2D_SceneBegin(top);
-
+static void drawLevelPreview() {
 	Text_Draw(nameText, LEVEL_NAME_X, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
 
 	float scale = (float)(LEVEL_PREVIEW_WIDTH) / LEVEL_MAX_WIDTH;
@@ -174,6 +182,20 @@ static void sceneDraw() {
 			LEVEL_PREVIEW_X + LEVEL_PREVIEW_WIDTH,
 			LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE, 0,
 			0, true, true);
+}
+
+static void sceneDraw() {
+	BG_UpdateGraphics(levelPreview);
+
+	C3D_RenderTarget *top = RenderTarget_GetTop();
+	C2D_TargetClear(top, COLOR_LGRAY);
+	C2D_SceneBegin(top);
+
+	if (levelIsSelected) {
+		drawLevelPreview();
+	} else {
+		Text_Draw(infoText, 105, 60, 0, COLOR_DGRAY, 1);
+	}
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
