@@ -67,11 +67,12 @@ void SpriteSheet_Exit();
 C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite);
 
 /*
- * Note: (x, y) is the center of the sprite
- *
  * For SPRITE_BOMB, the "center" is offset vertically to match the visual
  * center of mass.
  */
+void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
+		float depth, float angle, bool flipHoriz, bool flipVert);
+
 void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
 		float angle, bool flipHoriz, bool flipVert);
 

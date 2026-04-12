@@ -331,7 +331,7 @@ static void sceneDraw() {
 
 	BG_Draw(bg, 0, 0, -1, 1, 1);
 	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
-	SpriteSheet_Draw(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
+	SpriteSheet_DrawCentered(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
 
 	C2D_ViewReset();
 

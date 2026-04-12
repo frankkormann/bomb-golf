@@ -27,8 +27,8 @@ C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite) {
 	return C2D_SpriteSheetGetImage(spriteSheet, sprite);
 }
 
-void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
-		float angle, bool flipHoriz, bool flipVert) {
+void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
+		float depth, float angle, bool flipHoriz, bool flipVert) {
 	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
 	C2D_DrawImage(img, &(C2D_DrawParams) {
 		.pos = {
@@ -46,12 +46,11 @@ void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
 	}, NULL);
 }
 
-void SpriteSheet_DrawTile(SpriteSheet_TileSprite tile, float x, float y, float depth,
-		float angle, bool flipHoriz, bool flipVert) {
+void drawTopLeft(C2D_Image img, float x, float y, float depth, float angle,
+		bool flipHoriz, bool flipVert) {
 	// We set the center to the tile's real center and offset its position so
 	// that its top-left corner is still (x, y). This way rotation works as
 	// expected (rotating about the center).
-	C2D_Image img = C2D_SpriteSheetGetImage(tileSheet, tile);
 	C2D_DrawImage(img, &(C2D_DrawParams) {
 		.pos = {
 			x + img.subtex->width * 0.5,
@@ -66,5 +65,17 @@ void SpriteSheet_DrawTile(SpriteSheet_TileSprite tile, float x, float y, float d
 		.depth = depth,
 		.angle = angle
 	}, NULL);
+}
+
+void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
+		float angle, bool flipHoriz, bool flipVert) {
+	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
+	drawTopLeft(img, x, y, depth, angle, flipHoriz, flipVert);
+}
+
+void SpriteSheet_DrawTile(SpriteSheet_TileSprite tile, float x, float y, float depth,
+		float angle, bool flipHoriz, bool flipVert) {
+	C2D_Image img = C2D_SpriteSheetGetImage(tileSheet, tile);
+	drawTopLeft(img, x, y, depth, angle, flipHoriz, flipVert);
 }
 

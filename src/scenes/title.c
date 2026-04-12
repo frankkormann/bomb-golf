@@ -81,7 +81,7 @@ static void sceneDraw() {
 	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);
 
-	SpriteSheet_Draw(SPRITE_TITLE, 200, 120, 1, 0, false, false);
+	SpriteSheet_Draw(SPRITE_TITLE, 0, 0, 1, 0, false, false);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();

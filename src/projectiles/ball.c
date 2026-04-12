@@ -202,12 +202,12 @@ static void draw(float depth) {
 			// fall through
 		case WAITING:
 		case FLYING_SHOULD_EXPLODE:
-			SpriteSheet_Draw(SPRITE_BOMB, data->x + 1, data->y + 1,
-					depth, 0, false, false);
+			SpriteSheet_DrawCentered(SPRITE_BOMB, data->x + 1,
+					data->y + 1, depth, 0, false, false);
 			break;
 		case FLYING_EXPLODED:
-			SpriteSheet_Draw(SPRITE_BALL, data->x + 1, data->y + 1,
-					depth, 0, false, false);
+			SpriteSheet_DrawCentered(SPRITE_BALL, data->x + 1,
+					data->y + 1, depth, 0, false, false);
 			break;
 	}
 }
