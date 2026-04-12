@@ -65,6 +65,39 @@ void Text_SetContent(Text text, char *format, ...) {
 	text->content[i] = '\0';
 }
 
+int getGlyphIndex(char c) {
+	if (c >= 0x21 && c <= 0x7E) {
+		return c - 0x21;
+	} else {
+		switch (c) {
+			case TEXT_KEY_A:
+				return 94;
+			case TEXT_KEY_B:
+				return 95;
+			case TEXT_KEY_X:
+				return 96;
+			case TEXT_KEY_Y:
+				return 97;
+			case TEXT_KEY_L:
+				return 98;
+			case TEXT_KEY_R:
+				return 99;
+			case TEXT_KEY_DPAD:
+				return 100;
+			case TEXT_KEY_DUP:
+				return 101;
+			case TEXT_KEY_DDOWN:
+				return 102;
+			case TEXT_KEY_DLEFT:
+				return 103;
+			case TEXT_KEY_DRIGHT:
+				return 104;
+			default:
+				return -1;
+		}
+	}
+}
+
 // Returns the drawn width
 float drawGlyph(int index, float x, float y, float depth, u32 color, int size,
 		GlyphPosition pos) {
@@ -92,54 +125,17 @@ void Text_Draw(Text text, float x, float y, float depth, u32 color, int size) {
 	float cy = y;
 	int glyphIndex = -1;
 	for (size_t i = 0; i < text->maxChars && text->content[i] != '\0'; i++) {
-		if (text->content[i] >= 0x21 && text->content[i] <= 0x7E) {
-			glyphIndex = text->content[i] - 0x21;
-		} else {
-			switch (text->content[i]) {
-				case '\n':
-					cx = x;
-					cy += TEXT_LINE_HEIGHT * size;
-					break;
-				case ' ':
-					cx += (SPACE_WIDTH + GLYPH_SPACING) * size;
-					break;
-				case TEXT_KEY_A:
-					glyphIndex = 94;
-					break;
-				case TEXT_KEY_B:
-					glyphIndex = 95;
-					break;
-				case TEXT_KEY_X:
-					glyphIndex = 96;
-					break;
-				case TEXT_KEY_Y:
-					glyphIndex = 97;
-					break;
-				case TEXT_KEY_L:
-					glyphIndex = 98;
-					break;
-				case TEXT_KEY_R:
-					glyphIndex = 99;
-					break;
-				case TEXT_KEY_DPAD:
-					glyphIndex = 100;
-					break;
-				case TEXT_KEY_DUP:
-					glyphIndex = 101;
-					break;
-				case TEXT_KEY_DDOWN:
-					glyphIndex = 102;
-					break;
-				case TEXT_KEY_DLEFT:
-					glyphIndex = 103;
-					break;
-				case TEXT_KEY_DRIGHT:
-					glyphIndex = 104;
-					break;
-				default:
-					break;
-			}
-
+		switch (text->content[i]) {
+			case '\n':
+				cx = x;
+				cy += TEXT_LINE_HEIGHT * size;
+				break;
+			case ' ':
+				cx += (SPACE_WIDTH + GLYPH_SPACING) * size;
+				break;
+			default:
+				glyphIndex = getGlyphIndex(text->content[i]);
+				break;
 		}
 		if (glyphIndex >= 0) {
 			cx += drawGlyph(glyphIndex, cx, cy, depth, color, size,
@@ -166,54 +162,17 @@ void Text_DrawRight(Text text, float x, float y, float depth, u32 color, int siz
 	}
 
 	for (; (int)(i - 1) >= -1; i--) {
-		if (text->content[i] >= 0x21 && text->content[i] <= 0x7E) {
-			glyphIndex = text->content[i] - 0x21;
-		} else {
-			switch (text->content[i]) {
-				case '\n':
-					cx = x;
-					cy -= TEXT_LINE_HEIGHT * size;
-					break;
-				case ' ':
-					cx -= (SPACE_WIDTH + GLYPH_SPACING) * size;
-					break;
-				case TEXT_KEY_A:
-					glyphIndex = 94;
-					break;
-				case TEXT_KEY_B:
-					glyphIndex = 95;
-					break;
-				case TEXT_KEY_X:
-					glyphIndex = 96;
-					break;
-				case TEXT_KEY_Y:
-					glyphIndex = 97;
-					break;
-				case TEXT_KEY_L:
-					glyphIndex = 98;
-					break;
-				case TEXT_KEY_R:
-					glyphIndex = 99;
-					break;
-				case TEXT_KEY_DPAD:
-					glyphIndex = 100;
-					break;
-				case TEXT_KEY_DUP:
-					glyphIndex = 101;
-					break;
-				case TEXT_KEY_DDOWN:
-					glyphIndex = 102;
-					break;
-				case TEXT_KEY_DLEFT:
-					glyphIndex = 103;
-					break;
-				case TEXT_KEY_DRIGHT:
-					glyphIndex = 104;
-					break;
-				default:
-					break;
-			}
-
+		switch (text->content[i]) {
+			case '\n':
+				cx = x;
+				cy -= TEXT_LINE_HEIGHT * size;
+				break;
+			case ' ':
+				cx -= (SPACE_WIDTH + GLYPH_SPACING) * size;
+				break;
+			default:
+				glyphIndex = getGlyphIndex(text->content[i]);
+				break;
 		}
 		if (glyphIndex >= 0) {
 			cx -= drawGlyph(glyphIndex, cx, cy, depth, color, size,
