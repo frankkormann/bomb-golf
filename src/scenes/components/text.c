@@ -18,6 +18,11 @@ struct text {
 	char content[];
 };
 
+typedef enum {
+	TOP_LEFT,
+	BOTTOM_RIGHT
+} GlyphPosition;
+
 static C2D_SpriteSheet fontSheet;
 
 bool Text_Init() {
@@ -61,17 +66,19 @@ void Text_SetContent(Text text, char *format, ...) {
 }
 
 // Returns the drawn width
-float drawGlyph(int index, float x, float y, float depth, u32 color, int size) {
+float drawGlyph(int index, float x, float y, float depth, u32 color, int size,
+		GlyphPosition pos) {
 	C2D_Image img = C2D_SpriteSheetGetImage(fontSheet, index);
 	C2D_ImageTint tint;
 	C2D_PlainImageTint(&tint, color, 1);
 	float width = img.subtex->width * size;
+	float height = img.subtex->height * size;
 	C2D_DrawImage(img, &(C2D_DrawParams) {
 		.pos = {
-			x,
-			y,
+			pos == TOP_LEFT ? x : x - width,
+			pos == TOP_LEFT ? y : y - height,
 			width,
-			img.subtex->height * size
+			height
 		},
 		.center = { 0, 0 },
 		.depth = depth,
@@ -129,13 +136,91 @@ void Text_Draw(Text text, float x, float y, float depth, u32 color, int size) {
 				case TEXT_KEY_DRIGHT:
 					glyphIndex = 104;
 					break;
+				default:
+					break;
 			}
 
 		}
 		if (glyphIndex >= 0) {
-			cx += drawGlyph(glyphIndex, cx, cy, depth, color, size)
-					+ (GLYPH_SPACING * size);
+			cx += drawGlyph(glyphIndex, cx, cy, depth, color, size,
+					TOP_LEFT);
+			cx += (GLYPH_SPACING * size);
 			glyphIndex = -1;
 		}
 	}
 }
+
+
+/*
+ * Draws text right-justified. (x, y) is the bottom-right corner.
+ */
+void Text_DrawRight(Text text, float x, float y, float depth, u32 color, int size) {
+	float cx = x;
+	float cy = y;
+	int glyphIndex = -1;
+
+	size_t i = 0;
+	while (i < text->maxChars) {
+		if (text->content[i] == '\0') break;
+		i++;
+	}
+
+	for (; (int)(i - 1) >= -1; i--) {
+		if (text->content[i] >= 0x21 && text->content[i] <= 0x7E) {
+			glyphIndex = text->content[i] - 0x21;
+		} else {
+			switch (text->content[i]) {
+				case '\n':
+					cx = x;
+					cy -= TEXT_LINE_HEIGHT * size;
+					break;
+				case ' ':
+					cx -= (SPACE_WIDTH + GLYPH_SPACING) * size;
+					break;
+				case TEXT_KEY_A:
+					glyphIndex = 94;
+					break;
+				case TEXT_KEY_B:
+					glyphIndex = 95;
+					break;
+				case TEXT_KEY_X:
+					glyphIndex = 96;
+					break;
+				case TEXT_KEY_Y:
+					glyphIndex = 97;
+					break;
+				case TEXT_KEY_L:
+					glyphIndex = 98;
+					break;
+				case TEXT_KEY_R:
+					glyphIndex = 99;
+					break;
+				case TEXT_KEY_DPAD:
+					glyphIndex = 100;
+					break;
+				case TEXT_KEY_DUP:
+					glyphIndex = 101;
+					break;
+				case TEXT_KEY_DDOWN:
+					glyphIndex = 102;
+					break;
+				case TEXT_KEY_DLEFT:
+					glyphIndex = 103;
+					break;
+				case TEXT_KEY_DRIGHT:
+					glyphIndex = 104;
+					break;
+				default:
+					break;
+			}
+
+		}
+		if (glyphIndex >= 0) {
+			cx -= drawGlyph(glyphIndex, cx, cy, depth, color, size,
+					BOTTOM_RIGHT);
+			cx -= (GLYPH_SPACING * size);
+			glyphIndex = -1;
+		}
+	}
+}
+
