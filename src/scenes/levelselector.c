@@ -16,11 +16,12 @@
 #include "../levelio.h"
 
 #define LEVEL_NAME_X 10
-#define LEVEL_NAME_Y 10
+#define LEVEL_NAME_Y 15
 
-#define LEVEL_PREVIEW_X 10
-#define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + TEXT_LINE_HEIGHT + 10)
-#define LEVEL_PREVIEW_WIDTH 380
+#define BORDER_TILE_SIZE 10
+#define LEVEL_PREVIEW_X BORDER_TILE_SIZE
+#define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + 25)
+#define LEVEL_PREVIEW_WIDTH (400 - 2*BORDER_TILE_SIZE)
 
 #define NUM_LEVEL_ROWS 6
 #define NUM_LEVEL_COLUMNS 3
@@ -57,10 +58,10 @@ static void displayLevel(int levelNum) {
 		return;
 	}
 	BG_ClearAll(levelPreview);
-	for (int x = 0; x < width / TILE_SIZE; x++) {
+	for (int x = 0; x < width / BORDER_TILE_SIZE; x++) {
 		for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
-			BG_DrawTile(levelPreview, tiles[x][y], x * TILE_SIZE,
-					y * TILE_SIZE, false);
+			BG_DrawTile(levelPreview, tiles[x][y], x * BORDER_TILE_SIZE,
+					y * BORDER_TILE_SIZE, false);
 		}
 	}
 	free(tiles);
@@ -159,19 +160,21 @@ static void drawLevelPreview() {
 			COLOR_DGREEN, 1);
 
 	float scale = (float)(LEVEL_PREVIEW_WIDTH) / LEVEL_MAX_WIDTH;
-	BG_Draw(levelPreview, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y + TILE_SIZE, 0, scale,
-			scale);
+	BG_Draw(levelPreview, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y + BORDER_TILE_SIZE,
+			0, scale, scale);
 
-	for (int x = LEVEL_PREVIEW_X; x <= LEVEL_PREVIEW_WIDTH; x += TILE_SIZE) {
-		SpriteSheet_Draw(SPRITE_GUI_BORDER, x, LEVEL_PREVIEW_Y, 0,
-				M_PI/2, true, false);
+	for (int x = LEVEL_PREVIEW_X; x <= LEVEL_PREVIEW_WIDTH;
+				x += BORDER_TILE_SIZE) {
+		SpriteSheet_Draw(SPRITE_GUI_BORDER, x, LEVEL_PREVIEW_Y, 0, M_PI/2,
+				true, false);
 		SpriteSheet_Draw(SPRITE_GUI_BORDER, x,
-				LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE, 0,
-				M_PI/2, false, false);
+				LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale
+					+ BORDER_TILE_SIZE,
+				0, M_PI/2, false, false);
 	}
-	for (int y = LEVEL_PREVIEW_Y + TILE_SIZE;
-			y <= LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE;
-			y += TILE_SIZE) {
+	for (int y = LEVEL_PREVIEW_Y + BORDER_TILE_SIZE;
+			y <= LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + BORDER_TILE_SIZE;
+			y += BORDER_TILE_SIZE) {
 		SpriteSheet_Draw(SPRITE_GUI_BORDER, 0, y, 0, 0, true, false);
 		SpriteSheet_Draw(SPRITE_GUI_BORDER,
 				LEVEL_PREVIEW_X + LEVEL_PREVIEW_WIDTH, y, 0,
@@ -187,11 +190,11 @@ static void drawLevelPreview() {
 			M_PI/2, false, false);
 	SpriteSheet_Draw(SPRITE_GUI_BORDER_CORNER,
 			0,
-			LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE, 0,
+			LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + BORDER_TILE_SIZE, 0,
 			M_PI/2, true, true);
 	SpriteSheet_Draw(SPRITE_GUI_BORDER_CORNER,
 			LEVEL_PREVIEW_X + LEVEL_PREVIEW_WIDTH,
-			LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + TILE_SIZE, 0,
+			LEVEL_PREVIEW_Y + LEVEL_HEIGHT*scale + BORDER_TILE_SIZE, 0,
 			0, true, true);
 }
 
