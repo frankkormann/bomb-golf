@@ -8,7 +8,8 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../util/macros.h"
-#include "../util/keychars.h"
+
+#define GLYPH_KEY_A ""
 
 static C2D_Text errText, infoText;
 static C2D_TextBuf textBuf;
@@ -29,7 +30,7 @@ static bool sceneInit(Scene_Params params) {
 	if (!textBuf) goto f_textBuf;
 
 	C2D_TextParse(&errText, textBuf, params.error.msg);
-	C2D_TextParse(&infoText, textBuf, KEYCHAR_A ": Go to title");
+	C2D_TextParse(&infoText, textBuf, GLYPH_KEY_A ": Go to title");
 	C2D_TextOptimize(&errText);
 	C2D_TextOptimize(&infoText);
 

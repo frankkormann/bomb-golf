@@ -16,7 +16,6 @@
 #include "../projectiles/ball.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
-#include "../util/keychars.h"
 #include "../levelio.h"
 
 #define HOLE_WIDTH (TILE_SIZE * 2)
