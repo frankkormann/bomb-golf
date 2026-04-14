@@ -24,12 +24,13 @@
 
 #define SCROLL_UNIT TILE_SIZE
 
-#define LEVEL_NAME_X 10
+#define TEXT_MARGIN 10
 #define LEVEL_NAME_Y 15
 #define LEVEL_PREVIEW_X 10
 #define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + 35) 
 #define LEVEL_PREVIEW_WIDTH 380
 #define LEVEL_PREVIEW_HEIGHT 90
+#define CONTROLS_TEXT_Y (LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 15)
 
 static Background bg;
 static float scroll;
@@ -41,9 +42,9 @@ static int projX, projY;
 static int par;
 static unsigned int level;
 
-static enum { INDIV, FILL } brushType;
+static enum { PENCIL, RECTANGLE } brushType;
 
-static Text infoText, controlsText1, controlsText2, levelTitleText;
+static Text nameText, parText, controlsText1, controlsText2;
 
 static Dispatcher touchDispatcher;
 
@@ -65,10 +66,16 @@ static bool sceneInit(Scene_Params params) {
 		goto f_bg;
 	}
 
-	levelTitleText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
-	if (!levelTitleText) {
+	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
+	if (!nameText) {
 		errMsg = "Out of memory";
-		goto f_levelTitleText;
+		goto f_nameText;
+	}
+
+	parText = Text_Create(9);
+	if (!parText) {
+		errMsg = "Out of memory";
+		goto f_parText;
 	}
 
 	char path[LEVEL_PATH_MAX];
@@ -104,7 +111,7 @@ static bool sceneInit(Scene_Params params) {
 			}
 		}
 
-		Text_SetContent(levelTitleText, name);
+		Text_SetContent(nameText, name);
 		free(name);
 	} else {
 		tiles = malloc(sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
@@ -123,13 +130,7 @@ static bool sceneInit(Scene_Params params) {
 		projX = 40 + (TILE_SIZE / 2);
 		projY = 190 + (TILE_SIZE / 2);
 
-		Text_SetContent(levelTitleText, "");
-	}
-
-	infoText = Text_Create(50);
-	if (!infoText) {
-		errMsg = "Out of memory";
-		goto f_infoText;
+		Text_SetContent(nameText, "");
 	}
 
 	controlsText1 = Text_Create(128);
@@ -172,7 +173,7 @@ static bool sceneInit(Scene_Params params) {
 
 	scroll = 0;
 	level = params.editor.level;
-	brushType = INDIV;
+	brushType = PENCIL;
 
 	return true;
 
@@ -183,13 +184,13 @@ f_TileSelector:
 f_controlsText2:
 	Text_Free(controlsText1);
 f_controlsText1:
-	Text_Free(infoText);
-f_infoText:
 f_newTiles:
 	free(tiles);
 f_tiles:
-	Text_Free(levelTitleText);
-f_levelTitleText:
+	Text_Free(parText);
+f_parText:
+	Text_Free(nameText);
+f_nameText:
 	BG_Free(bg);
 f_bg:
 	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
@@ -199,10 +200,10 @@ f_bg:
 static void sceneExit() {
 	BG_Free(bg);
 	free(tiles);
-	Text_Free(infoText);
 	Text_Free(controlsText1);
 	Text_Free(controlsText2);
-	Text_Free(levelTitleText);
+	Text_Free(nameText);
+	Text_Free(parText);
 	Dispatcher_Free(touchDispatcher);
 	TileSelector_Exit();
 }
@@ -260,7 +261,7 @@ static bool handleTouchInput(void *ignored) {
 		} else if (kHeld & KEY_DUP) {
 			projX = tileX * TILE_SIZE + (TILE_SIZE / 2);
 			projY = tileY * TILE_SIZE + (TILE_SIZE / 2);
-		} else if (brushType == FILL) {
+		} else if (brushType == RECTANGLE) {
 			int tileX2 = (TouchInput_GetSwipe().start.px + scroll)
 					/ TILE_SIZE;
 			int tileY2 = (TouchInput_GetSwipe().start.py)
@@ -275,7 +276,7 @@ static bool handleTouchInput(void *ignored) {
 					changeTile(x, y, TileSelector_GetTile());
 				}
 			}
-		} else if (brushType == INDIV) {
+		} else if (brushType == PENCIL) {
 			changeTile(tileX, tileY, TileSelector_GetTile());
 		}
 	}
@@ -304,7 +305,7 @@ static void sceneUpdate() {
 	if (kDown & KEY_DRIGHT) par++;
 
 	if (kDown & KEY_L || kDown & KEY_R) {
-		brushType = brushType == INDIV ? FILL : INDIV;
+		brushType = brushType == PENCIL ? RECTANGLE : PENCIL;
 	}	
 
 	if (kDown & KEY_A) {
@@ -322,8 +323,7 @@ static void sceneUpdate() {
 
 	Dispatcher_DispatchEvent(touchDispatcher);
 
-	Text_SetContent(infoText, "Par: %i\nBrush: %s", par,
-			brushType == INDIV ? "Pencil" : "Rectangle");
+	Text_SetContent(parText, "Par %i", par);
 }
 
 static void drawRectOutline(int x, int y, int width, int height, u32 color, int 		outlineWidth) {
@@ -358,15 +358,16 @@ static void sceneDraw() {
 	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);
 
+	Text_Draw(nameText, TEXT_MARGIN, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
+	Text_DrawRight(parText, 390, LEVEL_NAME_Y + TEXT_LINE_HEIGHT, 0,
+			COLOR_DGREEN, 1);
 	BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
 			LEVEL_PREVIEW_HEIGHT);
 	Border_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
 			LEVEL_PREVIEW_HEIGHT);
 
-	Text_Draw(controlsText1, 10, 14, 0, COLOR_DGREEN, 1);
-	Text_Draw(controlsText2, 160, 14, 0, COLOR_DGREEN, 1);
-	Text_Draw(infoText, 10, 180, 0, COLOR_DGREEN, 1);
-	Text_Draw(levelTitleText, 10, 220, 0, COLOR_DGREEN, 1);
+	Text_Draw(controlsText1, TEXT_MARGIN, CONTROLS_TEXT_Y, 0, COLOR_DGREEN, 1);
+	Text_Draw(controlsText2, 160, CONTROLS_TEXT_Y, 0, COLOR_DGREEN, 1);
 }
 
 Scene sceneEditor = &(struct scene) {
