@@ -10,6 +10,7 @@
 #include "components/text.h"
 #include "components/tileselector.h"
 #include "components/background.h"
+#include "components/border.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
@@ -22,6 +23,13 @@
 #define HOLE_HEIGHT (TILE_SIZE * 4)
 
 #define SCROLL_UNIT TILE_SIZE
+
+#define LEVEL_NAME_X 10
+#define LEVEL_NAME_Y 15
+#define LEVEL_PREVIEW_X 10
+#define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + 35) 
+#define LEVEL_PREVIEW_WIDTH 380
+#define LEVEL_PREVIEW_HEIGHT 90
 
 static Background bg;
 static float scroll;
@@ -188,6 +196,17 @@ f_bg:
 	return false;
 }
 
+static void sceneExit() {
+	BG_Free(bg);
+	free(tiles);
+	Text_Free(infoText);
+	Text_Free(controlsText1);
+	Text_Free(controlsText2);
+	Text_Free(levelTitleText);
+	Dispatcher_Free(touchDispatcher);
+	TileSelector_Exit();
+}
+
 static bool exportLevel() {
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(level, false, path);
@@ -336,26 +355,18 @@ static void sceneDraw() {
 
 
 	C3D_RenderTarget *top = RenderTarget_GetTop();
-	C2D_TargetClear(top, COLOR_WHITE);
+	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);
 
-	BG_DrawFit(bg, 0, 0, 0, 400, 240);
+	BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
+			LEVEL_PREVIEW_HEIGHT);
+	Border_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
+			LEVEL_PREVIEW_HEIGHT);
 
 	Text_Draw(controlsText1, 10, 14, 0, COLOR_DGREEN, 1);
 	Text_Draw(controlsText2, 160, 14, 0, COLOR_DGREEN, 1);
 	Text_Draw(infoText, 10, 180, 0, COLOR_DGREEN, 1);
 	Text_Draw(levelTitleText, 10, 220, 0, COLOR_DGREEN, 1);
-}
-
-static void sceneExit() {
-	BG_Free(bg);
-	free(tiles);
-	Text_Free(infoText);
-	Text_Free(controlsText1);
-	Text_Free(controlsText2);
-	Text_Free(levelTitleText);
-	Dispatcher_Free(touchDispatcher);
-	TileSelector_Exit();
 }
 
 Scene sceneEditor = &(struct scene) {

@@ -22,6 +22,7 @@
 #define LEVEL_PREVIEW_X 10
 #define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + 35)
 #define LEVEL_PREVIEW_WIDTH 380
+#define LEVEL_PREVIEW_HEIGHT 90
 
 #define NUM_LEVEL_ROWS 6
 #define NUM_LEVEL_COLUMNS 3
@@ -154,18 +155,6 @@ static void sceneUpdate() {
 	Dispatcher_DispatchEvent(touchDispatcher);
 }
 
-static void drawLevelPreview() {
-	Text_Draw(nameText, LEVEL_NAME_X, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
-	Text_DrawRight(parText, 390, LEVEL_NAME_Y + TEXT_LINE_HEIGHT, 0,
-			COLOR_DGREEN, 1);
-
-	float scale = (float)(LEVEL_PREVIEW_WIDTH) / LEVEL_MAX_WIDTH;
-	BG_Draw(levelPreview, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, scale, scale);
-
-	Border_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
-			LEVEL_HEIGHT * scale);
-}
-
 static void sceneDraw() {
 	BG_UpdateGraphics(levelPreview);
 
@@ -174,7 +163,13 @@ static void sceneDraw() {
 	C2D_SceneBegin(top);
 
 	if (levelIsSelected) {
-		drawLevelPreview();
+		Text_Draw(nameText, LEVEL_NAME_X, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
+		Text_DrawRight(parText, 390, LEVEL_NAME_Y + TEXT_LINE_HEIGHT, 0,
+				COLOR_DGREEN, 1);
+		BG_DrawFit(levelPreview, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
+				LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT);
+		Border_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
+				LEVEL_PREVIEW_HEIGHT);
 	} else {
 		Text_Draw(infoText, 105, 60, 0, COLOR_DGRAY, 1);
 	}
