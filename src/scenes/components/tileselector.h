@@ -10,6 +10,8 @@
 #include "../../tile.h"
 #include "../../util/dispatcher.h"
 
+#define TILE_SELECTOR_HEIGHT TILE_SIZE
+
 /*
  * Intializes the tile selector.
  *

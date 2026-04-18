@@ -11,6 +11,7 @@
 #include "components/tileselector.h"
 #include "components/background.h"
 #include "components/border.h"
+#include "components/button.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
@@ -31,6 +32,10 @@
 #define LEVEL_PREVIEW_WIDTH 380
 #define LEVEL_PREVIEW_HEIGHT 90
 #define CONTROLS_TEXT_Y (LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 15)
+#define DETAILS_MENU_X 200
+#define DETAILS_MENU_Y (TILE_SELECTOR_HEIGHT + BORDER_WIDTH + 10)
+#define DETAILS_MENU_WIDTH 120
+#define DETAILS_MENU_HEIGHT (240 - DETAILS_MENU_Y - BORDER_WIDTH - 10)
 
 static Background bg;
 static float scroll;
@@ -43,8 +48,10 @@ static int par;
 static unsigned int level;
 
 static enum { PENCIL, RECTANGLE } brushType;
+static Button showDetailsButton, hideDetailsButton;
 
 static Text nameText, parText, controlsText1, controlsText2;
+static bool detailsMenuOpen;
 
 static Dispatcher touchDispatcher;
 
@@ -54,8 +61,9 @@ Scene_Params Editor_MakeParams(unsigned int level) {
 	} };
 }
 
-// Declaration needed to register with the dispatcher
+// Declarations needed to register with dispatcher, buttons
 static bool handleTouchInput(void *ignored);
+static void toggleDetailsMenu(void *ignored);
 
 static bool sceneInit(Scene_Params params) {
 	char *errMsg = "";
@@ -171,12 +179,35 @@ static bool sceneInit(Scene_Params params) {
 			.priority = 0, NULL, handleTouchInput });
 	TileSelector_RegisterForTouchEvents(touchDispatcher, 1);
 
+	showDetailsButton = Button_Create(308, DETAILS_MENU_Y,
+			SPRITE_BUTTON_LEFT, NULL, toggleDetailsMenu);
+	if (!showDetailsButton) {
+		errMsg = "Out of memory";
+		goto f_showDetailsButton;
+	}
+	Button_RegisterForTouchEvents(showDetailsButton, touchDispatcher, 2);
+
+	hideDetailsButton = Button_Create(DETAILS_MENU_X - BORDER_WIDTH - 11,
+			DETAILS_MENU_Y, SPRITE_BUTTON_RIGHT, NULL,
+			toggleDetailsMenu);
+	if (!hideDetailsButton) {
+		errMsg = "Out of memory";
+		goto f_hideDetailsButton;
+	}
+	Button_RegisterForTouchEvents(hideDetailsButton, touchDispatcher, 2);
+	Button_Disable(hideDetailsButton);
+
 	scroll = 0;
 	level = params.editor.level;
 	brushType = PENCIL;
+	detailsMenuOpen = false;
 
 	return true;
 
+f_hideDetailsButton:
+	Button_Free(showDetailsButton);
+f_showDetailsButton:
+	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
 	TileSelector_Exit();
 f_TileSelector:
@@ -206,6 +237,8 @@ static void sceneExit() {
 	Text_Free(parText);
 	Dispatcher_Free(touchDispatcher);
 	TileSelector_Exit();
+	Button_Free(showDetailsButton);
+	Button_Free(hideDetailsButton);
 }
 
 static bool exportLevel() {
@@ -284,6 +317,18 @@ static bool handleTouchInput(void *ignored) {
 	return true;
 }
 
+// ignored param is to match the signature of Button callbacks
+static void toggleDetailsMenu(void *ignored) {
+	detailsMenuOpen = !detailsMenuOpen;
+	if (detailsMenuOpen) {
+		Button_Disable(showDetailsButton);
+		Button_Enable(hideDetailsButton);
+	} else {
+		Button_Disable(hideDetailsButton);
+		Button_Enable(showDetailsButton);
+	}
+}
+
 static void sceneUpdate() {
 	if (BG_IsUpdating(bg)) return;
 
@@ -335,23 +380,17 @@ static void drawRectOutline(int x, int y, int width, int height, u32 color, int 
 			color);
 }
 
+static void drawDetailsMenu() {
+	Button_Draw(hideDetailsButton, 1);
+	Border_Draw(DETAILS_MENU_X, DETAILS_MENU_Y, 0.8, DETAILS_MENU_WIDTH,
+			DETAILS_MENU_HEIGHT);
+	C2D_DrawRectSolid(DETAILS_MENU_X, DETAILS_MENU_Y, 0.8, DETAILS_MENU_WIDTH,
+			DETAILS_MENU_HEIGHT, COLOR_LGRAY);
+}
+
 static void sceneDraw() {
 	BG_UpdateGraphics(bg);
 	TileSelector_UpdateGraphics();
-
-	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
-	C2D_TargetClear(bottom, COLOR_WHITE);
-	C2D_SceneBegin(bottom);
-
-	TileSelector_Draw(1);
-
-	C2D_ViewTranslate(-scroll, 0);
-
-	BG_Draw(bg, 0, 0, -1, 1, 1);
-	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
-	SpriteSheet_DrawCentered(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
-
-	C2D_ViewReset();
 
 
 	C3D_RenderTarget *top = RenderTarget_GetTop();
@@ -368,6 +407,23 @@ static void sceneDraw() {
 
 	Text_Draw(controlsText1, TEXT_MARGIN, CONTROLS_TEXT_Y, 0, COLOR_DGREEN, 1);
 	Text_Draw(controlsText2, 160, CONTROLS_TEXT_Y, 0, COLOR_DGREEN, 1);
+
+
+	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
+	C2D_TargetClear(bottom, COLOR_WHITE);
+	C2D_SceneBegin(bottom);
+
+	C2D_ViewTranslate(-scroll, 0);
+
+	BG_Draw(bg, 0, 0, -1, 1, 1);
+	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
+	SpriteSheet_DrawCentered(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
+
+	C2D_ViewReset();
+
+	TileSelector_Draw(0.5);
+	Button_Draw(showDetailsButton, 1);
+	if (detailsMenuOpen) drawDetailsMenu();
 }
 
 Scene sceneEditor = &(struct scene) {
