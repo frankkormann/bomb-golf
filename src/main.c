@@ -33,8 +33,10 @@ int main() {
 		hidScanInput();
 		TouchInput_Scan();
 		
-		u32 kDown = hidKeysDown();
-		if (kDown & KEY_START) break;
+		#ifndef _CIA
+			u32 kDown = hidKeysDown();
+			if (kDown & KEY_START) break;
+		#endif
 
 		Scene_Update();
 		Animation_Update();
