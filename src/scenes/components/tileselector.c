@@ -45,11 +45,15 @@ static void handleExpand(void *ignored) {
 	mode = mode == HIDDEN ? HOTBAR
 	     : mode == HOTBAR ? POPUP_MENU
 	     : mode;
+	if (mode == HOTBAR) Button_Enable(buttonShrink);
+	if (mode == POPUP_MENU) Button_Disable(buttonExpand);
 }
 static void handleShrink(void *ignored) {
 	mode = mode == POPUP_MENU ? HOTBAR
 	     : mode == HOTBAR ? HIDDEN
 	     : mode;
+	if (mode == HOTBAR) Button_Enable(buttonExpand);
+	if (mode == HIDDEN) Button_Disable(buttonShrink);
 }
 
 static void setHotbarTile(Tile tile, int index) {
@@ -146,9 +150,7 @@ static bool handleTouchInputHotbar() {
 static bool handleTouchInputPopup() {
 	TouchInput_Swipe touch = TouchInput_GetSwipe();
 	if (!touchWithinBounds(touch.start, POPUP_X,POPUP_Y, POPUP_WIDTH,
-			POPUP_HEIGHT)
-		&& !touchWithinBounds(touch.start, HOTBAR_X, HOTBAR_Y,
-				HOTBAR_WIDTH, HOTBAR_HEIGHT)) {
+			POPUP_HEIGHT)) {
 		return handleTouchInputHotbar();
 	}
 
@@ -157,7 +159,7 @@ static bool handleTouchInputPopup() {
 		int tileIndex = (touch.end.px - POPUP_X) / (TILE_SIZE + TILE_GAP);
 		int tileOrient = (touch.end.py - POPUP_Y) / (TILE_SIZE + TILE_GAP);
 		setHotbarTile(Tile_Make(tileIndex, tileOrient), selectedHotbarIndex);
-		mode = HOTBAR;
+		handleShrink(NULL);
 	}
 
 	return true;
