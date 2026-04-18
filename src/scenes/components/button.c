@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <stdbool.h>
 #include <citro2d.h>
 #include "button.h"
 #include "../../util/dispatcher.h"
@@ -11,6 +12,7 @@ struct button {
 	SpriteSheet_Sprite icon;
 	void *onTouchParam;
 	void (*onTouch)(void* param);
+	bool isEnabled;
 };
 
 Button Button_Create(float x, float y, SpriteSheet_Sprite icon,
@@ -23,6 +25,7 @@ Button Button_Create(float x, float y, SpriteSheet_Sprite icon,
 	button->icon = icon;
 	button->onTouchParam = onTouchParam;
 	button->onTouch = onTouch;
+	button->isEnabled = true;
 
 	return button;
 }
@@ -43,6 +46,8 @@ static bool handleTouch(void* buttonParam) {
 	if (!TouchInput_InProgress() && !TouchInput_JustFinished()) return false;
 
 	Button button = (Button)buttonParam;
+	if (!button->isEnabled) return false;
+
 	TouchInput_Swipe touch = TouchInput_GetSwipe();
 	if (!touchWithinBounds(button, touch.start)) return false;
 
@@ -65,6 +70,16 @@ void Button_RemoveFromTouchDispatcher(Button button, Dispatcher touchDispatcher)
 }
 
 void Button_Draw(Button button, float depth) {
+	if (!button->isEnabled) return;
+
 	C2D_Image iconImg = SpriteSheet_GetImage(button->icon);
 	C2D_DrawImageAt(iconImg, button->x, button->y, depth, NULL, 1, 1);
+}
+
+void Button_Disable(Button button) {
+	button->isEnabled = false;
+}
+
+void Button_Enable(Button button) {
+	button->isEnabled = true;
 }

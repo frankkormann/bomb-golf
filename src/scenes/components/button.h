@@ -47,4 +47,15 @@ void Button_RemoveFromTouchDispatcher(Button button, Dispatcher touchDispatcher)
  */
 void Button_Draw(Button button, float depth);
 
+/*
+ * While disabled, button will not be drawn and will not response to touch
+ * events. Buttons are enabled by default.
+ */
+void Button_Disable(Button button);
+
+/*
+ * Reverses Button_Disable. Buttons are enabled by default.
+ */
+void Button_Enable(Button button);
+
 #endif
