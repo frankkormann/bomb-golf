@@ -1,3 +1,5 @@
+//TODO consider changing this implementation to a linked list or circular array
+
 #include <malloc.h>
 #include <stddef.h>
 #include <stdbool.h>
