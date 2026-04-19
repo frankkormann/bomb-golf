@@ -17,12 +17,15 @@ button_up.png
 button_down.png
 button_left.png
 button_right.png
+small_button.png
+medium_button.png
+large_button.png
 hotbar_overlay.png
 title.png
-title_button.png
 level_card_background.png
 level_edit_button.png
 level_play_button.png
 level_play_button_disabled.png
 gui_border.png
 gui_border_corner.png
+par_label.png

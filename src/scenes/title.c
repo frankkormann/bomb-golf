@@ -47,12 +47,12 @@ static bool sceneInit(Scene_Params ignored) {
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
 
-	startButton = Button_Create(BUTTON_X, BUTTON_START_Y, SPRITE_TITLE_BUTTON,
+	startButton = Button_Create(BUTTON_X, BUTTON_START_Y, SPRITE_LARGE_BUTTON,
 			NULL, startGame);
 	if (!startButton) goto f_startButton;
 	Button_RegisterForTouchEvents(startButton, touchDispatcher, 1);
 
-	editorButton = Button_Create(BUTTON_X, BUTTON_EDITOR_Y, SPRITE_TITLE_BUTTON,
+	editorButton = Button_Create(BUTTON_X, BUTTON_EDITOR_Y, SPRITE_LARGE_BUTTON,
 			NULL, openEditor);
 	if (!editorButton) goto f_editorButton;
 	Button_RegisterForTouchEvents(editorButton, touchDispatcher, 1);
