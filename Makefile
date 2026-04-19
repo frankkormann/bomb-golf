@@ -63,7 +63,8 @@ VER_MICRO	:=	0
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
 CFLAGS	:=	-Wall -Wextra -O3 -mword-relocations -ffunction-sections \
-			$(ARCH) -std=c99 -Wno-unused-parameter
+			$(ARCH) -std=c99 \
+			-Wno-unused-parameter -Wno-cast-function-type
 
 CFLAGS	+=	$(INCLUDE) -D__3DS__
 
