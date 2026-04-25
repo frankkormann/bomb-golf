@@ -60,6 +60,7 @@ bool EditorMenu_Init(
 	editNameButton = Button_Create(MENU_BUTTON_X, MENU_BUTTON_Y,
 			SPRITE_MEDIUM_BUTTON, NULL, editName);
 	if (!editNameButton) goto f_editNameButton;
+	Button_Disable(editNameButton);
 
 	editNameText = Text_Create(16);
 	if (!editNameText) goto f_editNameText;
