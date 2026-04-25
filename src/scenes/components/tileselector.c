@@ -8,7 +8,6 @@
 #include "../../tile.h"
 #include "../../rendering/colors.h"
 #include "../../util/touchinput.h"
-#include "../../util/macros.h"
 
 #define HOTBAR_LENGTH 21
 

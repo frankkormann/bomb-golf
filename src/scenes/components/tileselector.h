@@ -32,7 +32,8 @@ void TileSelector_Exit();
 bool TileSelector_RegisterForTouchEvents(Dispatcher touchDispatcher, int priority);
 
 /*
- * Use this if you are exiting the tile selector without freeing touchDispatcher.
+ * Use this if you are exiting the tile selector without freeing
+ * touchDispatcher.
  *
  * touchDispatcher should be the same Dispatcher passed to
  * TileSelector_RegisterForTouchEvents.
