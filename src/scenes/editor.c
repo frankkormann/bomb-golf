@@ -13,6 +13,7 @@
 #include "components/border.h"
 #include "components/button.h"
 #include "components/editormenu.h"
+#include "components/brushselector.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
@@ -44,8 +45,6 @@ static int projX, projY;
 static int par;
 static unsigned int level;
 static char *name;
-
-static enum { PENCIL, RECTANGLE } brushType;
 
 static Text nameText, parText, controlsText1, controlsText2;
 
@@ -178,12 +177,19 @@ static bool sceneInit(Scene_Params params) {
 	}
 	EditorMenu_RegisterForTouchEvents(touchDispatcher, 3);
 
+	if (!BrushSelector_Init(BRUSH_PENCIL)) {
+		errMsg = "Out of memory";
+		goto f_BrushSelector;
+	}
+	BrushSelector_RegisterForTouchEvents(touchDispatcher, 3);
+
 	scroll = 0;
 	level = params.editor.level;
-	brushType = PENCIL;
 
 	return true;
 
+f_BrushSelector:
+	EditorMenu_Exit();
 f_EditorMenu:
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
@@ -217,6 +223,7 @@ static void sceneExit() {
 	Dispatcher_Free(touchDispatcher);
 	TileSelector_Exit();
 	EditorMenu_Exit();
+	BrushSelector_Exit();
 }
 
 static bool exportLevel() {
@@ -246,21 +253,18 @@ static void changeTile(int tileX, int tileY, Tile newTile) {
 
 // ignored param is to match the signature of Dispatcher_Handler
 static bool handleTouchInput(void *ignored) {
-	u32 kHeld = hidKeysHeld();
+	if (!TouchInput_InProgress()) return false;
 
-	if (TouchInput_InProgress()) {
-		float courseX = TouchInput_GetSwipe().end.px + scroll;
-		float courseY = TouchInput_GetSwipe().end.py;
-		int tileX = courseX / TILE_SIZE;
-		int tileY = courseY / TILE_SIZE;
+	float courseX = TouchInput_GetSwipe().end.px + scroll;
+	float courseY = TouchInput_GetSwipe().end.py;
+	int tileX = courseX / TILE_SIZE;
+	int tileY = courseY / TILE_SIZE;
 
-		if (kHeld & KEY_DDOWN) {
-			holeX = tileX * TILE_SIZE;
-			holeY = tileY * TILE_SIZE;
-		} else if (kHeld & KEY_DUP) {
-			projX = tileX * TILE_SIZE + (TILE_SIZE / 2);
-			projY = tileY * TILE_SIZE + (TILE_SIZE / 2);
-		} else if (brushType == RECTANGLE) {
+	switch (BrushSelector_GetBrush()) {
+		case BRUSH_PENCIL:
+			changeTile(tileX, tileY, TileSelector_GetTile());
+			break;
+		case BRUSH_RECTANGLE:
 			int tileX2 = (TouchInput_GetSwipe().start.px + scroll)
 					/ TILE_SIZE;
 			int tileY2 = (TouchInput_GetSwipe().start.py)
@@ -275,9 +279,15 @@ static bool handleTouchInput(void *ignored) {
 					changeTile(x, y, TileSelector_GetTile());
 				}
 			}
-		} else if (brushType == PENCIL) {
-			changeTile(tileX, tileY, TileSelector_GetTile());
-		}
+			break;
+		case BRUSH_BALL_POS:
+			projX = tileX * TILE_SIZE + (TILE_SIZE / 2);
+			projY = tileY * TILE_SIZE + (TILE_SIZE / 2);
+			break;
+		case BRUSH_HOLE_POS:
+			holeX = tileX * TILE_SIZE;
+			holeY = tileY * TILE_SIZE;
+			break;
 	}
 
 	return true;
@@ -329,7 +339,7 @@ static void changePar(int change) {
 static void sceneUpdate() {
 	if (BG_IsUpdating(bg)) return;
 
-	u32 kDown = hidKeysDown();
+//	u32 kDown = hidKeysDown();
 	u32 kHeld = hidKeysHeld();
 
 	if (kHeld & KEY_CPAD_LEFT || kHeld & KEY_CSTICK_LEFT)
@@ -337,10 +347,6 @@ static void sceneUpdate() {
 	if (kHeld & KEY_CPAD_RIGHT || kHeld & KEY_CSTICK_RIGHT)
 		scroll += SCROLL_UNIT;
 	scroll = clamp(scroll, 0, LEVEL_MAX_WIDTH - 320);
-
-	if (kDown & KEY_L || kDown & KEY_R) {
-		brushType = brushType == PENCIL ? RECTANGLE : PENCIL;
-	}	
 
 	Dispatcher_DispatchEvent(touchDispatcher);
 
@@ -390,6 +396,7 @@ static void sceneDraw() {
 	C2D_ViewReset();
 
 	TileSelector_Draw(0.5);
+	BrushSelector_Draw(0.5);
 	EditorMenu_Draw(1);
 }
 
