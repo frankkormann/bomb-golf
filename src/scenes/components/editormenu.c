@@ -219,55 +219,58 @@ void EditorMenu_RemoveFromTouchDispatcher(Dispatcher touchDispatcher) {
 }
 
 void EditorMenu_Draw(float depth) {
-	Button_Draw(showButton, depth);
+	float layer1 = depth,
+		layer2 = nextafterf(layer1, 0),
+		layer3 = nextafterf(layer2, 0);
+	Button_Draw(showButton, layer1);
 	if (!isMenuOpen) return;
 
-	Button_Draw(hideButton, depth);
-	Border_Draw(MENU_X, MENU_Y, depth - 0.02, MENU_WIDTH, MENU_HEIGHT);
-	C2D_DrawRectSolid(MENU_X, MENU_Y, depth - 0.02, MENU_WIDTH, MENU_HEIGHT,
+	Button_Draw(hideButton, layer1);
+	Border_Draw(MENU_X, MENU_Y, layer3, MENU_WIDTH, MENU_HEIGHT);
+	C2D_DrawRectSolid(MENU_X, MENU_Y, layer3, MENU_WIDTH, MENU_HEIGHT,
 			COLOR_LGRAY);
 
-	Button_Draw(editNameButton, depth - 0.01);
-	Button_Draw(saveButton, depth - 0.01);
-	Button_Draw(exitButton, depth - 0.01);
+	Button_Draw(editNameButton, layer2);
+	Button_Draw(saveButton, layer2);
+	Button_Draw(exitButton, layer2);
 	Text_Draw(
 			editNameText,
 			MENU_BUTTON_X + 10,
 			MENU_BUTTON_Y + 5,
-			depth, COLOR_LGRAY, 1
+			layer1, COLOR_LGRAY, 1
 		);
 	Text_Draw(
 			saveText,
 			MENU_BUTTON_X + 10,
 			MENU_BUTTON_Y + MENU_BUTTON_GAP + 5,
-			depth, COLOR_LGRAY, 1
+			layer1, COLOR_LGRAY, 1
 		);
 	Text_Draw(
 			exitText,
 			MENU_BUTTON_X + 10,
 			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 5,
-			depth, COLOR_LGRAY, 1
+			layer1, COLOR_LGRAY, 1
 		);
 
 	C2D_DrawImageAt(
 			SpriteSheet_GetImage(SPRITE_PAR_LABEL),
 			MENU_BUTTON_X + 2,
 			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP - 1,
-			depth,
+			layer1,
 			NULL, 1, 1
 		);
-	Button_Draw(parUpButton, depth - 0.01);
-	Button_Draw(parDownButton, depth - 0.01);
+	Button_Draw(parUpButton, layer2);
+	Button_Draw(parDownButton, layer2);
 	Text_Draw(
 			parUpText,
 			MENU_X + MENU_WIDTH - 40,
 			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP + 10,
-			depth, COLOR_LGRAY, 2
+			layer1, COLOR_LGRAY, 2
 		);
 	Text_Draw(
 			parDownText,
 			MENU_BUTTON_X + 18,
 			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP + 10,
-			depth, COLOR_LGRAY, 2
+			layer1, COLOR_LGRAY, 2
 		);
 }
