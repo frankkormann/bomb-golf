@@ -148,7 +148,7 @@ static bool sceneInit(Scene_Params params) {
 	}
 	Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
 			.priority = 0, NULL, handleTouchInput });
-	TileSelector_RegisterForTouchEvents(touchDispatcher, 1);
+	TileSelector_RegisterForTouchEvents(touchDispatcher, 2);
 
 	if (!EditorMenu_Init(editName, saveExit, exitNoSave, changePar)) {
 		errMsg = "Out of memory";
@@ -160,7 +160,7 @@ static bool sceneInit(Scene_Params params) {
 		errMsg = "Out of memory";
 		goto f_BrushSelector;
 	}
-	BrushSelector_RegisterForTouchEvents(touchDispatcher, 3);
+	BrushSelector_RegisterForTouchEvents(touchDispatcher, 1);
 
 	scroll = 0;
 	level = params.editor.level;
@@ -366,7 +366,7 @@ static void sceneDraw() {
 	C2D_ViewReset();
 
 	TileSelector_Draw(0.5);
-	BrushSelector_Draw(0.5);
+	BrushSelector_Draw(0.4);
 	EditorMenu_Draw(1);
 }
 
