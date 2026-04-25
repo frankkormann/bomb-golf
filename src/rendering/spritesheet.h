@@ -39,7 +39,11 @@ typedef enum {
 	SPRITE_LEVEL_PLAY_BUTTON_DISABLED,
 	SPRITE_GUI_BORDER,
 	SPRITE_GUI_BORDER_CORNER,
-	SPRITE_PAR_LABEL
+	SPRITE_PAR_LABEL,
+	SPRITE_PENCIL_BUTTON,
+	SPRITE_RECTANGLE_BUTTON,
+	SPRITE_BALL_BUTTON,
+	SPRITE_HOLE_BUTTON
 } SpriteSheet_Sprite;
 
 // These values are written directly into level files, so be careful when
