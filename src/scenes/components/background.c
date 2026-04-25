@@ -179,6 +179,8 @@ bool BG_IsUpdating(Background bg) {
 void BG_Draw(Background bg, float x, float y, float depth, float scaleX,
 		float scaleY) {
 	C2D_Image img = { &bg->tex, &bg->subtex };
+	//TODO Figure out how to make minified scaling look less muddy
+	C3D_TexSetFilter(&bg->tex, GPU_LINEAR, GPU_LINEAR);
 	C2D_DrawImageAt(img, x, y, depth, NULL, scaleX, scaleY);
 }
 
