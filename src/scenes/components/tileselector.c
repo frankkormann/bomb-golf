@@ -1,6 +1,4 @@
 #include <stdbool.h>
-#include <malloc.h>
-#include <3ds.h>
 #include <citro2d.h>
 #include "tileselector.h"
 #include "button.h"
