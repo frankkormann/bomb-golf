@@ -49,7 +49,7 @@ bool EditorMenu_Init(
 		void (*saveExit)(void *ignored),
 		void (*exitNoSave)(void *ignored),
 		void (*changePar)(int change)) {
-	showButton = Button_Create(308, MENU_Y, SPRITE_BUTTON_LEFT, NULL,
+	showButton = Button_Create(307, MENU_Y, SPRITE_BUTTON_LEFT, NULL,
 			toggleMenu);
 	if (!showButton) goto f_showButton;
 
