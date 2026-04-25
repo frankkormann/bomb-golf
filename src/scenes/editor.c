@@ -46,7 +46,7 @@ static int par;
 static unsigned int level;
 static char *name;
 
-static Text nameText, parText, controlsText1, controlsText2;
+static Text nameText, parText;
 
 static Dispatcher touchDispatcher;
 
@@ -136,28 +136,7 @@ static bool sceneInit(Scene_Params params) {
 	}
 	Text_SetContent(nameText, name);
 
-	controlsText1 = Text_Create(128);
-	if (!controlsText1) {
-		errMsg = "Out of memory";
-		goto f_controlsText1;
-	}
-	controlsText2 = Text_Create(128);
-	if (!controlsText2) {
-		errMsg = "Out of memory";
-		goto f_controlsText2;
-	}
-
-	Text_SetContent(controlsText1,
-			"%c/%c: Switch brush",
-			TEXT_KEY_L, TEXT_KEY_R
-		);
-	Text_SetContent(controlsText2,
-			"%c (hold) + touchscreen: Move ball\n"
-			"%c (hold) + touchscreen: Move hole",
-			TEXT_KEY_DUP, TEXT_KEY_DDOWN
-		);
-
-	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_SKY, 0))) {
+	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_GRASS, 0))) {
 		errMsg = "Out of memory";
 		goto f_TileSelector;
 	}
@@ -195,10 +174,6 @@ f_EditorMenu:
 f_touchDispatcher:
 	TileSelector_Exit();
 f_TileSelector:
-	Text_Free(controlsText2);
-f_controlsText2:
-	Text_Free(controlsText1);
-f_controlsText1:
 f_newTiles:
 	free(tiles);
 f_tiles:
@@ -216,8 +191,6 @@ static void sceneExit() {
 	BG_Free(bg);
 	free(tiles);
 	free(name);
-	Text_Free(controlsText1);
-	Text_Free(controlsText2);
 	Text_Free(nameText);
 	Text_Free(parText);
 	Dispatcher_Free(touchDispatcher);
@@ -378,9 +351,6 @@ static void sceneDraw() {
 			LEVEL_PREVIEW_HEIGHT);
 	Border_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
 			LEVEL_PREVIEW_HEIGHT);
-
-	Text_Draw(controlsText1, TEXT_MARGIN, CONTROLS_TEXT_Y, 0, COLOR_DGREEN, 1);
-	Text_Draw(controlsText2, 160, CONTROLS_TEXT_Y, 0, COLOR_DGREEN, 1);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
