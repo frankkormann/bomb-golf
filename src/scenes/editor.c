@@ -12,6 +12,7 @@
 #include "components/background.h"
 #include "components/border.h"
 #include "components/button.h"
+#include "components/editormenu.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
@@ -32,13 +33,6 @@
 #define LEVEL_PREVIEW_WIDTH 380
 #define LEVEL_PREVIEW_HEIGHT 90
 #define CONTROLS_TEXT_Y (LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 15)
-#define RIGHT_MENU_X 200
-#define RIGHT_MENU_Y (TILE_SELECTOR_HEIGHT + BORDER_WIDTH + 10)
-#define RIGHT_MENU_WIDTH 120
-#define RIGHT_MENU_HEIGHT (240 - RIGHT_MENU_Y - BORDER_WIDTH - 10)
-#define RIGHT_MENU_BUTTON_GAP 35
-#define RIGHT_MENU_BUTTON_X (RIGHT_MENU_X + 10)
-#define RIGHT_MENU_BUTTON_Y (RIGHT_MENU_Y + 10)
 
 static Background bg;
 static float scroll;
@@ -52,12 +46,8 @@ static unsigned int level;
 static char *name;
 
 static enum { PENCIL, RECTANGLE } brushType;
-static Button showDetailsButton, hideDetailsButton;
 
 static Text nameText, parText, controlsText1, controlsText2;
-static bool rightMenuOpen;
-static Button editNameButton, saveButton, exitButton, parUpButton, parDownButton;
-static Text   editNameText,   saveText,   exitText,   parUpText,   parDownText;
 
 static Dispatcher touchDispatcher;
 
@@ -69,8 +59,6 @@ Scene_Params Editor_MakeParams(unsigned int level) {
 
 // Declarations needed to register with dispatcher, buttons
 static bool handleTouchInput(void *ignored);
-static bool handleTouchInputRightMenu(void *ignored);
-static void toggleRightMenu(void *ignored);
 static void editName(void *ignored);
 static void saveExit(void *ignored);
 static void exitNoSave(void *ignored);
@@ -184,141 +172,19 @@ static bool sceneInit(Scene_Params params) {
 			.priority = 0, NULL, handleTouchInput });
 	TileSelector_RegisterForTouchEvents(touchDispatcher, 1);
 
-	showDetailsButton = Button_Create(308, RIGHT_MENU_Y,
-			SPRITE_BUTTON_LEFT, NULL, toggleRightMenu);
-	if (!showDetailsButton) {
+	if (!EditorMenu_Init(editName, saveExit, exitNoSave, changePar)) {
 		errMsg = "Out of memory";
-		goto f_showDetailsButton;
+		goto f_EditorMenu;
 	}
-	Button_RegisterForTouchEvents(showDetailsButton, touchDispatcher, 3);
-
-	hideDetailsButton = Button_Create(RIGHT_MENU_X - BORDER_WIDTH - 11,
-			RIGHT_MENU_Y, SPRITE_BUTTON_RIGHT, NULL,
-			toggleRightMenu);
-	if (!hideDetailsButton) {
-		errMsg = "Out of memory";
-		goto f_hideDetailsButton;
-	}
-	Button_RegisterForTouchEvents(hideDetailsButton, touchDispatcher, 3);
-	Button_Disable(hideDetailsButton);
-
-	editNameButton = Button_Create(RIGHT_MENU_BUTTON_X, RIGHT_MENU_BUTTON_Y,
-			SPRITE_MEDIUM_BUTTON, NULL, editName);
-	if (!editNameButton) {
-		errMsg = "Out of memory";
-		goto f_editNameButton;
-	}
-	Button_RegisterForTouchEvents(editNameButton, touchDispatcher, 3);
-	Button_Disable(editNameButton);
-
-	editNameText = Text_Create(16);
-	if (!editNameText) {
-		errMsg = "Out of memory";
-		goto f_editNameText;
-	}
-	Text_SetContent(editNameText, "Edit Name");
-
-	saveButton = Button_Create(RIGHT_MENU_BUTTON_X,
-			RIGHT_MENU_BUTTON_Y + RIGHT_MENU_BUTTON_GAP,
-			SPRITE_MEDIUM_BUTTON, NULL, saveExit);
-	if (!saveButton) {
-		errMsg = "Out of memory";
-		goto f_saveButton;
-	}
-	Button_RegisterForTouchEvents(saveButton, touchDispatcher, 3);
-	Button_Disable(saveButton);
-
-	saveText = Text_Create(16);
-	if (!saveText) {
-		errMsg = "Out of memory";
-		goto f_saveText;
-	}
-	Text_SetContent(saveText, "Save & Exit");
-
-	exitButton = Button_Create(RIGHT_MENU_BUTTON_X,
-			RIGHT_MENU_BUTTON_Y + 2*RIGHT_MENU_BUTTON_GAP,
-			SPRITE_MEDIUM_BUTTON, NULL, exitNoSave);
-	if (!exitButton) {
-		errMsg = "Out of memory";
-		goto f_exitButton;
-	}
-	Button_RegisterForTouchEvents(exitButton, touchDispatcher, 3);
-	Button_Disable(exitButton);
-
-	exitText = Text_Create(16);
-	if (!exitText) {
-		errMsg = "Out of memory";
-		goto f_exitText;
-	}
-	Text_SetContent(exitText, "Exit");
-
-	parUpButton = Button_Create(RIGHT_MENU_X + RIGHT_MENU_WIDTH - 58,
-			RIGHT_MENU_BUTTON_Y + 3*RIGHT_MENU_BUTTON_GAP + 15,
-			SPRITE_SMALL_BUTTON, (void*)1, (void(*)(void*))changePar);
-	if (!parUpButton) {
-		errMsg = "Out of memory";
-		goto f_parUpButton;
-	}
-	Button_RegisterForTouchEvents(parUpButton, touchDispatcher, 3);
-	Button_Disable(parUpButton);
-
-	parUpText = Text_Create(2);
-	if (!parUpText) {
-		errMsg = "Out of memory";
-		goto f_parUpText;
-	}
-	Text_SetContent(parUpText, "+");
-
-	parDownButton = Button_Create(RIGHT_MENU_BUTTON_X,
-			RIGHT_MENU_BUTTON_Y + 3*RIGHT_MENU_BUTTON_GAP + 15,
-			SPRITE_SMALL_BUTTON, (void*)-1, (void(*)(void*))changePar);
-	if (!parDownButton) {
-		errMsg = "Out of memory";
-		goto f_parDownButton;
-	}
-	Button_RegisterForTouchEvents(parDownButton, touchDispatcher, 3);
-	Button_Disable(parDownButton);
-
-	parDownText = Text_Create(2);
-	if (!parDownText) {
-		errMsg = "Out of memory";
-		goto f_parDownText;
-	}
-	Text_SetContent(parDownText, "-");
-
-	Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
-			.priority = 2, NULL, handleTouchInputRightMenu });
+	EditorMenu_RegisterForTouchEvents(touchDispatcher, 3);
 
 	scroll = 0;
 	level = params.editor.level;
 	brushType = PENCIL;
-	rightMenuOpen = false;
 
 	return true;
 
-f_parDownText:
-	Button_Free(parDownButton);
-f_parDownButton:
-	Text_Free(parUpText);
-f_parUpText:
-	Button_Free(parUpButton);
-f_parUpButton:
-	Text_Free(exitText);
-f_exitText:
-	Button_Free(exitButton);
-f_exitButton:
-	Text_Free(saveText);
-f_saveText:
-	Button_Free(saveButton);
-f_saveButton:
-	Text_Free(editNameText);
-f_editNameText:
-	Button_Free(editNameButton);
-f_editNameButton:
-	Button_Free(hideDetailsButton);
-f_hideDetailsButton:
-	Button_Free(showDetailsButton);
-f_showDetailsButton:
+f_EditorMenu:
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
 	TileSelector_Exit();
@@ -350,18 +216,7 @@ static void sceneExit() {
 	Text_Free(parText);
 	Dispatcher_Free(touchDispatcher);
 	TileSelector_Exit();
-	Button_Free(showDetailsButton);
-	Button_Free(hideDetailsButton);
-	Button_Free(editNameButton);
-	Button_Free(saveButton);
-	Button_Free(exitButton);
-	Text_Free(editNameText);
-	Text_Free(saveText);
-	Text_Free(exitText);
-	Button_Free(parUpButton);
-	Button_Free(parDownButton);
-	Text_Free(parUpText);
-	Text_Free(parDownText);
+	EditorMenu_Exit();
 }
 
 static bool exportLevel() {
@@ -428,47 +283,6 @@ static bool handleTouchInput(void *ignored) {
 	return true;
 }
 
-// ignored param is to match the signature of Dispatcher_Handler
-static bool handleTouchInputRightMenu(void *ignored) {
-	if (!rightMenuOpen) return false;
-
-	if (TouchInput_InProgress()) {
-		TouchInput_Swipe touch = TouchInput_GetSwipe();
-		if (touch.start.px >= RIGHT_MENU_X - BORDER_WIDTH
-				&& touch.start.px < RIGHT_MENU_X
-					+ RIGHT_MENU_WIDTH + BORDER_WIDTH
-				&& touch.start.py >= RIGHT_MENU_Y - BORDER_WIDTH
-				&& touch.start.py < RIGHT_MENU_Y
-					+ RIGHT_MENU_HEIGHT + BORDER_WIDTH) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-// ignored param is to match the signature of Button callback
-static void toggleRightMenu(void *ignored) {
-	rightMenuOpen = !rightMenuOpen;
-	if (rightMenuOpen) {
-		Button_Disable(showDetailsButton);
-		Button_Enable(hideDetailsButton);
-		Button_Enable(editNameButton);
-		Button_Enable(saveButton);
-		Button_Enable(exitButton);
-		Button_Enable(parUpButton);
-		Button_Enable(parDownButton);
-	} else {
-		Button_Disable(hideDetailsButton);
-		Button_Enable(showDetailsButton);
-		Button_Disable(editNameButton);
-		Button_Disable(saveButton);
-		Button_Disable(exitButton);
-		Button_Disable(parUpButton);
-		Button_Disable(parDownButton);
-	}
-}
-
 // ignored param is to match the signature of Button callback
 static void editName(void *ignored) {
 	SwkbdState keyboard;
@@ -524,9 +338,6 @@ static void sceneUpdate() {
 		scroll += SCROLL_UNIT;
 	scroll = clamp(scroll, 0, LEVEL_MAX_WIDTH - 320);
 
-	if (kDown & KEY_DLEFT) par--;
-	if (kDown & KEY_DRIGHT) par++;
-
 	if (kDown & KEY_L || kDown & KEY_R) {
 		brushType = brushType == PENCIL ? RECTANGLE : PENCIL;
 	}	
@@ -543,40 +354,6 @@ static void drawRectOutline(int x, int y, int width, int height, u32 color, int 
 			color);
 	C2D_DrawRectSolid(x + width - outlineWidth, y, 0, outlineWidth, height,
 			color);
-}
-
-static void drawRightMenu() {
-	Button_Draw(hideDetailsButton, 1);
-	Border_Draw(RIGHT_MENU_X, RIGHT_MENU_Y, 0.7, RIGHT_MENU_WIDTH,
-			RIGHT_MENU_HEIGHT);
-	C2D_DrawRectSolid(RIGHT_MENU_X, RIGHT_MENU_Y, 0.7, RIGHT_MENU_WIDTH,
-			RIGHT_MENU_HEIGHT, COLOR_LGRAY);
-	Button_Draw(editNameButton, 0.8);
-	Button_Draw(saveButton, 0.8);
-	Button_Draw(exitButton, 0.8);
-	Text_Draw(editNameText, RIGHT_MENU_BUTTON_X + 10, RIGHT_MENU_BUTTON_Y + 5,
-			1, COLOR_LGRAY, 1);
-	Text_Draw(saveText, RIGHT_MENU_BUTTON_X + 10,
-			RIGHT_MENU_BUTTON_Y + RIGHT_MENU_BUTTON_GAP + 5,
-			1, COLOR_LGRAY, 1);
-	Text_Draw(exitText, RIGHT_MENU_BUTTON_X + 10,
-			RIGHT_MENU_BUTTON_Y + 2*RIGHT_MENU_BUTTON_GAP + 5,
-			1, COLOR_LGRAY, 1);
-	C2D_DrawImageAt(
-			SpriteSheet_GetImage(SPRITE_PAR_LABEL),
-			RIGHT_MENU_BUTTON_X + 2,
-			RIGHT_MENU_BUTTON_Y + 3*RIGHT_MENU_BUTTON_GAP - 1,
-			1,
-			NULL, 1, 1
-		);
-	Button_Draw(parUpButton, 0.8);
-	Button_Draw(parDownButton, 0.8);
-	Text_Draw(parUpText, RIGHT_MENU_X + RIGHT_MENU_WIDTH - 40,
-			RIGHT_MENU_BUTTON_Y + 3*RIGHT_MENU_BUTTON_GAP + 9, 1,
-			COLOR_LGRAY, 2);
-	Text_Draw(parDownText, RIGHT_MENU_BUTTON_X + 19,
-			RIGHT_MENU_BUTTON_Y + 3*RIGHT_MENU_BUTTON_GAP + 9, 1,
-			COLOR_LGRAY, 2);
 }
 
 static void sceneDraw() {
@@ -613,8 +390,7 @@ static void sceneDraw() {
 	C2D_ViewReset();
 
 	TileSelector_Draw(0.5);
-	Button_Draw(showDetailsButton, 1);
-	if (rightMenuOpen) drawRightMenu();
+	EditorMenu_Draw(1);
 }
 
 Scene sceneEditor = &(struct scene) {
