@@ -64,7 +64,7 @@ static void exitNoSave(void *ignored);
 static void changePar(int change);
 
 static bool sceneInit(Scene_Params params) {
-	char *errMsg = "";
+	char *errMsg = "";  // Fill this in whenever you goto f_???
 
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!bg) {
