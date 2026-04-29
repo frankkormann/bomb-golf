@@ -19,6 +19,13 @@
 
 typedef struct background* Background;
 
+typedef struct {
+	float x;
+	float y;
+	float width;
+	float height;
+} BG_Rectangle;
+
 /*
  * Allocates a new Background of size (width, height). Initially fills it in
  * with clearColor.
@@ -65,10 +72,12 @@ void BG_Draw(Background bg, float x, float y, float depth, float scaleX,
 		float scaleY);
 
 /*
- * Scales and translates bg to draw it centered in the region bounded by (x, y)
- * and (x + maxWidth, y + maxHeight)
+ * Scales and translates bg to draw it centered horizontally in the region
+ * bounded by (x, y) and (x + maxWidth, y + maxHeight).
+ *
+ * Returns a BG_Rectangle representing where bg was drawn.
  */
-void BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
+BG_Rectangle BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
 		float maxHeight);
 
 #endif

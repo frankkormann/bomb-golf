@@ -184,7 +184,7 @@ void BG_Draw(Background bg, float x, float y, float depth, float scaleX,
 	C2D_DrawImageAt(img, x, y, depth, NULL, scaleX, scaleY);
 }
 
-void BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
+BG_Rectangle BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
 		float maxHeight) {
 	float widthScale = maxWidth / bg->subtex.width;
 	float heightScale = maxHeight / bg->subtex.height;
@@ -192,13 +192,13 @@ void BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
 	float scale, newX, newY;
 	if (widthScale < heightScale) {
 		scale = widthScale;
-		newX = x;
-		newY = y + maxHeight/2 - (bg->subtex.height * scale)/2;
 	} else {
 		scale = heightScale;
-		newX = x + maxWidth/2 - (bg->subtex.width * scale)/2;
-		newY = y;
+		x += maxWidth/2 - (bg->subtex.width * scale)/2;
 	}
 
-	BG_Draw(bg, newX, newY, depth, scale, scale);
+	BG_Draw(bg, x, y, depth, scale, scale);
+
+	return (BG_Rectangle) { x, y, bg->subtex.width * scale,
+			bg->subtex.height * scale };
 }
