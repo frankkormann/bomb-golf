@@ -10,6 +10,7 @@
 #include "error.h"
 #include "components/text.h"
 #include "components/background.h"
+#include "components/border.h"
 #include "../projectile.h"
 #include "../projectiles/ball.h"
 #include "../rendering/colors.h"
@@ -23,6 +24,13 @@
 #define LAUNCH_SPEED_MAX 6
 #define TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR 0.05
 
+#define TEXT_MARGIN 10
+#define LEVEL_NAME_Y 15
+#define LEVEL_PREVIEW_X 10
+#define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + 50) 
+#define LEVEL_PREVIEW_WIDTH 380
+#define LEVEL_PREVIEW_HEIGHT 140
+
 static unsigned int level;
 static bool levelInRomfs;
 static bool (*terrain)[LEVEL_HEIGHT];
@@ -31,11 +39,10 @@ static Background bg;
 static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
 
-static unsigned int strokeCounter;
-static int par;
+static unsigned int strokes ;
 static bool hasFinished;
 
-static Text infoText;
+static Text nameText, parText, strokesText;
 
 static bool withinBounds(int x, int y) {
 	return 0 <= x && x <= fieldWidth-1 && 0 <= y && y <= LEVEL_HEIGHT-1;
@@ -74,7 +81,7 @@ void Course_ClearCircle(int x, int y, int radius) {
 		if (tx * tx + ty * ty <= r2 && withinBounds(nx, ny)) {
 			terrain[nx][ny] = false;
 			if (!BG_ClearPixel(bg, nx, ny)) {
-				strokeCounter += 10;
+				strokes  += 10;
 			}
 		}
 	}
@@ -184,17 +191,38 @@ Scene_Params Course_MakeParams(unsigned int level, bool inRomfs) {
 static bool sceneInit(Scene_Params params) {
 	char *errMsg = "";  // Fill this in whenever you goto f_???
 
+	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
+	if (!nameText) {
+		errMsg = "Out of memory";
+		goto f_nameText;
+	}
+
+	parText = Text_Create(9);
+	if (!parText ) {
+		errMsg = "Out of memory";
+		goto f_parText ;
+	}
+
+	strokesText = Text_Create(13);
+	if (!strokesText) {
+		errMsg = "Out of memory";
+		goto f_strokesText;
+	}
+
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.course.level, params.course.inRomfs, path);
 
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
-	char *name;  // TODO display level name
+	int par;
+	char *name;
 	if (!LevelIO_Read(path, &hole, &proj, &tiles, &fieldWidth, &par, &name)) {
 		errMsg = "Level file is malformed or doesn't exist";
 		goto f_LevelIORead;
 	}
+	Text_SetContent(nameText, name);
+	Text_SetContent(parText, "Par %i", par);
 	free(name);
 
 	terrain = malloc(sizeof(*terrain) * fieldWidth);
@@ -235,28 +263,34 @@ static bool sceneInit(Scene_Params params) {
 	Projectile_SetType(proj.type);
 	Projectile_SetPos(proj.startX, proj.startY);
 
-	infoText = Text_Create(100);
-	if (!infoText) {
-		errMsg = "Out of memory";
-		goto f_infoText;
-	}
-
-	strokeCounter = 0;
+	strokes  = 0;
 	hasFinished = false;
 	level = params.course.level;
 	levelInRomfs = params.course.inRomfs;
 
 	return true;
 
-f_infoText:
-	BG_Free(bg);
 f_bg:
 	free(terrain);
 f_terrain:
 	free(tiles);
 f_LevelIORead:
+	Text_Free(strokesText);
+f_strokesText:
+	Text_Free(parText);
+f_parText:
+	Text_Free(nameText);
+f_nameText:
 	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
 	return false;
+}
+
+static void sceneExit() {
+	BG_Free(bg);
+	free(terrain);
+	Text_Free(strokesText);
+	Text_Free(parText);
+	Text_Free(nameText);
 }
 
 static void calculateLaunchVelocity(float *velX, float *velY) {
@@ -283,8 +317,7 @@ static void checkLaunchInput() {
 		float velX, velY;
 		calculateLaunchVelocity(&velX, &velY);
 		Projectile_Launch(velX, velY);
-
-		strokeCounter++;
+		strokes++;
 	}
 }
 
@@ -321,7 +354,7 @@ static void sceneUpdate() {
 
 	Projectile_Update();
 
-	Text_SetContent(infoText, "Strokes: %i\nPar:     %i", strokeCounter, par);
+	Text_SetContent(strokesText, "Strokes %i", strokes );
 }
 
 static void plotTrajectoryPoint(float initX, float initY, float velX, float velY,
@@ -335,6 +368,20 @@ static void plotTrajectoryPoint(float initX, float initY, float velX, float velY
 
 static void sceneDraw() {
 	BG_UpdateGraphics(bg);
+
+
+	C3D_RenderTarget *top = RenderTarget_GetTop();
+	C2D_TargetClear(top, COLOR_LGRAY);
+	C2D_SceneBegin(top);
+
+	Text_Draw(nameText, TEXT_MARGIN, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
+	Text_DrawRight(parText, 400 - TEXT_MARGIN, LEVEL_NAME_Y + TEXT_LINE_HEIGHT,
+			0, COLOR_DGREEN, 1);
+	Text_DrawRight(strokesText, 400 - TEXT_MARGIN,
+			LEVEL_NAME_Y + 2*TEXT_LINE_HEIGHT, 0, COLOR_DGREEN, 1);
+	BG_Rectangle bgPos = BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
+			LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT);
+	Border_Draw(bgPos.x, bgPos.y, 0, bgPos.width, bgPos.height);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
@@ -364,21 +411,6 @@ static void sceneDraw() {
 	Projectile_Draw(1);
 
 	C2D_ViewReset();
-
-
-	C3D_RenderTarget *top = RenderTarget_GetTop();
-	C2D_TargetClear(top, COLOR_WHITE);
-	C2D_SceneBegin(top);
-
-	BG_DrawFit(bg, 0, 0, 0, 400, 240);
-
-	Text_Draw(infoText, 10, 10, 0, COLOR_DGREEN, 1);
-}
-
-static void sceneExit() {
-	if (bg) BG_Free(bg);
-	if (infoText) Text_Free(infoText);
-	if (terrain) free(terrain);
 }
 
 Scene sceneCourse = &(struct scene) {
