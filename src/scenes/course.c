@@ -7,6 +7,7 @@
 #include "scene_internal.h"
 #include "course.h"
 #include "title.h"
+#include "levelselector.h"
 #include "error.h"
 #include "components/text.h"
 #include "components/background.h"
@@ -31,7 +32,7 @@
 #define LEVEL_PREVIEW_WIDTH 380
 #define LEVEL_PREVIEW_HEIGHT 140
 
-static unsigned int level;
+static int level;
 static bool levelInRomfs;
 static bool (*terrain)[LEVEL_HEIGHT];
 
@@ -333,7 +334,12 @@ static void sceneUpdate() {
 //	u32 kHeld = hidKeysHeld();
 
 	if (kDown & KEY_B) {
-		Scene_SetNext(sceneTitle, Title_MakeParams());
+		if (levelInRomfs) {
+			Scene_SetNext(sceneTitle, Title_MakeParams());
+		} else {
+			Scene_SetNext(sceneLevelSelector,
+					LevelSelector_MakeParams(level));
+		}
 		return;
 	}
 

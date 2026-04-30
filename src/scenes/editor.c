@@ -43,7 +43,7 @@ static Tile (*tiles)[LEVEL_HEIGHT_TILES];
 static int holeX, holeY;
 static int projX, projY;
 static int par;
-static unsigned int level;
+static int level;
 static char *name;
 
 static Text nameText, parText;
