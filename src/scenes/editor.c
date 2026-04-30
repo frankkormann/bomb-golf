@@ -347,10 +347,9 @@ static void sceneDraw() {
 	Text_Draw(nameText, TEXT_MARGIN, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
 	Text_DrawRight(parText, 390, LEVEL_NAME_Y + TEXT_LINE_HEIGHT, 0,
 			COLOR_DGREEN, 1);
-	BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
-			LEVEL_PREVIEW_HEIGHT);
-	Border_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
-			LEVEL_PREVIEW_HEIGHT);
+	BG_Rectangle bgPos = BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
+			LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT);
+	Border_Draw(bgPos.x, bgPos.y, 0, bgPos.width, bgPos.height);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
