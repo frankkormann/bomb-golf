@@ -32,7 +32,7 @@ static void startGame(void *ignored) {
 }
 
 static void openEditor(void *ignored) {
-	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(1));
+	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(-1));
 }
 
 static bool sceneInit(Scene_Params ignored) {

@@ -291,7 +291,7 @@ static void editName(void *ignored) {
 // ignored param is to match the signature of Button callback
 static void saveExit(void *ignored) {
 	if (exportLevel()) {
-		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams());
+		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
 		return;
 	} else {
 		//TODO Figure out better solution than kicking user out
@@ -302,7 +302,7 @@ static void saveExit(void *ignored) {
 
 // ignored param is to match the signature of Button callback
 static void exitNoSave(void *ignored) {
-	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams());
+	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
 }
 
 static void changePar(int change) {

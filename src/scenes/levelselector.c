@@ -39,43 +39,48 @@ static Text nameText, parText, infoText;
 static Background levelPreview;
 static bool levelIsSelected;
 
-Scene_Params LevelSelector_MakeParams() {
-	return (Scene_Params) {};
+Scene_Params LevelSelector_MakeParams(int level) {
+	return (Scene_Params) { .levelselector = {
+		.level = level
+	} };
 }
 
 static void displayLevel(int levelNum) {
-	char path[LEVEL_PATH_MAX];
-	LevelIO_MakePath(levelNum, false, path);
-	LevelIO_Hole hole;
-	LevelIO_Proj proj;
-	Tile (*tiles)[LEVEL_HEIGHT_TILES];
-	int width, par;
-	char *name;
-
-	if (!LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) {
-		// Spaces to maintain center alignment
-		Text_SetContent(infoText, "     Level does not exist");
+	if (levelNum < 0) {
+		Text_SetContent(infoText, "Tap a level number to preview");
 		levelIsSelected = false;
-		return;
-	}
-	BG_ClearAll(levelPreview);
-	for (int x = 0; x < width / TILE_SIZE; x++) {
-		for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
-			BG_DrawTile(levelPreview, tiles[x][y], x * TILE_SIZE,
-					y * TILE_SIZE, false);
+	} else {
+		char path[LEVEL_PATH_MAX];
+		LevelIO_MakePath(levelNum, false, path);
+		LevelIO_Hole hole;
+		LevelIO_Proj proj;
+		Tile (*tiles)[LEVEL_HEIGHT_TILES];
+		int width, par;
+		char *name;
+
+		if (!LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) {
+			// Spaces to maintain center alignment
+			Text_SetContent(infoText, "     Level does not exist");
+			levelIsSelected = false;
+			return;
 		}
+		BG_ClearAll(levelPreview);
+		for (int x = 0; x < width / TILE_SIZE; x++) {
+			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
+				BG_DrawTile(levelPreview, tiles[x][y], x * TILE_SIZE,
+						y * TILE_SIZE, false);
+			}
+		}
+		free(tiles);
+
+		Text_SetContent(nameText, "%s", name);
+		free(name);
+		Text_SetContent(parText, "Par %i", par);
+		levelIsSelected = true;
 	}
-	free(tiles);
-
-	Text_SetContent(nameText, "%s", name);
-	free(name);
-
-	Text_SetContent(parText, "Par %i", par);
-
-	levelIsSelected = true;
 }
 
-static bool sceneInit(Scene_Params ignored) {
+static bool sceneInit(Scene_Params params) {
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
 
@@ -103,12 +108,11 @@ static bool sceneInit(Scene_Params ignored) {
 
 	infoText = Text_Create(32);
 	if (!infoText) goto f_infoText;
-	Text_SetContent(infoText, "Tap a level number to preview");
 
 	levelPreview = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!levelPreview) goto f_levelPreview;
 
-	levelIsSelected = false;
+	displayLevel(params.levelselector.level);
 
 	return true;
 
