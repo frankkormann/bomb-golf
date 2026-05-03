@@ -20,7 +20,7 @@ extern Scene sceneCourse;
  * Makes Scene_Params to load the course with number level. If inRomfs is true,
  * looks for the file in ROM; otherwise looks in save data.
  */
-Scene_Params Course_MakeParams(unsigned int level, bool inRomfs);
+Scene_Params Course_MakeParams(int level, bool inRomfs);
 
 /*
  * Clears a circle of terrain of radius centered at (x, y).

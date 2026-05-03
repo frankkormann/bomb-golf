@@ -182,7 +182,7 @@ static void setTerrainForTile(Tile tile, int x, int y) {
 	}
 }
 
-Scene_Params Course_MakeParams(unsigned int level, bool inRomfs) {
+Scene_Params Course_MakeParams(int level, bool inRomfs) {
 	return (Scene_Params) { .course = {
 		.level = level,
 		.inRomfs = inRomfs
