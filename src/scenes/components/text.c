@@ -140,7 +140,8 @@ void Text_Draw(Text text, float x, float y, float depth, u32 color, int size,
 	if (flags == TEXT_RIGHT) {
 		x -= nextLineWidth(text->content, size);
 	} else if (flags == TEXT_CENTERED) {
-		x -= nextLineWidth(text->content, size) / 2;
+		// There can be weird artifacts if this division isn't rounded
+		x -= (int)nextLineWidth(text->content, size) / 2;
 	}
 	float cx = x;
 	float cy = y;
