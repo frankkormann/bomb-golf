@@ -72,6 +72,13 @@ f_startText:
 	return false;
 }
 
+static void sceneExit() {
+	Text_Free(startText);
+	Text_Free(editorText);
+	Button_Free(startButton);
+	Button_Free(editorButton);
+}
+
 static void sceneUpdate() {
 	Dispatcher_DispatchEvent(touchDispatcher);
 }
@@ -89,16 +96,11 @@ static void sceneDraw() {
 	C2D_SceneBegin(bottom);
 
 	Button_Draw(startButton, 0);
-	Text_Draw(startText, BUTTON_X + 20, BUTTON_START_Y + 10, 0, COLOR_LGRAY, 2);
+	Text_Draw(startText, BUTTON_X + 20, BUTTON_START_Y + 10, 0, COLOR_LGRAY, 2,
+			TEXT_LEFT);
 	Button_Draw(editorButton, 0);
-	Text_Draw(editorText, BUTTON_X +20, BUTTON_EDITOR_Y + 10, 0, COLOR_LGRAY, 2);
-}
-
-static void sceneExit() {
-	Text_Free(startText);
-	Text_Free(editorText);
-	Button_Free(startButton);
-	Button_Free(editorButton);
+	Text_Draw(editorText, BUTTON_X +20, BUTTON_START_Y + BUTTON_GAP + 10, 0,
+			COLOR_LGRAY, 2, TEXT_LEFT);
 }
 
 Scene sceneTitle = &(struct scene) {

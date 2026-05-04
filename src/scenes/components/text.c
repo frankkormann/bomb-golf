@@ -98,6 +98,21 @@ int getGlyphIndex(char c) {
 	}
 }
 
+float nextLineWidth(char *str, int size) {
+	float width = 0;
+	for (char *c = str; *c != '\n' && *c != '\0'; c++) {
+		width += GLYPH_SPACING * size;
+		if (*c == ' ') {
+			width += SPACE_WIDTH * size;
+		} else {
+			int index = getGlyphIndex(*c);
+			C2D_Image img = C2D_SpriteSheetGetImage(fontSheet, index);
+			width += img.subtex->width * size;
+		}
+	}
+	return width;
+}
+
 // Returns the drawn width
 float drawGlyph(int index, float x, float y, float depth, u32 color, int size,
 		GlyphPosition pos) {
@@ -120,12 +135,18 @@ float drawGlyph(int index, float x, float y, float depth, u32 color, int size,
 	return width;
 }
 
-void Text_Draw(Text text, float x, float y, float depth, u32 color, int size) {
+void Text_Draw(Text text, float x, float y, float depth, u32 color, int size,
+		Text_DrawFlags flags) {
+	if (flags == TEXT_RIGHT) {
+		x -= nextLineWidth(text->content, size);
+	} else if (flags == TEXT_CENTERED) {
+		x -= nextLineWidth(text->content, size) / 2;
+	}
 	float cx = x;
 	float cy = y;
 	int glyphIndex = -1;
-	for (size_t i = 0; i < text->maxChars && text->content[i] != '\0'; i++) {
-		switch (text->content[i]) {
+	for (char *c = text->content; *c != '\0'; c++) {
+		switch (*c) {
 			case '\n':
 				cx = x;
 				cy += TEXT_LINE_HEIGHT * size;
@@ -134,7 +155,7 @@ void Text_Draw(Text text, float x, float y, float depth, u32 color, int size) {
 				cx += (SPACE_WIDTH + GLYPH_SPACING) * size;
 				break;
 			default:
-				glyphIndex = getGlyphIndex(text->content[i]);
+				glyphIndex = getGlyphIndex(*c);
 				break;
 		}
 		if (glyphIndex >= 0) {
@@ -145,41 +166,3 @@ void Text_Draw(Text text, float x, float y, float depth, u32 color, int size) {
 		}
 	}
 }
-
-
-/*
- * Draws text right-justified. (x, y) is the bottom-right corner.
- */
-void Text_DrawRight(Text text, float x, float y, float depth, u32 color, int size) {
-	float cx = x;
-	float cy = y;
-	int glyphIndex = -1;
-
-	size_t i = 0;
-	while (i < text->maxChars) {
-		if (text->content[i] == '\0') break;
-		i++;
-	}
-
-	for (; (int)(i - 1) >= -1; i--) {
-		switch (text->content[i]) {
-			case '\n':
-				cx = x;
-				cy -= TEXT_LINE_HEIGHT * size;
-				break;
-			case ' ':
-				cx -= (SPACE_WIDTH + GLYPH_SPACING) * size;
-				break;
-			default:
-				glyphIndex = getGlyphIndex(text->content[i]);
-				break;
-		}
-		if (glyphIndex >= 0) {
-			cx -= drawGlyph(glyphIndex, cx, cy, depth, color, size,
-					BOTTOM_RIGHT);
-			cx -= (GLYPH_SPACING * size);
-			glyphIndex = -1;
-		}
-	}
-}
-

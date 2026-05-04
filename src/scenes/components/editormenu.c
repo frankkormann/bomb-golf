@@ -238,19 +238,22 @@ void EditorMenu_Draw(float depth) {
 			editNameText,
 			MENU_BUTTON_X + 10,
 			MENU_BUTTON_Y + 5,
-			layer1, COLOR_LGRAY, 1
+			layer1,
+			COLOR_LGRAY, 1, TEXT_LEFT
 		);
 	Text_Draw(
 			saveText,
 			MENU_BUTTON_X + 10,
 			MENU_BUTTON_Y + MENU_BUTTON_GAP + 5,
-			layer1, COLOR_LGRAY, 1
+			layer1,
+			COLOR_LGRAY, 1, TEXT_LEFT
 		);
 	Text_Draw(
 			exitText,
 			MENU_BUTTON_X + 10,
 			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 5,
-			layer1, COLOR_LGRAY, 1
+			layer1,
+			COLOR_LGRAY, 1, TEXT_LEFT
 		);
 
 	C2D_DrawImageAt(
@@ -266,12 +269,14 @@ void EditorMenu_Draw(float depth) {
 			parUpText,
 			MENU_X + MENU_WIDTH - 40,
 			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP + 10,
-			layer1, COLOR_LGRAY, 2
+			layer1,
+			COLOR_LGRAY, 2, TEXT_LEFT
 		);
 	Text_Draw(
 			parDownText,
 			MENU_BUTTON_X + 18,
 			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP + 10,
-			layer1, COLOR_LGRAY, 2
+			layer1,
+			COLOR_LGRAY, 2, TEXT_LEFT
 		);
 }

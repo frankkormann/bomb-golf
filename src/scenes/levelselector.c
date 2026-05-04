@@ -167,15 +167,16 @@ static void sceneDraw() {
 	C2D_SceneBegin(top);
 
 	if (levelIsSelected) {
-		Text_Draw(nameText, LEVEL_NAME_X, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1);
-		Text_DrawRight(parText, 390, LEVEL_NAME_Y + TEXT_LINE_HEIGHT, 0,
-				COLOR_DGREEN, 1);
+		Text_Draw(nameText, LEVEL_NAME_X, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1,
+				TEXT_LEFT);
+		Text_Draw(parText, 390, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1,
+				TEXT_RIGHT);
 		BG_Rectangle bgPos = BG_DrawFit(levelPreview, LEVEL_PREVIEW_X,
 				LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
 				LEVEL_PREVIEW_HEIGHT);
 		Border_Draw(bgPos.x, bgPos.y, 0, bgPos.width, bgPos.height);
 	} else {
-		Text_Draw(infoText, 105, 60, 0, COLOR_DGRAY, 1);
+		Text_Draw(infoText, 105, 60, 0, COLOR_DGRAY, 1, TEXT_LEFT);
 	}
 
 

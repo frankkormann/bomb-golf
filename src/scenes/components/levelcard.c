@@ -127,5 +127,6 @@ void LevelCard_Draw(LevelCard levelCard, float depth) {
 	Button_Draw(levelCard->editButton, depth + 0.1);
 	Button_Draw(levelCard->playButton, depth + 0.1);
 	Text_Draw(levelCard->numberText, levelCard->x + TEXT_X,
-			levelCard->y + TEXT_Y, depth + 0.1, COLOR_LGRAY, 1);
+			levelCard->y + TEXT_Y, depth + 0.1, COLOR_LGRAY, 1,
+			TEXT_LEFT);
 }
