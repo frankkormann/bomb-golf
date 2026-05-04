@@ -55,6 +55,9 @@ void Text_Free(Text text);
  */
 void Text_SetContent(Text text, char *format, ...);
 
+/*
+ * y is the top of the drawn text, x depends on draw flags.
+ */
 void Text_Draw(Text text, float x, float y, float depth, u32 color, int size,
 		Text_DrawFlags flags);
 
