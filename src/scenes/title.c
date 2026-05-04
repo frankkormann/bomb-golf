@@ -28,7 +28,7 @@ Scene_Params Title_MakeParams() {
 }
 
 static void startGame(void *ignored) {
-	Scene_SetNext(sceneCourse, Course_MakeParams(1, true));
+	Scene_SetNext(sceneCourse, Course_MakeParams(0, true));
 }
 
 static void openEditor(void *ignored) {
