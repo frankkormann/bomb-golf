@@ -9,6 +9,7 @@
 #include "title.h"
 #include "levelselector.h"
 #include "error.h"
+#include "results.h"
 #include "components/text.h"
 #include "components/background.h"
 #include "components/border.h"
@@ -323,8 +324,8 @@ static void checkLaunchInput() {
 }
 
 static void nextLevel() {
-	level++;
-	Scene_SetNext(sceneCourse, Course_MakeParams(level, levelInRomfs));
+	Scene_SetNext(sceneResults, Results_MakeParams(strokes, level,
+			levelInRomfs));
 }
 
 static void sceneUpdate() {

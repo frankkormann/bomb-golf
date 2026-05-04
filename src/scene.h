@@ -16,6 +16,7 @@ typedef union scene_params Scene_Params;
 #include "scenes/title.h"
 #include "scenes/error.h"
 #include "scenes/levelselector.h"
+#include "scenes/results.h"
 
 union scene_params {
 	Course_Params course;
@@ -23,6 +24,7 @@ union scene_params {
 	Title_Params title;
 	Error_Params error;
 	LevelSelector_Params levelselector;
+	Results_Params results;
 };
 
 /*
