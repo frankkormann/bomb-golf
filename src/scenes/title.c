@@ -16,7 +16,7 @@
 
 #define BUTTON_X 60
 #define BUTTON_START_Y 45
-#define BUTTON_EDITOR_Y 135
+#define BUTTON_GAP 90
 
 static Text   startText,   editorText;
 static Button startButton, editorButton;
@@ -52,8 +52,8 @@ static bool sceneInit(Scene_Params ignored) {
 	if (!startButton) goto f_startButton;
 	Button_RegisterForTouchEvents(startButton, touchDispatcher, 1);
 
-	editorButton = Button_Create(BUTTON_X, BUTTON_EDITOR_Y, SPRITE_LARGE_BUTTON,
-			NULL, openEditor);
+	editorButton = Button_Create(BUTTON_X, BUTTON_START_Y + BUTTON_GAP,
+			SPRITE_LARGE_BUTTON, NULL, openEditor);
 	if (!editorButton) goto f_editorButton;
 	Button_RegisterForTouchEvents(editorButton, touchDispatcher, 1);
 
