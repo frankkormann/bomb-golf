@@ -31,13 +31,14 @@
 #define LEVEL_PREVIEW_X 10
 #define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + 50) 
 #define LEVEL_PREVIEW_WIDTH 380
-#define LEVEL_PREVIEW_HEIGHT 140
+#define LEVEL_PREVIEW_HEIGHT (240 - 35 - LEVEL_PREVIEW_Y)
 
 static int level;
 static bool levelInRomfs;
 static bool (*terrain)[LEVEL_HEIGHT];
 
 static Background bg;
+static bool shouldFreeBg;
 static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
 
@@ -244,6 +245,7 @@ static bool sceneInit(Scene_Params params) {
 		errMsg = "Out of memory";
 		goto f_bg;
 	}
+	shouldFreeBg = true;
 
 	for (int x = 0; x < fieldWidth / TILE_SIZE; x++) {
 		for (int y = 0; y < LEVEL_HEIGHT / TILE_SIZE; y++)  {
@@ -288,7 +290,7 @@ f_nameText:
 }
 
 static void sceneExit() {
-	BG_Free(bg);
+	if (shouldFreeBg) BG_Free(bg);
 	free(terrain);
 	Text_Free(strokesText);
 	Text_Free(parText);
@@ -324,8 +326,9 @@ static void checkLaunchInput() {
 }
 
 static void nextLevel() {
+	shouldFreeBg = false;
 	Scene_SetNext(sceneResults, Results_MakeParams(strokes, level,
-			levelInRomfs));
+			levelInRomfs, bg));
 }
 
 static void sceneUpdate() {

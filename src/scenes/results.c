@@ -9,6 +9,8 @@
 #include "levelselector.h"
 #include "components/text.h"
 #include "components/button.h"
+#include "components/background.h"
+#include "components/border.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../util/dispatcher.h"
@@ -17,7 +19,17 @@
 
 #define TEXT_MARGIN 10
 #define COMPLETE_TEXT_Y 20
-#define LEVEL_NAME_Y (COMPLETE_TEXT_Y + 2*TEXT_LINE_HEIGHT)
+#define LEVEL_NAME_Y /* TODO */
+#define LEVEL_STATS_Y (COMPLETE_TEXT_Y + 2*TEXT_LINE_HEIGHT)
+
+#define TIMER_REVEAL_PAR                           30
+#define TIMER_REVEAL_STROKES (TIMER_REVEAL_PAR   + 60)
+#define TIMER_REVEAL_SCORE (TIMER_REVEAL_STROKES + 60)
+
+#define LEVEL_PREVIEW_X 10
+#define LEVEL_PREVIEW_Y (LEVEL_STATS_Y + 50)
+#define LEVEL_PREVIEW_WIDTH 380
+#define LEVEL_PREVIEW_HEIGHT (240 - 35 - LEVEL_PREVIEW_Y)
 
 #define BUTTON_X 60
 #define BUTTON_START_Y 45
@@ -29,15 +41,20 @@ static bool levelInRomfs;
 static int score;
 
 static Text completeText, nameText, parText, strokesText, scoreText;
+static int textRevealCounter;
+static Background levelBg;
+
 static Text   nextText,   quitText;
 static Button nextButton, quitButton;
 static Dispatcher touchDispatcher;
 
-Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs) {
+Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
+		Background levelBg) {
 	return (Scene_Params) { .results = {
 		.strokes = strokes,
 		.level = level,
-		.levelInRomfs = levelInRomfs
+		.levelInRomfs = levelInRomfs,
+		.levelBg = levelBg
 	} };
 }
 
@@ -183,8 +200,10 @@ static bool sceneInit(Scene_Params params) {
 
 	level = params.results.level;
 	levelInRomfs = params.results.levelInRomfs;
-
 	score = params.results.strokes - par;
+
+	textRevealCounter = 0;
+	levelBg = params.results.levelBg;
 
 	return true;
 
@@ -218,6 +237,7 @@ static void sceneExit() {
 	Text_Free(parText);
 	Text_Free(strokesText);
 	Text_Free(scoreText);
+	BG_Free(levelBg);
 	Text_Free(nextText);
 	Button_Free(nextButton);
 	Text_Free(quitText);
@@ -227,6 +247,7 @@ static void sceneExit() {
 
 static void sceneUpdate() {
 	u32 kDown = hidKeysDown();
+
 	if (kDown & KEY_B) {
 		if (levelInRomfs) {
 			Scene_SetNext(sceneTitle, Title_MakeParams());
@@ -239,7 +260,10 @@ static void sceneUpdate() {
 		Scene_SetNext(sceneCourse, Course_MakeParams(nextLevel,
 				levelInRomfs));
 	}
+
 	Dispatcher_DispatchEvent(touchDispatcher);
+
+	textRevealCounter++;
 }
 
 static u32 getColorForScore(int score) {
@@ -261,14 +285,23 @@ static void sceneDraw() {
 
 	Text_Draw(completeText, 200, COMPLETE_TEXT_Y, 0, COLOR_DGREEN, 2,
 			TEXT_CENTERED);
-	Text_Draw(nameText, TEXT_MARGIN, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1,
-			TEXT_LEFT);
-	Text_Draw(parText, 400 - TEXT_MARGIN, LEVEL_NAME_Y, 0, COLOR_DGRAY, 1,
-			TEXT_RIGHT);
-	Text_Draw(strokesText, 400 - TEXT_MARGIN, LEVEL_NAME_Y + TEXT_LINE_HEIGHT,
-			0, COLOR_DGRAY, 1, TEXT_RIGHT);
-	Text_Draw(scoreText, 200, LEVEL_NAME_Y + TEXT_LINE_HEIGHT, 0,
-			getColorForScore(score), 1, TEXT_CENTERED);
+//	Text_Draw(nameText, 200, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1, TEXT_CENTERED);
+	if (textRevealCounter >= TIMER_REVEAL_PAR) {
+		Text_Draw(parText, 150, LEVEL_STATS_Y, 0, COLOR_DGRAY, 1,
+				TEXT_CENTERED);
+	}
+	if (textRevealCounter >= TIMER_REVEAL_STROKES) {
+		Text_Draw(strokesText, 250, LEVEL_STATS_Y, 0, COLOR_DGRAY, 1,
+				TEXT_CENTERED);
+	}
+	if (textRevealCounter >= TIMER_REVEAL_SCORE) {
+		Text_Draw(scoreText, 200, LEVEL_STATS_Y + TEXT_LINE_HEIGHT, 0,
+				getColorForScore(score), 1, TEXT_CENTERED);
+	}
+
+	BG_Rectangle bgPos = BG_DrawFit(levelBg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
+			LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT);
+	Border_Draw(bgPos.x, bgPos.y, 0, bgPos.width, bgPos.height);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
