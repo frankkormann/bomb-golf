@@ -42,8 +42,10 @@ static bool shouldFreeBg;
 static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
 
-static unsigned int strokes ;
+static unsigned int strokes;
 static bool hasFinished;
+static Tracer projPath;
+static bool shouldFreeProjPath;
 
 static Text nameText, parText, strokesText;
 
@@ -247,6 +249,13 @@ static bool sceneInit(Scene_Params params) {
 	}
 	shouldFreeBg = true;
 
+	projPath = Tracer_Create(fieldWidth, LEVEL_HEIGHT);
+	if (!projPath) {
+		errMsg = "Out of memory";
+		goto f_projPath;
+	}
+	shouldFreeProjPath = true;
+
 	for (int x = 0; x < fieldWidth / TILE_SIZE; x++) {
 		for (int y = 0; y < LEVEL_HEIGHT / TILE_SIZE; y++)  {
 			setTerrainForTile(tiles[x][y], x*TILE_SIZE,
@@ -274,6 +283,8 @@ static bool sceneInit(Scene_Params params) {
 
 	return true;
 
+f_projPath:
+	BG_Free(bg);
 f_bg:
 	free(terrain);
 f_terrain:
@@ -291,6 +302,7 @@ f_nameText:
 
 static void sceneExit() {
 	if (shouldFreeBg) BG_Free(bg);
+	if (shouldFreeProjPath) Tracer_Free(projPath);
 	free(terrain);
 	Text_Free(strokesText);
 	Text_Free(parText);
@@ -327,8 +339,9 @@ static void checkLaunchInput() {
 
 static void nextLevel() {
 	shouldFreeBg = false;
+	shouldFreeProjPath = false;
 	Scene_SetNext(sceneResults, Results_MakeParams(strokes, level,
-			levelInRomfs, bg));
+			levelInRomfs, bg, projPath));
 }
 
 static void sceneUpdate() {
@@ -361,6 +374,7 @@ static void sceneUpdate() {
 			nextLevel();
 		}
 	}
+	Tracer_AddPoint(projPath, x, y);
 
 	Projectile_Update();
 

@@ -11,6 +11,7 @@
 #include "components/button.h"
 #include "components/background.h"
 #include "components/border.h"
+#include "components/tracer.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../util/dispatcher.h"
@@ -43,18 +44,20 @@ static int score;
 static Text completeText, nameText, parText, strokesText, scoreText;
 static int textRevealCounter;
 static Background levelBg;
+static Tracer projPath;
 
 static Text   nextText,   quitText;
 static Button nextButton, quitButton;
 static Dispatcher touchDispatcher;
 
 Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
-		Background levelBg) {
+		Background levelBg, Tracer projPath) {
 	return (Scene_Params) { .results = {
 		.strokes = strokes,
 		.level = level,
 		.levelInRomfs = levelInRomfs,
-		.levelBg = levelBg
+		.levelBg = levelBg,
+		.projPath = projPath
 	} };
 }
 
@@ -204,6 +207,7 @@ static bool sceneInit(Scene_Params params) {
 
 	textRevealCounter = 0;
 	levelBg = params.results.levelBg;
+	projPath = params.results.projPath;
 
 	return true;
 
@@ -238,6 +242,7 @@ static void sceneExit() {
 	Text_Free(strokesText);
 	Text_Free(scoreText);
 	BG_Free(levelBg);
+	Tracer_Free(projPath);
 	Text_Free(nextText);
 	Button_Free(nextButton);
 	Text_Free(quitText);
@@ -302,6 +307,7 @@ static void sceneDraw() {
 	BG_Rectangle bgPos = BG_DrawFit(levelBg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
 			LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT);
 	Border_Draw(bgPos.x, bgPos.y, 0, bgPos.width, bgPos.height);
+	Tracer_Draw(projPath, bgPos.x, bgPos.y, 0.5, bgPos.width, bgPos.height);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();

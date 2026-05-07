@@ -6,12 +6,14 @@
 #define RESULTS_H
 
 #include "components/background.h"
+#include "components/tracer.h"
 
 typedef struct {
 	int strokes;
 	int level;
 	bool levelInRomfs;
 	Background levelBg;
+	Tracer projPath;
 } Results_Params;
 
 #include "../scene.h"
@@ -23,6 +25,6 @@ extern Scene sceneResults;
  * strokes strokes.
  */
 Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
-		Background levelBg);
+		Background levelBg, Tracer projPath);
 
 #endif
