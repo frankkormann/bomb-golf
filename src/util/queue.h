@@ -15,6 +15,9 @@ typedef struct queue* Queue;
  */
 Queue Queue_Create();
 
+/*
+ * Note: Does not free any elements in q.
+ */
 void Queue_Free(Queue q);
 
 /*
@@ -23,6 +26,12 @@ void Queue_Free(Queue q);
  * Returns false if q could not be resized to fit elem.
  */
 bool Queue_Push(Queue q, void *elem);
+
+/*
+ * Returns the top element from q without removing it. Returns NULL if q is
+ * empty.
+ */
+void* Queue_Peek(Queue q);
 
 /*
  * Removes the top element from q and returns it. Returns NULL if q is empty.

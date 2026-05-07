@@ -76,6 +76,10 @@ bool Queue_Push(Queue q, void *elem) {
 	return true;
 }
 
+void* Queue_Peek(Queue q) {
+	return Queue_IsEmpty(q) ? NULL : q->arr[q->back];
+}
+
 void* Queue_Pop(Queue q) {
 	void *elem = Queue_FastPop(q);
 	if (q->front - q->back < REBALANCE_THRESHOLD * q->arrSize) {
