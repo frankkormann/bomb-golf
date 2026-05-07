@@ -189,7 +189,7 @@ BG_Rectangle BG_DrawFit(Background bg, float x, float y, float depth, float maxW
 	float widthScale = maxWidth / bg->subtex.width;
 	float heightScale = maxHeight / bg->subtex.height;
 
-	float scale, newX, newY;
+	float scale;
 	if (widthScale < heightScale) {
 		scale = widthScale;
 	} else {
