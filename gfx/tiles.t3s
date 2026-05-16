@@ -14,3 +14,10 @@ tiles/leaves.png
 tiles/leaves_half.png
 tiles/hole_wall.png
 tiles/hole_wall_triangle.png
+tiles/house_wall.png
+tiles/house_floor.png
+tiles/house_interior.png
+tiles/roof.png
+tiles/roof_triangle_interior.png
+tiles/roof_triangle_exterior.png
+tiles/roof_wall.png
