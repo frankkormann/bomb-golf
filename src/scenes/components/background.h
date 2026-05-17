@@ -20,10 +20,10 @@
 typedef struct background* Background;
 
 typedef struct {
-	float x;
-	float y;
-	float width;
-	float height;
+	int x;
+	int y;
+	int width;
+	int height;
 } BG_Rectangle;
 
 /*
@@ -68,8 +68,7 @@ void BG_UpdateGraphics(Background bg);
  */
 bool BG_IsUpdating(Background bg);
 
-void BG_Draw(Background bg, float x, float y, float depth, float scaleX,
-		float scaleY);
+void BG_Draw(Background bg, int x, int y, float depth, float scaleX, float scaleY);
 
 /*
  * Scales and translates bg to draw it centered horizontally in the region
@@ -77,7 +76,7 @@ void BG_Draw(Background bg, float x, float y, float depth, float scaleX,
  *
  * Returns a BG_Rectangle representing where bg was drawn.
  */
-BG_Rectangle BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
-		float maxHeight);
+BG_Rectangle BG_DrawFit(Background bg, int x, int y, float depth, int maxWidth,
+		int maxHeight);
 
 #endif

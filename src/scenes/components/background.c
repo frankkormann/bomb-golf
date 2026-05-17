@@ -176,18 +176,17 @@ bool BG_IsUpdating(Background bg) {
 	return !Queue_IsEmpty(bg->renderQueue) || bg->isDirty;
 }
 
-void BG_Draw(Background bg, float x, float y, float depth, float scaleX,
-		float scaleY) {
+void BG_Draw(Background bg, int x, int y, float depth, float scaleX, float scaleY) {
 	C2D_Image img = { &bg->tex, &bg->subtex };
 	//TODO Figure out how to make minified scaling look less muddy
 	C3D_TexSetFilter(&bg->tex, GPU_LINEAR, GPU_LINEAR);
 	C2D_DrawImageAt(img, x, y, depth, NULL, scaleX, scaleY);
 }
 
-BG_Rectangle BG_DrawFit(Background bg, float x, float y, float depth, float maxWidth,
-		float maxHeight) {
-	float widthScale = maxWidth / bg->subtex.width;
-	float heightScale = maxHeight / bg->subtex.height;
+BG_Rectangle BG_DrawFit(Background bg, int x, int y, float depth, int maxWidth,
+		int maxHeight) {
+	float widthScale = (float)maxWidth / bg->subtex.width;
+	float heightScale = (float)maxHeight / bg->subtex.height;
 
 	float scale;
 	if (widthScale < heightScale) {
