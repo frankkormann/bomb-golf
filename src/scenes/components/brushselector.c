@@ -70,6 +70,7 @@ bool BrushSelector_Init(BrushSelector_Brush defaultBrush) {
 	if (!holeButton) goto f_holeButton;
 
 	isOpen = true;
+	brush = defaultBrush;
 
 	return true;
 
