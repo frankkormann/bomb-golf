@@ -77,7 +77,7 @@ static void doExplosion() {
 	Course_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
 	Animation_Start(animationExplosion,
 			Explosion_MakeParams(data->x, data->y,
-				EXPLOSION_RADIUS),
+				EXPLOSION_RADIUS + 1),
 			NULL);
 	if (ballState == FLYING_TIME_SLOWED) endSlowTime();
 	ballState = FLYING_EXPLODED;
