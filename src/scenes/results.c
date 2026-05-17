@@ -284,6 +284,9 @@ static u32 getColorForScore(int score) {
 }
 
 static void sceneDraw() {
+	Tracer_UpdateGraphics(projPath);
+
+
 	C3D_RenderTarget *top = RenderTarget_GetTop();
 	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);

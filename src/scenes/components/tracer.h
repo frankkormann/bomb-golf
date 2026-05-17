@@ -19,10 +19,14 @@ void Tracer_Free(Tracer tracer);
 bool Tracer_AddPoint(Tracer tracer, float x, float y);
 
 /*
+ * Draws to tracer's internal graphics. Call this before Tracer_Draw.
+ */
+void Tracer_UpdateGraphics(Tracer tracer);
+
+/*
  * Draws each point, scaled to fit them all within a rectangle whose top-left
  * corner is at (x, y) and dimensions (width, height).
  */
-void Tracer_Draw(Tracer tracer, float x, float y, float depth, float width,
-		float height);
+void Tracer_Draw(Tracer tracer, int x, int y, float depth, int width, int height);
 
 #endif
