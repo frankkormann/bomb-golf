@@ -39,14 +39,12 @@ struct background {
 
 Background BG_Create(unsigned int width, unsigned int height, u32 clearColor) {
 	Background bg = malloc(sizeof(*bg));
-	if (!bg) goto failed;
+	if (!bg) goto f_bg;
 
 	// Tex dimensions must be a power of 2
 	int texWidth = __builtin_stdc_bit_ceil(width);
 	int texHeight = __builtin_stdc_bit_ceil(height);
-
-	bool success = C3D_TexInitVRAM(&bg->tex, texWidth, texHeight, GPU_RGBA8);
-	if (!success) goto failed;
+	if (!C3D_TexInitVRAM(&bg->tex, texWidth, texHeight, GPU_RGBA8)) goto f_tex;
 
 	bg->subtex = (Tex3DS_SubTexture) {
 		.width	= width,
@@ -57,34 +55,35 @@ Background BG_Create(unsigned int width, unsigned int height, u32 clearColor) {
 		.bottom	= 1 - ((float)height / texHeight)
 	};
 	bg->texTarget = C3D_RenderTargetCreateFromTex(&bg->tex, GPU_TEXFACE_2D, 0,
-					GPU_RB_DEPTH24);
-	if (!bg->texTarget) goto failed;
+			GPU_RB_DEPTH24);
+	if (!bg->texTarget) goto f_texTarget;
 
 	bg->renderQueue = Queue_Create();
-	if (!bg->renderQueue) goto failed;
+	if (!bg->renderQueue) goto f_renderQueue;
 
 	bg->clearColor = clearColor;
 	bg->isDirty = true;
 
 	return bg;
 
-failed:
-	BG_Free(bg);
+f_renderQueue:
+	C3D_RenderTargetDelete(bg->texTarget);
+f_texTarget:
+	C3D_TexDelete(&bg->tex);
+f_tex:
+	free(bg);
+f_bg:
 	return NULL;
 }
 
 void BG_Free(Background bg) {
-	if (bg) {
-		C3D_TexDelete(&bg->tex);
-		if (bg->texTarget) C3D_RenderTargetDelete(bg->texTarget);
-		if (bg->renderQueue) {
-			while (!Queue_IsEmpty(bg->renderQueue)) {
-				free(Queue_Pop(bg->renderQueue));
-			}
-			Queue_Free(bg->renderQueue);
-		}
-		free(bg);
+	C3D_TexDelete(&bg->tex);
+	C3D_RenderTargetDelete(bg->texTarget);
+	while (!Queue_IsEmpty(bg->renderQueue)) {
+		free(Queue_Pop(bg->renderQueue));
 	}
+	Queue_Free(bg->renderQueue);
+	free(bg);
 }
 
 bool BG_DrawTile(Background bg, Tile tile, int x, int y, bool clearPrevious) {
