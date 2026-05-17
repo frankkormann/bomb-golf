@@ -409,6 +409,12 @@ static void sceneDraw() {
 			LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT);
 	Border_Draw(bgPos.x, bgPos.y, 0, bgPos.width, bgPos.height);
 
+	float projX, projY;
+	Projectile_GetPos(&projX, &projY);
+	C2D_DrawRectSolid(bgPos.x + (projX * bgPos.width) / fieldWidth,
+			bgPos.y + (projY * bgPos.height) / LEVEL_HEIGHT,
+			1, 2, 2, COLOR_WHITE);
+
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
 	C2D_TargetClear(bottom, COLOR_WHITE);
