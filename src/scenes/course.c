@@ -94,7 +94,7 @@ void Course_ClearCircle(int x, int y, int radius) {
 }
 
 static void setTerrainForHalf(u8 orientation, int x, int y) {
-	switch(orientation) {
+	switch (orientation) {
 		case 0:
 		case TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
