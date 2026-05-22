@@ -28,12 +28,6 @@ void Queue_Free(Queue q);
 bool Queue_Push(Queue q, void *elem);
 
 /*
- * Returns the top element from q without removing it. Returns NULL if q is
- * empty.
- */
-void* Queue_Peek(Queue q);
-
-/*
  * Removes the top element from q and returns it. Returns NULL if q is empty.
  */
 void* Queue_Pop(Queue q);
