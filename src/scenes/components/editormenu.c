@@ -56,6 +56,7 @@ bool EditorMenu_Init(
 	hideButton = Button_Create(MENU_X - BORDER_WIDTH - 11, MENU_Y,
 			SPRITE_BUTTON_RIGHT, NULL, toggleMenu);
 	if (!hideButton) goto f_hideButton;
+	Button_Disable(hideButton);
 
 	editNameButton = Button_Create(MENU_BUTTON_X, MENU_BUTTON_Y,
 			SPRITE_MEDIUM_BUTTON, NULL, editName);
