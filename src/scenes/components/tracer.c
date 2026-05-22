@@ -92,7 +92,7 @@ void Tracer_UpdateGraphics(Tracer tracer) {
 
 	while (thingsDrawnThisFrame < MAX_TO_DRAW_PER_FRAME
 			&& !Queue_IsEmpty(tracer->renderQueue)) {
-		Point *p = Queue_FastPop(tracer->renderQueue);
+		Point *p = Queue_Pop(tracer->renderQueue);
 		C2D_DrawRectSolid(p->x, p->y, 0, POINT_SIZE, POINT_SIZE,
 				COLOR_DRED);
 		free(p);

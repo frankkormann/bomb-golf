@@ -59,12 +59,6 @@ void* Queue_Pop(Queue q) {
 	return rv;
 }
 
-void* Queue_FastPop(Queue q) {
-	return Queue_Pop(q);
-}
-
-void Queue_Prune(Queue q) {}
-
 bool Queue_IsEmpty(Queue q) {
 	return !q->head;
 }

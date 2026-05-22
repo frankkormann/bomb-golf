@@ -33,17 +33,6 @@ bool Queue_Push(Queue q, void *elem);
 void* Queue_Pop(Queue q);
 
 /*
- * Identical to Queue_Pop except there is no check to reduce the internal size
- * of q. Useful for popping many elements in a row.
- */
-void* Queue_FastPop(Queue q);
-
-/*
- * Performs a best attempt at reducing the memory used by q.
- */
-void Queue_Prune(Queue q);
-
-/*
  * Returns true if there are no elements in q.
  */
 bool Queue_IsEmpty(Queue q);

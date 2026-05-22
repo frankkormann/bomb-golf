@@ -153,7 +153,7 @@ void BG_UpdateGraphics(Background bg) {
 
 	while (thingsDrawnThisFrame < MAX_TO_DRAW_PER_FRAME
 			&& !Queue_IsEmpty(bg->renderQueue)) {
-		RenderObj *o = Queue_FastPop(bg->renderQueue);
+		RenderObj *o = Queue_Pop(bg->renderQueue);
 		switch (o->type) {
 			case OBJ_POINT:
 				drawPoint(o->point);
@@ -166,9 +166,6 @@ void BG_UpdateGraphics(Background bg) {
 
 		thingsDrawnThisFrame++;
 	}
-
-	// Because we used Queue_FastPop
-	Queue_Prune(bg->renderQueue);
 }
 
 bool BG_IsUpdating(Background bg) {
