@@ -74,12 +74,12 @@ static void update(AnimationI_AnimObj *obj) {
 		data->explosionFrame++;
 	} else {
 		data->loc.y--;
-	}
-	
-	if (data->loc.y < EXPLOSION_Y
-			|| Course_CheckTerrain(data->loc.x, data->loc.y)) {
-		data->exploding = true;
-		Course_ClearCircle(data->loc.x, data->loc.y, EXPLOSION_RADIUS);
+		if (data->loc.y < EXPLOSION_Y
+				|| Course_CheckTerrain(data->loc.x, data->loc.y)) {
+			data->exploding = true;
+			Course_ClearCircle(data->loc.x, data->loc.y,
+					EXPLOSION_RADIUS);
+		}
 	}
 }
 
