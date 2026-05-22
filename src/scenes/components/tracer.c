@@ -66,6 +66,10 @@ f_tracer:
 void Tracer_Free(Tracer tracer) {
 	C3D_TexDelete(&tracer->tex);
 	C3D_RenderTargetDelete(tracer->texTarget);
+	while (!Queue_IsEmpty(tracer->renderQueue)) {
+		free(Queue_Pop(tracer->renderQueue));
+	}
+	Queue_Free(tracer->renderQueue);
 	free(tracer);
 }
 
