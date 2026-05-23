@@ -14,6 +14,7 @@
 #include "components/button.h"
 #include "components/editormenu.h"
 #include "components/brushselector.h"
+#include "components/popup.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
@@ -47,7 +48,7 @@ static int level;
 static char *name;
 
 static Text nameText, parText;
-
+static bool exitPopupVisible;
 static Dispatcher touchDispatcher;
 
 Scene_Params Editor_MakeParams(unsigned int level) {
@@ -59,8 +60,7 @@ Scene_Params Editor_MakeParams(unsigned int level) {
 // Declarations needed to register with dispatcher, buttons
 static bool handleTouchInput();
 static void editName();
-static void saveExit();
-static void exitNoSave();
+static void showExitPopup();
 static void changePar(int change);
 
 static bool sceneInit(Scene_Params params) {
@@ -150,7 +150,7 @@ static bool sceneInit(Scene_Params params) {
 			.priority = 0, NULL, handleTouchInput });
 	TileSelector_RegisterForTouchEvents(touchDispatcher, 2);
 
-	if (!EditorMenu_Init(editName, saveExit, exitNoSave, changePar)) {
+	if (!EditorMenu_Init(editName, showExitPopup, changePar)) {
 		errMsg = "Out of memory";
 		goto f_EditorMenu;
 	}
@@ -164,6 +164,7 @@ static bool sceneInit(Scene_Params params) {
 
 	scroll = 0;
 	level = params.editor.level;
+	exitPopupVisible = false;
 
 	return true;
 
@@ -295,11 +296,28 @@ static void saveExit() {
 		Scene_SetNext(sceneError, Error_MakeParams("Failed to save file"));
 		return;
 	}
+	if (exitPopupVisible) {
+		Popup_Exit();
+		exitPopupVisible = false;
+	}
 }
 
 static void exitNoSave() {
 	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
+	if (exitPopupVisible) {
+		Popup_Exit();
+		exitPopupVisible = false;
+	}
+}
 
+static void showExitPopup() {
+	Popup_Button buttons[] = {
+			{ "Don't Save", NULL, exitNoSave },
+			{ "Save & Exit", NULL, saveExit }
+	};
+	if (Popup_Init("Save before exiting?", TWO_BUTTON, buttons)) {
+		exitPopupVisible = true;
+	}
 }
 
 static void changePar(int change) {
@@ -308,9 +326,15 @@ static void changePar(int change) {
 
 static void sceneUpdate() {
 	if (BG_IsUpdating(bg)) return;
+	if (exitPopupVisible) {
+		Popup_Update();
+		return;
+	}
 
-//	u32 kDown = hidKeysDown();
+	u32 kDown = hidKeysDown();
 	u32 kHeld = hidKeysHeld();
+
+	if (kDown & KEY_B) showExitPopup();
 
 	if (kHeld & KEY_CPAD_LEFT || kHeld & KEY_CSTICK_LEFT)
 		scroll -= SCROLL_UNIT;
@@ -364,6 +388,7 @@ static void sceneDraw() {
 	TileSelector_Draw(0.5);
 	BrushSelector_Draw(0.4);
 	EditorMenu_Draw(1);
+	if (exitPopupVisible) Popup_Draw();
 }
 
 Scene sceneEditor = &(struct scene) {

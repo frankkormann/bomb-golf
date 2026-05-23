@@ -15,13 +15,13 @@
 #define MENU_HEIGHT (240 - MENU_Y - BORDER_WIDTH - 10)
 #define MENU_BUTTON_GAP 35
 #define MENU_BUTTON_X (MENU_X + 10)
-#define MENU_BUTTON_Y (MENU_Y + 10)
+#define MENU_BUTTON_Y (MENU_Y + 30)
 
 static bool isMenuOpen;
 static Button showButton, hideButton;
 
-static Button editNameButton, saveButton, exitButton, parUpButton, parDownButton;
-static Text   editNameText,   saveText,   exitText,   parUpText,   parDownText;
+static Button editNameButton, exitButton, parUpButton, parDownButton;
+static Text   editNameText,   exitText,   parUpText,   parDownText;
 
 static void toggleMenu() {
 	isMenuOpen = !isMenuOpen;
@@ -29,7 +29,6 @@ static void toggleMenu() {
 		Button_Disable(showButton);
 		Button_Enable(hideButton);
 		Button_Enable(editNameButton);
-		Button_Enable(saveButton);
 		Button_Enable(exitButton);
 		Button_Enable(parUpButton);
 		Button_Enable(parDownButton);
@@ -37,7 +36,6 @@ static void toggleMenu() {
 		Button_Disable(hideButton);
 		Button_Enable(showButton);
 		Button_Disable(editNameButton);
-		Button_Disable(saveButton);
 		Button_Disable(exitButton);
 		Button_Disable(parUpButton);
 		Button_Disable(parDownButton);
@@ -46,8 +44,7 @@ static void toggleMenu() {
 
 bool EditorMenu_Init(
 		void (*editName)(),
-		void (*saveExit)(),
-		void (*exitNoSave)(),
+		void (*exit)(),
 		void (*changePar)(int change)) {
 	showButton = Button_Create(307, MENU_Y, SPRITE_BUTTON_LEFT, NULL,
 			toggleMenu);
@@ -67,17 +64,8 @@ bool EditorMenu_Init(
 	if (!editNameText) goto f_editNameText;
 	Text_SetContent(editNameText, "Edit Name");
 
-	saveButton = Button_Create(MENU_BUTTON_X, MENU_BUTTON_Y + MENU_BUTTON_GAP,
-			SPRITE_MEDIUM_BUTTON, NULL, saveExit);
-	if (!saveButton) goto f_saveButton;
-	Button_Disable(saveButton);
-
-	saveText = Text_Create(16);
-	if (!saveText) goto f_saveText;
-	Text_SetContent(saveText, "Save & Exit");
-
-	exitButton = Button_Create(MENU_BUTTON_X, MENU_BUTTON_Y + 2*MENU_BUTTON_GAP,
-			SPRITE_MEDIUM_BUTTON, NULL, exitNoSave);
+	exitButton = Button_Create(MENU_BUTTON_X, MENU_BUTTON_Y + MENU_BUTTON_GAP,
+			SPRITE_MEDIUM_BUTTON, NULL, exit);
 	if (!exitButton) goto f_exitButton;
 	Button_Disable(exitButton);
 
@@ -86,7 +74,7 @@ bool EditorMenu_Init(
 	Text_SetContent(exitText, "Exit");
 
 	parUpButton = Button_Create(MENU_X + MENU_WIDTH - 58,
-			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP + 15,
+			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 25,
 			SPRITE_SMALL_BUTTON, (void*)1, (void(*)(void*))changePar);
 	if (!parUpButton) goto f_parUpButton;
 	Button_Disable(parUpButton);
@@ -96,7 +84,7 @@ bool EditorMenu_Init(
 	Text_SetContent(parUpText, "+");
 
 	parDownButton = Button_Create(MENU_BUTTON_X,
-			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP + 15,
+			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 25,
 			SPRITE_SMALL_BUTTON, (void*)-1, (void(*)(void*))changePar);
 	if (!parDownButton) goto f_parDownButton;
 	Button_Disable(parDownButton);
@@ -120,10 +108,6 @@ f_parUpButton:
 f_exitText:
 	Button_Free(exitButton);
 f_exitButton:
-	Text_Free(saveText);
-f_saveText:
-	Button_Free(saveButton);
-f_saveButton:
 	Text_Free(editNameText);
 f_editNameText:
 	Button_Free(editNameButton);
@@ -139,10 +123,8 @@ void EditorMenu_Exit() {
 	Button_Free(showButton);
 	Button_Free(hideButton);
 	Button_Free(editNameButton);
-	Button_Free(saveButton);
 	Button_Free(exitButton);
 	Text_Free(editNameText);
-	Text_Free(saveText);
 	Text_Free(exitText);
 	Button_Free(parUpButton);
 	Button_Free(parDownButton);
@@ -175,8 +157,6 @@ bool EditorMenu_RegisterForTouchEvents(Dispatcher touchDispatcher, int priority)
 		goto f_hideButton;
 	if(!Button_RegisterForTouchEvents(editNameButton, touchDispatcher, priority))
 		goto f_editNameButton;
-	if(!Button_RegisterForTouchEvents(saveButton, touchDispatcher, priority))
-		goto f_saveButton;
 	if(!Button_RegisterForTouchEvents(exitButton, touchDispatcher, priority))
 		goto f_exitButton;
 	if(!Button_RegisterForTouchEvents(parUpButton, touchDispatcher, priority))
@@ -196,8 +176,6 @@ f_parDownButton:
 f_parUpButton:
 	Button_RemoveFromTouchDispatcher(exitButton, touchDispatcher);
 f_exitButton:
-	Button_RemoveFromTouchDispatcher(saveButton, touchDispatcher);
-f_saveButton:
 	Button_RemoveFromTouchDispatcher(editNameButton, touchDispatcher);
 f_editNameButton:
 	Button_RemoveFromTouchDispatcher(hideButton, touchDispatcher);
@@ -211,7 +189,6 @@ void EditorMenu_RemoveFromTouchDispatcher(Dispatcher touchDispatcher) {
 	Button_RemoveFromTouchDispatcher(showButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(hideButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(editNameButton, touchDispatcher);
-	Button_RemoveFromTouchDispatcher(saveButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(exitButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(parUpButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(parDownButton, touchDispatcher);
@@ -232,7 +209,6 @@ void EditorMenu_Draw(float depth) {
 			COLOR_LGRAY);
 
 	Button_Draw(editNameButton, layer2);
-	Button_Draw(saveButton, layer2);
 	Button_Draw(exitButton, layer2);
 	Text_Draw(
 			editNameText,
@@ -242,16 +218,9 @@ void EditorMenu_Draw(float depth) {
 			COLOR_LGRAY, 1, TEXT_LEFT
 		);
 	Text_Draw(
-			saveText,
-			MENU_BUTTON_X + 10,
-			MENU_BUTTON_Y + MENU_BUTTON_GAP + 5,
-			layer1,
-			COLOR_LGRAY, 1, TEXT_LEFT
-		);
-	Text_Draw(
 			exitText,
 			MENU_BUTTON_X + 10,
-			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 5,
+			MENU_BUTTON_Y + MENU_BUTTON_GAP + 5,
 			layer1,
 			COLOR_LGRAY, 1, TEXT_LEFT
 		);
@@ -259,7 +228,7 @@ void EditorMenu_Draw(float depth) {
 	C2D_DrawImageAt(
 			SpriteSheet_GetImage(SPRITE_PAR_LABEL),
 			MENU_BUTTON_X + 2,
-			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP - 1,
+			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 8,
 			layer1,
 			NULL, 1, 1
 		);
@@ -268,14 +237,14 @@ void EditorMenu_Draw(float depth) {
 	Text_Draw(
 			parUpText,
 			MENU_X + MENU_WIDTH - 40,
-			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP + 10,
+			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 20,
 			layer1,
 			COLOR_LGRAY, 2, TEXT_LEFT
 		);
 	Text_Draw(
 			parDownText,
 			MENU_BUTTON_X + 18,
-			MENU_BUTTON_Y + 3*MENU_BUTTON_GAP + 10,
+			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 20,
 			layer1,
 			COLOR_LGRAY, 2, TEXT_LEFT
 		);

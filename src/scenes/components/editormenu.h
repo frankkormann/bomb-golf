@@ -16,8 +16,7 @@
  */
 bool EditorMenu_Init(
 		void (*editName)(),
-		void (*saveExit)(),
-		void (*exitNoSave)(),
+		void (*exit)(),
 		void (*changePar)(int change)
 	);
 void EditorMenu_Exit();
