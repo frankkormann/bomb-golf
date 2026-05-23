@@ -25,7 +25,7 @@ typedef enum {
 	TEXT_LEFT,
 	TEXT_RIGHT,
 	TEXT_CENTERED
-} Text_DrawFlags;
+} Text_DrawMode;
 
 /*
  * Loads the custom font. Must be called before any Texts are created.
@@ -56,9 +56,14 @@ void Text_Free(Text text);
 void Text_SetContent(Text text, char *format, ...);
 
 /*
- * y is the top of the drawn text, x depends on draw flags.
+ * Determines the total height text will take up when drawn at size.
+ */
+float Text_CalculateHeight(Text text, int size);
+
+/*
+ * y is the top of the drawn text, x depends on drawing mode.
  */
 void Text_Draw(Text text, float x, float y, float depth, u32 color, int size,
-		Text_DrawFlags flags);
+		Text_DrawMode mode);
 
 #endif

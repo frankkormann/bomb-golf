@@ -135,11 +135,19 @@ float drawGlyph(int index, float x, float y, float depth, u32 color, int size,
 	return width;
 }
 
+float Text_CalculateHeight(Text text, int size) {
+	float height = TEXT_LINE_HEIGHT * size;
+	for (char *c = text->content; *c != '\0'; c++) {
+		if (*c == '\n') height += TEXT_LINE_HEIGHT * size;
+	}
+	return height;
+}
+
 void Text_Draw(Text text, float x, float y, float depth, u32 color, int size,
-		Text_DrawFlags flags) {
-	if (flags == TEXT_RIGHT) {
+		Text_DrawMode mode) {
+	if (mode == TEXT_RIGHT) {
 		x -= nextLineWidth(text->content, size);
-	} else if (flags == TEXT_CENTERED) {
+	} else if (mode == TEXT_CENTERED) {
 		// There can be weird artifacts if this division isn't rounded
 		x -= (int)nextLineWidth(text->content, size) / 2;
 	}
