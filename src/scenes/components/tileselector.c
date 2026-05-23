@@ -38,14 +38,14 @@ static Background popupBg;
 static Button buttonExpand;
 static Button buttonShrink;
 
-static void handleExpand(void *ignored) {
+static void handleExpand() {
 	mode = mode == HIDDEN ? HOTBAR
 	     : mode == HOTBAR ? POPUP_MENU
 	     : mode;
 	if (mode == HOTBAR) Button_Enable(buttonShrink);
 	if (mode == POPUP_MENU) Button_Disable(buttonExpand);
 }
-static void handleShrink(void *ignored) {
+static void handleShrink() {
 	mode = mode == POPUP_MENU ? HOTBAR
 	     : mode == HOTBAR ? HIDDEN
 	     : mode;
@@ -164,7 +164,7 @@ static bool handleTouchInputPopup() {
 
 // Returns true if a touch input was detected and handled
 // ignored param is to match the signature in Dispatcher_Handler
-static bool handleTouchInput(void *ignored) {
+static bool handleTouchInput() {
 	if (TouchInput_InProgress() || TouchInput_JustFinished()) {
 		return    mode == HOTBAR     ? handleTouchInputHotbar()
 			: mode == POPUP_MENU ? handleTouchInputPopup()

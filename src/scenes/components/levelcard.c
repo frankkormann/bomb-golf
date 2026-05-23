@@ -33,7 +33,7 @@ static void playLevel(int levelNum) {
 	Scene_SetNext(sceneCourse, Course_MakeParams(levelNum, false));
 }
 
-static void doNothing(void *ignored) {}
+static void doNothing() {}
 
 static bool checkLevelExists(int levelNum) {
 	char path[LEVEL_PATH_MAX];

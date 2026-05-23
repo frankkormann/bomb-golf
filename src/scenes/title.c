@@ -22,16 +22,17 @@ static Text   startText,   editorText;
 static Button startButton, editorButton;
 
 static Dispatcher touchDispatcher;
+static bool popupShown;
 
 Scene_Params Title_MakeParams() {
 	return (Scene_Params) {};
 }
 
-static void startGame(void *ignored) {
+static void startGame() {
 	Scene_SetNext(sceneCourse, Course_MakeParams(0, true));
 }
 
-static void openEditor(void *ignored) {
+static void openEditor() {
 	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(-1));
 }
 

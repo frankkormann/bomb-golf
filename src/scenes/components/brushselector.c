@@ -16,7 +16,7 @@ static Button expandButton, shrinkButton;
 static BrushSelector_Brush brush;
 static Button pencilButton, rectangleButton, ballButton, holeButton;
 
-static void toggleOpen(void *ignored) {
+static void toggleOpen() {
 	isOpen = !isOpen;
 	if (isOpen) {
 		Button_Enable(shrinkButton);

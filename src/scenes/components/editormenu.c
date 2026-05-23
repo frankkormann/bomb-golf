@@ -23,7 +23,7 @@ static Button showButton, hideButton;
 static Button editNameButton, saveButton, exitButton, parUpButton, parDownButton;
 static Text   editNameText,   saveText,   exitText,   parUpText,   parDownText;
 
-static void toggleMenu(void *ignored) {
+static void toggleMenu() {
 	isMenuOpen = !isMenuOpen;
 	if (isMenuOpen) {
 		Button_Disable(showButton);
@@ -45,9 +45,9 @@ static void toggleMenu(void *ignored) {
 }
 
 bool EditorMenu_Init(
-		void (*editName)(void *ignored),
-		void (*saveExit)(void *ignored),
-		void (*exitNoSave)(void *ignored),
+		void (*editName)(),
+		void (*saveExit)(),
+		void (*exitNoSave)(),
 		void (*changePar)(int change)) {
 	showButton = Button_Create(307, MENU_Y, SPRITE_BUTTON_LEFT, NULL,
 			toggleMenu);
@@ -151,7 +151,7 @@ void EditorMenu_Exit() {
 }
 
 // ignored param is to match the signature of Dispatcher_Handler
-static bool handleBackgroundTouch(void *ignored) {
+static bool handleBackgroundTouch() {
 	if (!isMenuOpen) return false;
 
 	if (TouchInput_InProgress()) {

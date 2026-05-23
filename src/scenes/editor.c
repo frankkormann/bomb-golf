@@ -57,10 +57,10 @@ Scene_Params Editor_MakeParams(unsigned int level) {
 }
 
 // Declarations needed to register with dispatcher, buttons
-static bool handleTouchInput(void *ignored);
-static void editName(void *ignored);
-static void saveExit(void *ignored);
-static void exitNoSave(void *ignored);
+static bool handleTouchInput();
+static void editName();
+static void saveExit();
+static void exitNoSave();
 static void changePar(int change);
 
 static bool sceneInit(Scene_Params params) {
@@ -225,7 +225,7 @@ static void changeTile(int tileX, int tileY, Tile newTile) {
 }
 
 // ignored param is to match the signature of Dispatcher_Handler
-static bool handleTouchInput(void *ignored) {
+static bool handleTouchInput() {
 	if (!TouchInput_InProgress()) return false;
 
 	float courseX = TouchInput_GetSwipe().end.px + scroll;
@@ -267,7 +267,7 @@ static bool handleTouchInput(void *ignored) {
 }
 
 // ignored param is to match the signature of Button callback
-static void editName(void *ignored) {
+static void editName() {
 	SwkbdState keyboard;
 	SwkbdButton pressedButton;
 	char buf[EDITOR_LEVEL_NAME_MAX + 1];
@@ -289,7 +289,7 @@ static void editName(void *ignored) {
 }
 
 // ignored param is to match the signature of Button callback
-static void saveExit(void *ignored) {
+static void saveExit() {
 	if (exportLevel()) {
 		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
 		return;
@@ -301,7 +301,7 @@ static void saveExit(void *ignored) {
 }
 
 // ignored param is to match the signature of Button callback
-static void exitNoSave(void *ignored) {
+static void exitNoSave() {
 	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
 }
 

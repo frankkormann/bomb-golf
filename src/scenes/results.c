@@ -113,11 +113,11 @@ static void getScoreForStrokes(int score, char *buf) {
 	}
 }
 
-static void goNextLevel(void *ignored) {
+static void goNextLevel() {
 	Scene_SetNext(sceneCourse, Course_MakeParams(nextLevel, levelInRomfs));
 }
 
-static void quit(void *ignored) {
+static void quit() {
 	if (levelInRomfs) {
 		Scene_SetNext(sceneTitle, Title_MakeParams());
 	} else {

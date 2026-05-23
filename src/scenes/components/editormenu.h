@@ -15,9 +15,9 @@
  * Returns false if an error occurs.
  */
 bool EditorMenu_Init(
-		void (*editName)(void *ignored),
-		void (*saveExit)(void *ignored),
-		void (*exitNoSave)(void *ignored),
+		void (*editName)(),
+		void (*saveExit)(),
+		void (*exitNoSave)(),
 		void (*changePar)(int change)
 	);
 void EditorMenu_Exit();
