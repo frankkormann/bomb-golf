@@ -163,7 +163,6 @@ static bool handleTouchInputPopup() {
 }
 
 // Returns true if a touch input was detected and handled
-// ignored param is to match the signature in Dispatcher_Handler
 static bool handleTouchInput() {
 	if (TouchInput_InProgress() || TouchInput_JustFinished()) {
 		return    mode == HOTBAR     ? handleTouchInputHotbar()

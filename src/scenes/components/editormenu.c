@@ -150,7 +150,6 @@ void EditorMenu_Exit() {
 	Text_Free(parDownText);
 }
 
-// ignored param is to match the signature of Dispatcher_Handler
 static bool handleBackgroundTouch() {
 	if (!isMenuOpen) return false;
 

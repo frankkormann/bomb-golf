@@ -224,7 +224,6 @@ static void changeTile(int tileX, int tileY, Tile newTile) {
 	BG_DrawTile(bg, newTile, tileX * TILE_SIZE, tileY * TILE_SIZE, true);
 }
 
-// ignored param is to match the signature of Dispatcher_Handler
 static bool handleTouchInput() {
 	if (!TouchInput_InProgress()) return false;
 
@@ -266,7 +265,6 @@ static bool handleTouchInput() {
 	return true;
 }
 
-// ignored param is to match the signature of Button callback
 static void editName() {
 	SwkbdState keyboard;
 	SwkbdButton pressedButton;
@@ -288,7 +286,6 @@ static void editName() {
 	Text_SetContent(nameText, name);
 }
 
-// ignored param is to match the signature of Button callback
 static void saveExit() {
 	if (exportLevel()) {
 		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
@@ -300,9 +297,9 @@ static void saveExit() {
 	}
 }
 
-// ignored param is to match the signature of Button callback
 static void exitNoSave() {
 	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
+
 }
 
 static void changePar(int change) {
