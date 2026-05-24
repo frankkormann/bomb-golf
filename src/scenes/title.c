@@ -22,7 +22,6 @@ static Text   startText,   editorText;
 static Button startButton, editorButton;
 
 static Dispatcher touchDispatcher;
-static bool popupShown;
 
 Scene_Params Title_MakeParams() {
 	return (Scene_Params) {};
