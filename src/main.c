@@ -7,10 +7,19 @@
 #include "scenes/title.h"
 #include "scenes/error.h"
 #include "scenes/components/text.h"
+#include "scenes/components/popup.h"
 #include "rendering/spritesheet.h"
 #include "rendering/rendertarget.h"
 #include "rendering/animation.h"
 #include "util/touchinput.h"
+
+static bool pausePopupVisible;
+
+static void resumeGame() {
+	if (!pausePopupVisible) return;
+	Popup_Exit();
+	pausePopupVisible = false;
+}
 
 int main() {
 	romfsInit();
@@ -30,21 +39,33 @@ int main() {
 				Error_MakeParams("Failed to mount save data"));
 	}
 
+	pausePopupVisible = false;
+
 	while (aptMainLoop()) {
 		hidScanInput();
 		TouchInput_Scan();
-		
-		#ifndef _CIA
-			u32 kDown = hidKeysDown();
-			if (kDown & KEY_START) break;
-		#endif
 
-		Scene_Update();
-		Animation_Update();
+		u32 kDown = hidKeysDown();
+		if (kDown & KEY_START) {
+			Popup_Button buttons[1] = {
+					{ "Resume", NULL, resumeGame }
+				};
+			if (Popup_Init("Paused", ONE_BUTTON, buttons)) {
+				pausePopupVisible = true;
+			}			
+		}
+
+		if (!pausePopupVisible) {
+			Scene_Update();
+			Animation_Update();
+		} else {
+			Popup_Update();
+		}
 
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 		Scene_Draw();
 		Animation_Draw();
+		if (pausePopupVisible) Popup_Draw();
 		C3D_FrameEnd(0);
 	}
 
