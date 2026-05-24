@@ -288,11 +288,9 @@ static void editName() {
 static void saveExit() {
 	if (exportLevel()) {
 		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
-		return;
 	} else {
 		//TODO Figure out better solution than kicking user out
 		Scene_SetNext(sceneError, Error_MakeParams("Failed to save file"));
-		return;
 	}
 	Popup_Exit();
 }
