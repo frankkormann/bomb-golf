@@ -37,11 +37,14 @@ int main() {
 
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START) {
-			Popup_Button buttons[1] = {
+			Popup_Button buttons[] = {
 					{ "Resume", NULL, Popup_Exit }
 				};
 			Popup_Init("Paused", ONE_BUTTON, buttons);
 		}
+		#ifndef _CIA
+			if (kDown & KEY_SELECT) break;
+		#endif
 
 		Scene_Update();
 
