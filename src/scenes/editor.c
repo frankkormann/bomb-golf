@@ -18,7 +18,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
-#include "../projectiles/ball.h"
+#include "../projectiles/bomb.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../levelio.h"
@@ -203,7 +203,7 @@ static bool exportLevel() {
 	LevelIO_MakePath(level, false, path);
 
 	LevelIO_Hole hole = { holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT };
-	LevelIO_Proj proj = { projX, projY, projectileBall };
+	LevelIO_Proj proj = { projX, projY, projectileBomb };
 
 	int tilesMaxX = 0;
 	for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {

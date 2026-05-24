@@ -6,7 +6,7 @@
 #include "tile.h"
 #include "savedata.h"
 #include "rendering/spritesheet.h"
-#include "projectiles/ball.h"
+#include "projectiles/bomb.h"
 
 void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 	if (inRomfs) {
@@ -19,13 +19,13 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 
 // Projectile is really a pointer, so convert from int for serialization
 static Projectile numToProj(int num) {
-	if (num == 0) return projectileBall;
+	if (num == 0) return projectileBomb;
 	return NULL;
 }
 
 // Projectile is really a pointer, so convert to int for serialization
 static int projToNum(Projectile proj) {
-	if (proj == projectileBall) return 0;
+	if (proj == projectileBomb) return 0;
 	return -1;
 }
 

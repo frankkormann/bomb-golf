@@ -4,7 +4,7 @@
 #include <citro2d.h>
 #include "../projectile.h"
 #include "projectile_internal.h"
-#include "ball.h"
+#include "bomb.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
@@ -213,7 +213,7 @@ static void draw(float depth) {
 	}
 }
 
-Projectile projectileBall = &(struct projectile) {
+Projectile projectileBomb = &(struct projectile) {
 	.radius = 	4,
 	.reset = 	reset,
 	.launch = 	launch,

@@ -14,7 +14,7 @@
 
 typedef struct projectile *Projectile;
 
-#include "projectiles/ball.h"
+#include "projectiles/bomb.h"
 
 /*
  * Sets the projectile to act like proj. Implicitly calls Projectile_Reset().

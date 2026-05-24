@@ -14,7 +14,7 @@
 #include "components/background.h"
 #include "components/border.h"
 #include "../projectile.h"
-#include "../projectiles/ball.h"
+#include "../projectiles/bomb.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/animation.h"

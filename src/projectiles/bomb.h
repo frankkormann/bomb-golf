@@ -8,11 +8,11 @@
  * In the ball state, bounces off of ground like a bouncy ball.
  */
 
-#ifndef BALL_H
-#define BALL_H
+#ifndef BOMB_H
+#define BOMB_H
 
 #include "../projectile.h"
 
-extern Projectile projectileBall;
+extern Projectile projectileBomb;
 
 #endif
