@@ -185,6 +185,7 @@ static bool sceneInit(Scene_Params params) {
 	if (!quitButton) goto f_quitButton;
 	Button_RegisterForTouchEvents(quitButton, touchDispatcher, 1);
 
+	//TODO Create a "final results"/summary Scene
 	nextLevel = params.results.level + 1;
 	while (true) {
 		char path[LEVEL_PATH_MAX];
@@ -253,6 +254,7 @@ static void sceneExit() {
 static void sceneUpdate() {
 	u32 kDown = hidKeysDown();
 
+	//TODO Figure out a better way to provide keybinds for all Buttons
 	if (kDown & KEY_B) {
 		if (levelInRomfs) {
 			Scene_SetNext(sceneTitle, Title_MakeParams());
