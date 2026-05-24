@@ -41,11 +41,19 @@ bool Popup_Init(char *message, Popup_Format format, Popup_Button buttons[]);
 /*
  * Makes the popup go away. This function is best used in a Popup_Button
  * callback.
+ *
+ * If the popup is not open, does nothing.
  */
 void Popup_Exit();
 
 /*
- * Call this once every frame that the popup is displayed.
+ * Returns false if the popup has been exited or never initialized, false
+ * otherwise.
+ */
+bool Popup_IsOpen();
+
+/*
+ * Call this once every frame that the popup is open.
  */
 void Popup_Update();
 

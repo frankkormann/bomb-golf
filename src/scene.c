@@ -1,6 +1,7 @@
 #include <stddef.h>
 #include "scene.h"
 #include "scenes/scene_internal.h"
+#include "scenes/components/popup.h"
 #include "rendering/animation.h"
 
 static Scene sceneCurrent;
@@ -22,11 +23,22 @@ void Scene_Update() {
 		Animation_Clear(false);
 		Scene_Start(toStart, nextParams);
 	}
-	if (sceneCurrent) sceneCurrent->update();
+	if (sceneCurrent) {
+		if (!Popup_IsOpen()) {
+			sceneCurrent->update();
+			Animation_Update();
+		} else {
+			Popup_Update();
+		}
+	}
 }
 
 void Scene_Draw() {
-	if (sceneCurrent) sceneCurrent->draw();
+	if (sceneCurrent) {
+		sceneCurrent->draw();
+		Animation_Draw();
+		if (Popup_IsOpen()) Popup_Draw();
+	}
 }
 
 void Scene_Exit() {

@@ -23,6 +23,9 @@
 #define TWO_BUTTON_START_X 50
 #define TWO_BUTTON_GAP 110
 
+// Make sure Popup_IsOpen returns false without intialization
+static bool isOpen = false;
+
 static Popup_Format format;
 static Text messageText;
 static float messageHeight;
@@ -37,6 +40,8 @@ static float calculateButtonY(float messageHeight) {
 }
 
 bool Popup_Init(char *message, Popup_Format argFormat, Popup_Button argButtons[]) {
+	if (isOpen) return false;
+
 	format = argFormat;
 
 	messageText = Text_Create(strlen(message) + 1);
@@ -87,6 +92,8 @@ bool Popup_Init(char *message, Popup_Format argFormat, Popup_Button argButtons[]
 			break;
 	}
 
+	isOpen = true;
+
 	return true;
 
 f_buttons:
@@ -103,13 +110,21 @@ f_messageText:
 }
 
 void Popup_Exit() {
+	if (!isOpen) return;
+
 	Text_Free(messageText);
 	for (int i = 0; i < MAX_BUTTONS; i++) {
 		if (buttons[i]) Button_Free(buttons[i]);
 		if (buttonsText[i]) Text_Free(buttonsText[i]);
 		buttons[i] = NULL;
+		buttonsText[i] = NULL;
 	}
 	Dispatcher_Free(touchDispatcher);
+	isOpen = false;
+}
+
+bool Popup_IsOpen() {
+	return isOpen;
 }
 
 void Popup_Update() {

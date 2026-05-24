@@ -48,7 +48,6 @@ static int level;
 static char *name;
 
 static Text nameText, parText;
-static bool exitPopupVisible;
 static Dispatcher touchDispatcher;
 
 Scene_Params Editor_MakeParams(unsigned int level) {
@@ -164,7 +163,6 @@ static bool sceneInit(Scene_Params params) {
 
 	scroll = 0;
 	level = params.editor.level;
-	exitPopupVisible = false;
 
 	return true;
 
@@ -296,18 +294,12 @@ static void saveExit() {
 		Scene_SetNext(sceneError, Error_MakeParams("Failed to save file"));
 		return;
 	}
-	if (exitPopupVisible) {
-		Popup_Exit();
-		exitPopupVisible = false;
-	}
+	Popup_Exit();
 }
 
 static void exitNoSave() {
 	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
-	if (exitPopupVisible) {
-		Popup_Exit();
-		exitPopupVisible = false;
-	}
+	Popup_Exit();
 }
 
 static void showExitPopup() {
@@ -315,9 +307,7 @@ static void showExitPopup() {
 			{ "Don't Save", NULL, exitNoSave },
 			{ "Save & Exit", NULL, saveExit }
 		};
-	if (Popup_Init("Save before exiting?", TWO_BUTTON, buttons)) {
-		exitPopupVisible = true;
-	}
+	Popup_Init("Save before exiting?", TWO_BUTTON, buttons);
 }
 
 static void changePar(int change) {
@@ -326,10 +316,6 @@ static void changePar(int change) {
 
 static void sceneUpdate() {
 	if (BG_IsUpdating(bg)) return;
-	if (exitPopupVisible) {
-		Popup_Update();
-		return;
-	}
 
 	u32 kDown = hidKeysDown();
 	u32 kHeld = hidKeysHeld();
@@ -388,7 +374,6 @@ static void sceneDraw() {
 	TileSelector_Draw(0.5);
 	BrushSelector_Draw(0.4);
 	EditorMenu_Draw(1);
-	if (exitPopupVisible) Popup_Draw();
 }
 
 Scene sceneEditor = &(struct scene) {

@@ -1,5 +1,6 @@
 /*
- * Manage switching between different Scenes.
+ * Manages switching between different Scenes. Also hooks into the Animation
+ * module and Popup component, making these available to each Scene.
  */
 
 #ifndef SCENE_H

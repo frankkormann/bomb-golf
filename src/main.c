@@ -13,14 +13,6 @@
 #include "rendering/animation.h"
 #include "util/touchinput.h"
 
-static bool pausePopupVisible;
-
-static void resumeGame() {
-	if (!pausePopupVisible) return;
-	Popup_Exit();
-	pausePopupVisible = false;
-}
-
 int main() {
 	romfsInit();
 	gfxInitDefault();
@@ -39,8 +31,6 @@ int main() {
 				Error_MakeParams("Failed to mount save data"));
 	}
 
-	pausePopupVisible = false;
-
 	while (aptMainLoop()) {
 		hidScanInput();
 		TouchInput_Scan();
@@ -48,24 +38,15 @@ int main() {
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START) {
 			Popup_Button buttons[1] = {
-					{ "Resume", NULL, resumeGame }
+					{ "Resume", NULL, Popup_Exit }
 				};
-			if (Popup_Init("Paused", ONE_BUTTON, buttons)) {
-				pausePopupVisible = true;
-			}			
+			Popup_Init("Paused", ONE_BUTTON, buttons);
 		}
 
-		if (!pausePopupVisible) {
-			Scene_Update();
-			Animation_Update();
-		} else {
-			Popup_Update();
-		}
+		Scene_Update();
 
 		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
 		Scene_Draw();
-		Animation_Draw();
-		if (pausePopupVisible) Popup_Draw();
 		C3D_FrameEnd(0);
 	}
 
