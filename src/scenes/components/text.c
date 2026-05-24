@@ -136,6 +136,8 @@ float drawGlyph(int index, float x, float y, float depth, u32 color, int size,
 }
 
 float Text_CalculateHeight(Text text, int size) {
+	if (text->content[0] == '\0') return 0;
+
 	float height = TEXT_LINE_HEIGHT * size;
 	for (char *c = text->content; *c != '\0'; c++) {
 		if (*c == '\n') height += TEXT_LINE_HEIGHT * size;
