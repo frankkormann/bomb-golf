@@ -122,7 +122,7 @@ void drawPoint(RenderPoint point) {
 	C2D_DrawRectSolid(point.x, point.y, 0, 1, 1, point.color);
 }
 
-void drawTile(RenderTile tile, u32 backgroundColor) {
+void drawTile(RenderTile tile) {
 	SpriteSheet_TileSprite sprite = Tile_GetSprite(tile.type);
 	u8 orientation = Tile_GetOrientFlags(tile.type);
 	SpriteSheet_DrawTile(
@@ -159,7 +159,7 @@ void BG_UpdateGraphics(Background bg) {
 				drawPoint(o->point);
 				break;
 			case OBJ_TILE:
-				drawTile(o->tile, bg->clearColor);
+				drawTile(o->tile);
 				break;
 		}
 		free(o);
