@@ -83,7 +83,7 @@ static void doExplosion() {
 	ballState = FLYING_EXPLODED;
 }
 
-static void move() {
+static bool move(int *hitX, int *hitY) {
 	ProjectileI_Data *data = ProjectileI_AccessData();
 	if (TouchInput_JustStarted() && ballState == FLYING_SHOULD_EXPLODE) {
 		beginSlowTime();
@@ -99,7 +99,7 @@ static void move() {
 
 	float prevVelX = data->velX;
 	float prevVelY = data->velY;
-	ProjDefault_Move();
+	bool hitSomething = ProjDefault_Move(hitX, hitY);
 	if (ballState == FLYING_TIME_SLOWED) {
 		// Use TIME_SLOW_FACTOR squared because this is acceleration
 		data->velX = prevVelX + (data->velX - prevVelX)
@@ -114,6 +114,7 @@ static void move() {
 			ballState = FLYING_SHOULD_EXPLODE;
 		}
 	}
+	return hitSomething;
 }
 
 static bool isMoving() {

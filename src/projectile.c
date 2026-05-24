@@ -57,7 +57,8 @@ void Projectile_Launch(float velX, float velY) {
 
 void Projectile_Update() {
 	oldIsMoving = Projectile_IsMoving();
-	proj->move();
+	int hitX, hitY;
+	if (proj->move(&hitX, &hitY)) proj->onHitGround(hitX, hitY);
 
 	lastXs[lastPosIndex] = data.x;
 	lastYs[lastPosIndex] = data.y;
@@ -176,22 +177,23 @@ static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 	}
 }
 
-void ProjDefault_Move() {
+bool ProjDefault_Move(int *hitX, int *hitY) {
 	data.velY += PROJECTILE_GRAVITY;
 
 	bool hasHitSomething;
-	int finalX, finalY, lastOkX, lastOkY, hitX, hitY;
+	int finalX, finalY, lastOkX, lastOkY;
 	raycast(roundf(data.x), roundf(data.y), roundf(data.x + data.velX),
 			roundf(data.y + data.velY), &hasHitSomething, &finalX,
-			&finalY, &lastOkX, &lastOkY, &hitX, &hitY);
+			&finalY, &lastOkX, &lastOkY, hitX, hitY);
 
 	if (hasHitSomething) {
 		data.x = lastOkX;
 		data.y = lastOkY;
-		proj->onHitGround(hitX, hitY);
+		return true;
 	} else {
 		data.x += data.velX;
 		data.y += data.velY;
+		return false;
 	}
 }
 

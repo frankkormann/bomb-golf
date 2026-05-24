@@ -18,9 +18,12 @@ struct projectile {
 	 */
 	void (*const launch)(float velX, float velY);
 	/*
-	 * Updates the projectile for one physics frame.
+	 * Updates the projectile for one physics frame. If it hit a ground pixel,
+	 * returns true and fills hitX and hitY with the pixel's position.
+	 *
+	 * If this returns false, the values of hitX and hitY are undefined.
 	 */
-	void (*const move)(void);
+	bool (*const move)(int *hitX, int *hitY);
 	/*
 	 * Returns true if the projectile is considered moving.
 	 */
@@ -44,7 +47,7 @@ typedef struct {
 } ProjectileI_Data;
 
 /*
- * Allows reading/writing to internal data of the projectile.
+ * Allows reading/writing to internal state of the projectile.
  */
 ProjectileI_Data* ProjectileI_AccessData();
 
@@ -53,7 +56,7 @@ ProjectileI_Data* ProjectileI_AccessData();
  */
 void ProjDefault_Reset();
 void ProjDefault_Launch(float velX, float velY);
-void ProjDefault_Move();
+bool ProjDefault_Move(int *hitX, int *hitY);
 bool ProjDefault_IsMoving();
 void ProjDefault_OnHitGround(float hitX, float hitY);
 void ProjDefault_Draw(float depth);  // Does nothing
