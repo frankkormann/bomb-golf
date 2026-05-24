@@ -17,9 +17,7 @@
 #define MARGIN_Y 10
 
 #define BUTTON_HEIGHT 30
-
 #define ONE_BUTTON_X 110
-
 #define TWO_BUTTON_START_X 50
 #define TWO_BUTTON_GAP 110
 
@@ -142,6 +140,8 @@ void Popup_Draw() {
 			TEXT_LEFT);
 
 	for (int i = 0; i < MAX_BUTTONS; i++) {
+		if (!buttons[i] || !buttonsText[i]) continue;
+
 		Button_Draw(buttons[i], 1);
 		float textX = 0, textY = 0;
 		switch (format) {
