@@ -314,7 +314,7 @@ static void showExitPopup() {
 	Popup_Button buttons[] = {
 			{ "Don't Save", NULL, exitNoSave },
 			{ "Save & Exit", NULL, saveExit }
-	};
+		};
 	if (Popup_Init("Save before exiting?", TWO_BUTTON, buttons)) {
 		exitPopupVisible = true;
 	}
