@@ -20,7 +20,7 @@
 #define TIME_SLOW_FACTOR 0.1
 #define TIME_SLOW_MAX_FRAMES (60 * 2)
 
-enum {
+static enum {
 	WAITING, FLYING_SHOULD_EXPLODE, FLYING_TIME_SLOWED, FLYING_EXPLODED
 } ballState;
 
