@@ -52,7 +52,8 @@ typedef struct {
 ProjectileI_Data* ProjectileI_AccessData();
 
 /*
- * Default implementations of each function in struct projectile
+ * Default implementations of each function in struct projectile. Have behavior
+ * of a typical golf ball.
  */
 void ProjDefault_Reset();
 void ProjDefault_Launch(float velX, float velY);
