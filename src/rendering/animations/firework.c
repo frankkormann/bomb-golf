@@ -8,6 +8,7 @@
 #include "../rendertarget.h"
 #include "../spritesheet.h"
 #include "../../scenes/course.h"
+#include "../../terrain.h"
 
 #define ANIMATION_FRAME_LENGTH 5
 #define ANIMATION_LENGTH \
@@ -75,9 +76,10 @@ static void update(AnimationI_AnimObj *obj) {
 	} else {
 		data->loc.y--;
 		if (data->loc.y < EXPLOSION_Y
-				|| Course_CheckTerrain(data->loc.x, data->loc.y)) {
+				|| Terrain_TypeAt(data->loc.x, data->loc.y)
+					!= NOTHING) {
 			data->exploding = true;
-			Course_ClearCircle(data->loc.x, data->loc.y,
+			Terrain_ClearCircle(data->loc.x, data->loc.y,
 					EXPLOSION_RADIUS);
 		}
 	}

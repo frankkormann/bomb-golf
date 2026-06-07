@@ -74,9 +74,11 @@ void BG_Draw(Background bg, int x, int y, float depth, float scaleX, float scale
  * Scales and translates bg to draw it centered horizontally in the region
  * bounded by (x, y) and (x + maxWidth, y + maxHeight).
  *
- * Returns a BG_Rectangle representing where bg was drawn.
+ * If drawnXYZ is not NULL, fills in its value with the actual position that bg
+ * was drawn with.
  */
-BG_Rectangle BG_DrawFit(Background bg, int x, int y, float depth, int maxWidth,
-		int maxHeight);
+void BG_DrawFit(Background bg, int x, int y, float depth, int maxWidth,
+		int maxHeight, int *drawnX, int *drawnY, int *drawnWidth,
+		int *drawnHeight);
 
 #endif

@@ -21,6 +21,7 @@
 #include "../rendering/animations/firework.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
+#include "../terrain.h"
 #include "../levelio.h"
 
 #define LAUNCH_SPEED_MAX 6
@@ -36,10 +37,8 @@
 
 static int level;
 static bool levelInRomfs;
-static bool (*terrain)[LEVEL_HEIGHT];
 
-static Background bg;
-static bool shouldFreeBg;
+static bool shouldFreeTerrain;
 static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
 
@@ -49,10 +48,6 @@ static Tracer projPath;
 static bool shouldFreeProjPath;
 
 static Text nameText, parText, strokesText;
-
-static bool withinBounds(int x, int y) {
-	return 0 <= x && x <= fieldWidth-1 && 0 <= y && y <= LEVEL_HEIGHT-1;
-}
 
 int Course_GetFieldWidth() {
 	return fieldWidth;
@@ -68,125 +63,6 @@ int Course_GetScreenOffset() {
 	return clamp(projX - 160, 0, fieldWidth - 320);
 }
 
-bool Course_CheckTerrain(int x, int y) {
-	return !withinBounds(x, y) || terrain[x][y];
-}
-
-void Course_ClearCircle(int x, int y, int radius) {
-	//https://stackoverflow.com/a/24453110
-	int r2 = radius * radius;
-	int area = r2 << 2;
-	int rr = radius << 1;
-
-	for (int i = 0; i < area; i++) {
-		int tx = (i % rr) - radius;
-		int ty = (i / rr) - radius;
-
-		int nx = x + tx;
-		int ny = y + ty;
-		if (tx * tx + ty * ty <= r2 && withinBounds(nx, ny)) {
-			terrain[nx][ny] = false;
-			if (!BG_ClearPixel(bg, nx, ny)) {
-				strokes  += 10;
-			}
-		}
-	}
-}
-
-static void setTerrainForHalf(u8 orientation, int x, int y) {
-	switch (orientation) {
-		case 0:
-		case TILE_FLIP_VERT:
-			for (int j = 0; j < TILE_SIZE; j++) {
-				for (int i = 0; i < TILE_SIZE / 2; i++) {
-					terrain[x+i][y+j] = true;
-				}
-			}
-			break;
-		case TILE_ROTATE_90:
-		case TILE_ROTATE_90 | TILE_FLIP_VERT:
-			for (int j = 0; j < TILE_SIZE/2; j++) {
-				for (int i = 0; i < TILE_SIZE; i++) {
-					terrain[x+i][y+j] = true;
-				}
-			}
-			break;
-		case TILE_FLIP_HORIZ:
-		case TILE_FLIP_HORIZ | TILE_FLIP_VERT:
-			for (int j = 0; j < TILE_SIZE; j++) {
-				for (int i = TILE_SIZE/2; i < TILE_SIZE; i++) {
-					terrain[x+i][y+j] = true;
-				}
-			}
-			break;
-		case TILE_ROTATE_90 | TILE_FLIP_HORIZ:
-		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
-			for (int j = TILE_SIZE/2; j < TILE_SIZE; j++) {
-				for (int i = 0; i < TILE_SIZE; i++) {
-					terrain[x+i][y+j] = true;
-				}
-			}
-			break;
-	}
-}
-
-static void setTerrainForTriangle(u8 orientation, int x, int y) {
-	switch (orientation) {
-		case 0:
-		case TILE_ROTATE_90 | TILE_FLIP_VERT:
-			for (int j = 0; j < TILE_SIZE; j++) {
-				for (int i = j; i < TILE_SIZE; i++) {
-					terrain[x+i][TILE_SIZE+y-j-1] = true;
-				}
-			}
-			break;
-		case TILE_FLIP_VERT:
-		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
-			for (int j = 0; j < TILE_SIZE; j++) {
-				for (int i = j; i < TILE_SIZE; i++) {
-					terrain[x+i][y+j] = true;
-				}
-			}
-			break;
-		case TILE_FLIP_HORIZ:
-		case TILE_ROTATE_90:
-			for (int j = 0; j < TILE_SIZE; j++) {
-				for (int i = 0; i < TILE_SIZE - j; i++) {
-					terrain[x+i][TILE_SIZE+y-j-1] = true;
-				}
-			}
-			break;
-		case TILE_ROTATE_90 | TILE_FLIP_HORIZ:
-		case TILE_FLIP_HORIZ | TILE_FLIP_VERT:
-			for (int j = 0; j < TILE_SIZE; j++) {
-				for (int i = 0; i < TILE_SIZE - j; i++) {
-					terrain[x+i][y+j] = true;
-				}
-			}
-			break;
-	}
-}
-
-static void setTerrainForTile(Tile tile, int x, int y) {
-	switch (Tile_GetHitbox(tile)) {
-		case TILE_HITBOX_NONE:
-			break;
-		case TILE_HITBOX_FULL:
-			for (int j = 0; j < TILE_SIZE; j++) {
-				for (int i = 0; i < TILE_SIZE; i++) {
-					terrain[x+i][y+j] = true;
-				}
-			}
-			break;
-		case TILE_HITBOX_HALF:
-			setTerrainForHalf(Tile_GetOrientFlags(tile), x, y);
-			break;
-		case TILE_HITBOX_TRIANGLE:
-			setTerrainForTriangle(Tile_GetOrientFlags(tile), x, y);
-			break;
-	}
-}
-
 Scene_Params Course_MakeParams(int level, bool inRomfs) {
 	return (Scene_Params) { .course = {
 		.level = level,
@@ -195,7 +71,7 @@ Scene_Params Course_MakeParams(int level, bool inRomfs) {
 }
 
 static bool sceneInit(Scene_Params params) {
-	char *errMsg = "";  // Fill this in whenever you goto f_???
+	char *errMsg = "";  // Fill this in whenever you goto f_XYZ
 
 	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
 	if (!nameText) {
@@ -231,24 +107,11 @@ static bool sceneInit(Scene_Params params) {
 	Text_SetContent(parText, "Par %i", par);
 	free(name);
 
-	terrain = malloc(sizeof(*terrain) * fieldWidth);
-	if (!terrain) {
+	if (!Terrain_Init(fieldWidth, LEVEL_HEIGHT)) {
 		errMsg = "Out of memory";
-		goto f_terrain;
+		goto f_Terrain;
 	}
-
-	for (int x = 0; x < fieldWidth; x++) {
-		for (int y = 0; y < LEVEL_HEIGHT; y++) {
-			terrain[x][y] = false;
-		}
-	}
-
-	bg = BG_Create(fieldWidth, LEVEL_HEIGHT, COLOR_BLUE);
-	if (!bg) {
-		errMsg = "Out of memory";
-		goto f_bg;
-	}
-	shouldFreeBg = true;
+	shouldFreeTerrain = true;
 
 	projPath = Tracer_Create(fieldWidth, LEVEL_HEIGHT);
 	if (!projPath) {
@@ -259,12 +122,8 @@ static bool sceneInit(Scene_Params params) {
 
 	for (int x = 0; x < fieldWidth / TILE_SIZE; x++) {
 		for (int y = 0; y < LEVEL_HEIGHT / TILE_SIZE; y++)  {
-			setTerrainForTile(tiles[x][y], x*TILE_SIZE,
-					y*TILE_SIZE);
-			if (Tile_GetSprite(tiles[x][y]) != SPRITE_TILE_SKY) {
-				BG_DrawTile(bg, tiles[x][y], x*TILE_SIZE,
-						y*TILE_SIZE, false);
-			}
+			Terrain_FillTile(x*TILE_SIZE, y*TILE_SIZE, tiles[x][y],
+					false);
 		}
 	}
 	free(tiles);
@@ -285,10 +144,8 @@ static bool sceneInit(Scene_Params params) {
 	return true;
 
 f_projPath:
-	BG_Free(bg);
-f_bg:
-	free(terrain);
-f_terrain:
+	Terrain_Exit();
+f_Terrain:
 	free(tiles);
 f_LevelIORead:
 	Text_Free(strokesText);
@@ -302,9 +159,8 @@ f_nameText:
 }
 
 static void sceneExit() {
-	if (shouldFreeBg) BG_Free(bg);
 	if (shouldFreeProjPath) Tracer_Free(projPath);
-	free(terrain);
+	if (shouldFreeTerrain) Terrain_Exit();
 	Text_Free(strokesText);
 	Text_Free(parText);
 	Text_Free(nameText);
@@ -339,15 +195,13 @@ static void checkLaunchInput() {
 }
 
 static void nextLevel() {
-	shouldFreeBg = false;
+	shouldFreeTerrain = false;
 	shouldFreeProjPath = false;
 	Scene_SetNext(sceneResults, Results_MakeParams(strokes, level,
-			levelInRomfs, bg, projPath));
+			levelInRomfs, projPath));
 }
 
 static void sceneUpdate() {
-	if (BG_IsUpdating(bg)) return;
-
 	u32 kDown = hidKeysDown();
 //	u32 kHeld = hidKeysHeld();
 
@@ -392,7 +246,7 @@ static void plotTrajectoryPoint(float initX, float initY, float velX, float velY
 }
 
 static void sceneDraw() {
-	BG_UpdateGraphics(bg);
+	Terrain_UpdateGraphics();
 
 
 	C3D_RenderTarget *top = RenderTarget_GetTop();
@@ -405,14 +259,16 @@ static void sceneDraw() {
 			TEXT_RIGHT);
 	Text_Draw(strokesText, 400 - TEXT_MARGIN, PAR_Y + TEXT_LINE_HEIGHT,
 			0, COLOR_DGREEN, 1, TEXT_RIGHT);
-	BG_Rectangle bgPos = BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
-			LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT);
-	Border_Draw(bgPos.x, bgPos.y, 0, bgPos.width, bgPos.height);
+	int terrainX, terrainY, terrainWidth, terrainHeight;
+	Terrain_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
+			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth,
+			&terrainHeight);
+	Border_Draw(terrainX, terrainY, 0, terrainWidth, terrainHeight);
 
 	float projX, projY;
 	Projectile_GetPos(&projX, &projY);
-	C2D_DrawRectSolid(bgPos.x + (projX * bgPos.width) / fieldWidth,
-			bgPos.y + (projY * bgPos.height) / LEVEL_HEIGHT,
+	C2D_DrawRectSolid(terrainX + (projX * terrainWidth) / fieldWidth,
+			terrainY + (projY * terrainHeight) / LEVEL_HEIGHT,
 			1, 2, 2, COLOR_WHITE);
 
 
@@ -439,7 +295,7 @@ static void sceneDraw() {
 		plotTrajectoryPoint(projX, projY, velX, velY, 20, 3, 1, color);
 	}
 
-	BG_Draw(bg, 0, 0, -1, 1, 1);
+	Terrain_Draw(0, 0, 0, fieldWidth, LEVEL_HEIGHT, NULL, NULL, NULL, NULL);
 	Projectile_Draw(1);
 
 	C2D_ViewReset();

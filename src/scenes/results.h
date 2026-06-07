@@ -1,5 +1,8 @@
 /*
  * Scene to display results after completing a course.
+ *
+ * Note: This scene requires the terrain to still be loaded when it is
+ * initialized.
  */
 
 #ifndef RESULTS_H
@@ -12,7 +15,6 @@ typedef struct {
 	int strokes;
 	int level;
 	bool levelInRomfs;
-	Background levelBg;
 	Tracer projPath;
 } Results_Params;
 
@@ -25,6 +27,6 @@ extern Scene sceneResults;
  * strokes strokes.
  */
 Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
-		Background levelBg, Tracer projPath);
+		Tracer projPath);
 
 #endif

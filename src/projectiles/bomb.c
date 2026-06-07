@@ -12,6 +12,7 @@
 #include "../scenes/course.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
+#include "../terrain.h"
 
 #define EXPLOSION_RADIUS 20
 #define EXPLOSION_BOOST 1
@@ -74,7 +75,7 @@ static void boostFromExplosion(float explosionX, float explosionY) {
  */
 static void doExplosion() {
 	ProjectileI_Data *data = ProjectileI_AccessData();
-	Course_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
+	Terrain_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
 	Animation_Start(animationExplosion,
 			Explosion_MakeParams(data->x, data->y,
 				EXPLOSION_RADIUS + 1),

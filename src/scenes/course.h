@@ -22,16 +22,6 @@ extern Scene sceneCourse;
  */
 Scene_Params Course_MakeParams(int level, bool inRomfs);
 
-/*
- * Clears a circle of terrain of radius centered at (x, y).
- */
-void Course_ClearCircle(int x, int y, int radius);
-
-/*
- * Returns true if there is terrain at (x, y).
- */
-bool Course_CheckTerrain(int x, int y);
-
 int Course_GetFieldWidth();
 int Course_GetFieldHeight();
 

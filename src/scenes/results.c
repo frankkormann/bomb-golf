@@ -9,12 +9,12 @@
 #include "levelselector.h"
 #include "components/text.h"
 #include "components/button.h"
-#include "components/background.h"
 #include "components/border.h"
 #include "components/tracer.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../util/dispatcher.h"
+#include "../terrain.h"
 #include "../levelio.h"
 #include "../savedata.h"
 
@@ -43,7 +43,6 @@ static int score;
 
 static Text completeText, nameText, parText, strokesText, scoreText;
 static int textRevealCounter;
-static Background levelBg;
 static Tracer projPath;
 
 static Text   nextText,   quitText;
@@ -51,12 +50,11 @@ static Button nextButton, quitButton;
 static Dispatcher touchDispatcher;
 
 Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
-		Background levelBg, Tracer projPath) {
+		Tracer projPath) {
 	return (Scene_Params) { .results = {
 		.strokes = strokes,
 		.level = level,
 		.levelInRomfs = levelInRomfs,
-		.levelBg = levelBg,
 		.projPath = projPath
 	} };
 }
@@ -207,7 +205,6 @@ static bool sceneInit(Scene_Params params) {
 	score = params.results.strokes - par;
 
 	textRevealCounter = 0;
-	levelBg = params.results.levelBg;
 	projPath = params.results.projPath;
 
 	return true;
@@ -242,13 +239,13 @@ static void sceneExit() {
 	Text_Free(parText);
 	Text_Free(strokesText);
 	Text_Free(scoreText);
-	BG_Free(levelBg);
 	Tracer_Free(projPath);
 	Text_Free(nextText);
 	Button_Free(nextButton);
 	Text_Free(quitText);
 	Button_Free(quitButton);
 	Dispatcher_Free(touchDispatcher);
+	Terrain_Exit();
 }
 
 static void sceneUpdate() {
@@ -309,10 +306,12 @@ static void sceneDraw() {
 				getColorForScore(score), 1, TEXT_CENTERED);
 	}
 
-	BG_Rectangle bgPos = BG_DrawFit(levelBg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
-			LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT);
-	Border_Draw(bgPos.x, bgPos.y, 0, bgPos.width, bgPos.height);
-	Tracer_Draw(projPath, bgPos.x, bgPos.y, 0.5, bgPos.width, bgPos.height);
+	int terrainX, terrainY, terrainWidth, terrainHeight;
+	Terrain_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
+			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth,
+			&terrainHeight);
+	Border_Draw(terrainX, terrainY, 0, terrainWidth, terrainHeight);
+	Tracer_Draw(projPath, terrainX, terrainY, 0.5, terrainWidth, terrainHeight);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();

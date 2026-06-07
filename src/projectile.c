@@ -4,9 +4,9 @@
 #include <citro2d.h>
 #include "projectile.h"
 #include "projectiles/projectile_internal.h"
-#include "scenes/course.h"
 #include "rendering/spritesheet.h"
 #include "util/macros.h"
+#include "terrain.h"
 #include "levelio.h"
 
 #define LAST_POS_COUNT 20
@@ -91,7 +91,7 @@ static void checkCircle(int x, int y, int radius, int *hitX, int *hitY) {
 	int hitsX = 0, hitsY = 0;
 	int numHits = 0;
 	void checkTerrain(int x, int y) {
-		if (Course_CheckTerrain(x, y)) {
+		if (Terrain_TypeAt(x, y) != NOTHING) {
 			hitsX += x;
 			hitsY += y;
 			numHits++;
