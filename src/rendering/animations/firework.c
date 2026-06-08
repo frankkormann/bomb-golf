@@ -77,7 +77,7 @@ static void update(AnimationI_AnimObj *obj) {
 		data->loc.y--;
 		if (data->loc.y < EXPLOSION_Y
 				|| Terrain_TypeAt(data->loc.x, data->loc.y)
-					!= NOTHING) {
+					!= TERRAIN_NOTHING) {
 			data->exploding = true;
 			Terrain_ClearCircle(data->loc.x, data->loc.y,
 					EXPLOSION_RADIUS);

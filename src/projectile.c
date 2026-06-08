@@ -91,7 +91,7 @@ static void checkCircle(int x, int y, int radius, int *hitX, int *hitY) {
 	int hitsX = 0, hitsY = 0;
 	int numHits = 0;
 	void checkTerrain(int x, int y) {
-		if (Terrain_TypeAt(x, y) != NOTHING) {
+		if (Terrain_TypeAt(x, y) != TERRAIN_NOTHING) {
 			hitsX += x;
 			hitsY += y;
 			numHits++;
