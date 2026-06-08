@@ -21,7 +21,6 @@ Tile_Hitbox spriteToHitbox(SpriteSheet_TileSprite sprite) {
 	switch (sprite) {
 		case SPRITE_TILE_SKY:
 		case SPRITE_TILE_HOUSE_INTERIOR:
-		case SPRITE_TILE_OVERLAY_BOUNCY:
 		case NUM_TILES:
 			return TILE_HITBOX_NONE;
 		case SPRITE_TILE_DIRT:
@@ -46,6 +45,7 @@ Tile_Hitbox spriteToHitbox(SpriteSheet_TileSprite sprite) {
 		case SPRITE_TILE_GRASS_HALF:
 		case SPRITE_TILE_DIRT_HALF:
 		case SPRITE_TILE_LEAVES_HALF:
+		case SPRITE_TILE_OVERLAY_BOUNCY:
 			return TILE_HITBOX_HALF;
 	}
 	return TILE_HITBOX_NONE;
