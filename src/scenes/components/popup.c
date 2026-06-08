@@ -52,7 +52,7 @@ bool Popup_Init(char *message, Popup_Format argFormat, Popup_Button argButtons[]
 	if (!touchDispatcher) goto f_touchDispatcher;
 
 	switch (format) {
-		case ONE_BUTTON:
+		case POPUP_ONE_BUTTON:
 			buttons[0] = Button_Create(
 					ONE_BUTTON_X,
 					calculateButtonY(messageHeight),
@@ -68,7 +68,7 @@ bool Popup_Init(char *message, Popup_Format argFormat, Popup_Button argButtons[]
 			if (!buttonsText[0]) goto f_buttons;
 			Text_SetContent(buttonsText[0], "%s", argButtons[0].label);
 			break;
-		case TWO_BUTTON:
+		case POPUP_TWO_BUTTON:
 			for (int i = 0; i < 2; i++) {
 				buttons[i] = Button_Create(
 						TWO_BUTTON_START_X
@@ -145,11 +145,11 @@ void Popup_Draw() {
 		Button_Draw(buttons[i], 1);
 		float textX = 0, textY = 0;
 		switch (format) {
-			case ONE_BUTTON:
+			case POPUP_ONE_BUTTON:
 				textX = ONE_BUTTON_X + 10;
 				textY = calculateButtonY(messageHeight) + 5;
 				break;
-			case TWO_BUTTON:
+			case POPUP_TWO_BUTTON:
 				textX = TWO_BUTTON_START_X + i*TWO_BUTTON_GAP + 10;
 				textY = calculateButtonY(messageHeight) + 5;
 				break;

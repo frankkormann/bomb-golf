@@ -49,7 +49,8 @@ int main() {
 				Popup_Button buttons[] = {
 						{ "Resume", NULL, Popup_Exit }
 					};
-				if (Popup_Init("Paused", ONE_BUTTON, buttons)) {
+				if (Popup_Init("Paused", POPUP_ONE_BUTTON,
+						buttons)) {
 					pauseMenuIsOpen = true;
 				}
 			}

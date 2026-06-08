@@ -322,7 +322,7 @@ static void showExitPopup() {
 			{ "Don't Save", NULL, exitNoSave },
 			{ "Save & Exit", NULL, saveExit }
 		};
-	Popup_Init("Save before exiting?", TWO_BUTTON, buttons);
+	Popup_Init("Save before exiting?", POPUP_TWO_BUTTON, buttons);
 }
 
 static void changePar(int change) {

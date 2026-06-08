@@ -13,12 +13,12 @@ typedef enum {
 	 * Popup message here
 	 * [     Button     ]
 	 */
-	ONE_BUTTON,
+	POPUP_ONE_BUTTON,
 	/*
 	 * Popup message here
 	 * [ Btn1  ][ Btn2  ]
 	 */
-	TWO_BUTTON
+	POPUP_TWO_BUTTON
 } Popup_Format;
 
 typedef struct {
