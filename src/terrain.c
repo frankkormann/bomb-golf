@@ -4,6 +4,7 @@
 #include "tile.h"
 #include "scenes/components/background.h"
 #include "rendering/colors.h"
+#include "rendering/spritesheet.h"
 
 // (x, y) goes to [x + y*width]
 Terrain_Type *typeMap;
@@ -31,13 +32,22 @@ void Terrain_Exit() {
 	BG_Free(bg);
 }
 
-static void setTerrainForHalf(int x, int y, u8 orientation) {
+Terrain_Type getTerrainForTile(Tile tile) {
+	SpriteSheet_TileSprite sprite = Tile_GetSprite(tile);
+	if (sprite == SPRITE_TILE_OVERLAY_BOUNCY) {
+		return TERRAIN_BOUNCY;
+	} else {
+		return TERRAIN_GROUND;
+	}
+}
+
+static void setTerrainForHalf(int x, int y, u8 orientation, Terrain_Type type) {
 	switch (orientation) {
 		case 0:
 		case TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE / 2; i++) {
-					typeMap[x+i + (y+j)*width] = GROUND;
+					typeMap[x+i + (y+j)*width] = type;
 				}
 			}
 			break;
@@ -45,7 +55,7 @@ static void setTerrainForHalf(int x, int y, u8 orientation) {
 		case TILE_ROTATE_90 | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE/2; j++) {
 				for (int i = 0; i < TILE_SIZE; i++) {
-					typeMap[x+i + (y+j)*width] = GROUND;
+					typeMap[x+i + (y+j)*width] = type;
 				}
 			}
 			break;
@@ -53,7 +63,7 @@ static void setTerrainForHalf(int x, int y, u8 orientation) {
 		case TILE_FLIP_HORIZ | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = TILE_SIZE/2; i < TILE_SIZE; i++) {
-					typeMap[x+i + (y+j)*width] = GROUND;
+					typeMap[x+i + (y+j)*width] = type;
 				}
 			}
 			break;
@@ -61,21 +71,20 @@ static void setTerrainForHalf(int x, int y, u8 orientation) {
 		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
 			for (int j = TILE_SIZE/2; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE; i++) {
-					typeMap[x+i + (y+j)*width] = GROUND;
+					typeMap[x+i + (y+j)*width] = type;
 				}
 			}
 			break;
 	}
 }
 
-static void setTerrainForTriangle(int x, int y, u8 orientation) {
+static void setTerrainForTriangle(int x, int y, u8 orientation, Terrain_Type type) {
 	switch (orientation) {
 		case 0:
 		case TILE_ROTATE_90 | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = j; i < TILE_SIZE; i++) {
-					typeMap[x+i + (TILE_SIZE+y-j-1)*width]
-							= GROUND;
+					typeMap[x+i +(TILE_SIZE+y-j-1)*width] = type;
 				}
 			}
 			break;
@@ -83,7 +92,7 @@ static void setTerrainForTriangle(int x, int y, u8 orientation) {
 		case TILE_ROTATE_90 | TILE_FLIP_HORIZ | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = j; i < TILE_SIZE; i++) {
-					typeMap[x+i + (y+j)*width] = GROUND;
+					typeMap[x+i + (y+j)*width] = type;
 				}
 			}
 			break;
@@ -91,8 +100,7 @@ static void setTerrainForTriangle(int x, int y, u8 orientation) {
 		case TILE_ROTATE_90:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE - j; i++) {
-					typeMap[x+i + (TILE_SIZE+y-j-1)*width]
-							= GROUND;
+					typeMap[x+i +(TILE_SIZE+y-j-1)*width] = type;
 				}
 			}
 			break;
@@ -100,7 +108,7 @@ static void setTerrainForTriangle(int x, int y, u8 orientation) {
 		case TILE_FLIP_HORIZ | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE - j; i++) {
-					typeMap[x+i + (y+j)] = GROUND;
+					typeMap[x+i + (y+j)] = type;
 				}
 			}
 			break;
@@ -111,25 +119,26 @@ void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious) {
 	if (clearPrevious) {
 		for (int j = 0; j < TILE_SIZE; j++) {
 			for (int i = 0; i < TILE_SIZE; i++) {
-				typeMap[x+i + (y+j)*width] = NOTHING;
+				typeMap[x+i + (y+j)*width] = TERRAIN_NOTHING;
 			}
 		}
 	}
+	Terrain_Type type = getTerrainForTile(tile);
 	switch (Tile_GetHitbox(tile)) {
 		case TILE_HITBOX_NONE:
 			break;
 		case TILE_HITBOX_FULL:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE; i++) {
-					typeMap[x+i + (y+j)*width] = GROUND;
+					typeMap[x+i + (y+j)*width] = type;
 				}
 			}
 			break;
 		case TILE_HITBOX_HALF:
-			setTerrainForHalf(x, y, Tile_GetOrientFlags(tile));
+			setTerrainForHalf(x, y, Tile_GetOrientFlags(tile), type);
 			break;
 		case TILE_HITBOX_TRIANGLE:
-			setTerrainForTriangle(x, y, Tile_GetOrientFlags(tile));
+			setTerrainForTriangle(x, y, Tile_GetOrientFlags(tile), type);
 			break;
 	}
 	BG_DrawTile(bg, tile, x, y, clearPrevious);
@@ -149,14 +158,14 @@ void Terrain_ClearCircle(int x, int y, int radius) {
 		int ny = y + ty;
 		if (tx * tx + ty * ty <= r2 && nx >= 0 && nx < width && ny >= 0
 				&& ny < height) {
-			typeMap[nx + ny*width] = NOTHING;
+			typeMap[nx + ny*width] = TERRAIN_NOTHING;
 			BG_ClearPixel(bg, nx, ny);
 		}
 	}
 }
 
 Terrain_Type Terrain_TypeAt(int x, int y) {
-	if (x < 0 || x >= width || y < 0 || y >= height) return GROUND;
+	if (x < 0 || x >= width || y < 0 || y >= height) return TERRAIN_GROUND;
 	return typeMap[x + y*width];
 }
 

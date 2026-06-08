@@ -12,11 +12,11 @@
 #include "tile.h"
 
 typedef enum {
-	NOTHING,
-	GROUND,
-	BOUNCY,
-	STICKY,
-	EXPLOSIVE
+	TERRAIN_NOTHING,
+	TERRAIN_GROUND,
+	TERRAIN_BOUNCY
+//	TERRAIN_STICKY,    // Future idea
+//	TERRAIN_EXPLOSIVE  // Future idea
 } Terrain_Type;
 
 /*
@@ -38,9 +38,6 @@ void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious);
  */
 void Terrain_ClearCircle(int x, int y, int radius);
 
-/*
- * Returns the type of terrain at (x, y).
- */
 Terrain_Type Terrain_TypeAt(int x, int y);
 
 /*
