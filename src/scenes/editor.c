@@ -40,6 +40,7 @@ static Background bg;
 static float scroll;
 
 static Tile (*tiles)[LEVEL_HEIGHT_TILES];
+static Tile_WithPos (*overlayTiles)[LEVEL_HEIGHT_TILES];
 
 static int holeX, holeY;
 static int projX, projY;
@@ -63,25 +64,17 @@ static void showExitPopup();
 static void changePar(int change);
 
 static bool sceneInit(Scene_Params params) {
-	char *errMsg = "";  // Fill this in whenever you goto f_???
-
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
-	if (!bg) {
-		errMsg = "Out of memory";
-		goto f_bg;
-	}
+	if (!bg) goto f_bg;
 
 	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
-	if (!nameText) {
-		errMsg = "Out of memory";
-		goto f_nameText;
-	}
+	if (!nameText) goto f_nameText;
 
 	parText = Text_Create(9);
-	if (!parText) {
-		errMsg = "Out of memory";
-		goto f_parText;
-	}
+	if (!parText) goto f_parText;
+
+	overlayTiles = calloc(LEVEL_MAX_WIDTH_TILES, sizeof(*overlayTiles));
+	if (!overlayTiles) goto f_overlayTiles;
 
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.editor.level, false, path);
@@ -94,10 +87,7 @@ static bool sceneInit(Scene_Params params) {
 			&numOverlayTiles, &width, &par, &name)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
-		if (!newTiles) {
-			errMsg = "Out of memory";
-			goto f_newTiles;
-		}
+		if (!newTiles) goto f_newTiles;
 		tiles = newTiles;
 
 		for (int x = width / TILE_SIZE; x < LEVEL_MAX_WIDTH_TILES; x++) {
@@ -117,12 +107,18 @@ static bool sceneInit(Scene_Params params) {
 						y * TILE_SIZE, false);
 			}
 		}
+
+		for (size_t i = 0; i < numOverlayTiles; i++) {
+			Tile_WithPos overlayTile = denseOverlayTiles[i];
+			int x, y;
+			Tile_GetPos(denseOverlayTiles[i], &x, &y);
+			overlayTiles[x/TILE_SIZE][y/TILE_SIZE] = overlayTile;
+			BG_DrawTile(bg, overlayTile, x, y, false);
+		}
+		free(denseOverlayTiles);
 	} else {
 		tiles = malloc(sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
-		if (!tiles) {
-			errMsg = "Out of memory";
-			goto f_tiles;
-		}
+		if (!tiles) goto f_tiles;
 
 		for (int x = 0; x < LEVEL_MAX_WIDTH_TILES; x++) {
 			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
@@ -138,30 +134,18 @@ static bool sceneInit(Scene_Params params) {
 	}
 	Text_SetContent(nameText, name);
 
-	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_GRASS, 0))) {
-		errMsg = "Out of memory";
-		goto f_TileSelector;
-	}
+	if (!TileSelector_Init(Tile_Make(SPRITE_TILE_GRASS, 0))) goto f_TileSelector;
 
 	touchDispatcher = Dispatcher_Create();
-	if (!touchDispatcher) {
-		errMsg = "Out of memory";
-		goto f_touchDispatcher;
-	}
+	if (!touchDispatcher) goto f_touchDispatcher;
 	Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
 			.priority = 0, NULL, handleTouchInput });
 	TileSelector_RegisterForTouchEvents(touchDispatcher, 2);
 
-	if (!EditorMenu_Init(editName, showExitPopup, changePar)) {
-		errMsg = "Out of memory";
-		goto f_EditorMenu;
-	}
+	if (!EditorMenu_Init(editName, showExitPopup, changePar)) goto f_EditorMenu;
 	EditorMenu_RegisterForTouchEvents(touchDispatcher, 3);
 
-	if (!BrushSelector_Init(BRUSH_PENCIL)) {
-		errMsg = "Out of memory";
-		goto f_BrushSelector;
-	}
+	if (!BrushSelector_Init(BRUSH_PENCIL)) goto f_BrushSelector;
 	BrushSelector_RegisterForTouchEvents(touchDispatcher, 1);
 
 	scroll = 0;
@@ -179,19 +163,22 @@ f_TileSelector:
 f_newTiles:
 	free(tiles);
 f_tiles:
+	free(overlayTiles);
+f_overlayTiles:
 	Text_Free(parText);
 f_parText:
 	Text_Free(nameText);
 f_nameText:
 	BG_Free(bg);
 f_bg:
-	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
+	Scene_SetNext(sceneError, Error_MakeParams("Out of memory"));
 	return false;
 }
 
 static void sceneExit() {
 	BG_Free(bg);
 	free(tiles);
+	free(overlayTiles);
 	free(name);
 	Text_Free(nameText);
 	Text_Free(parText);
@@ -209,21 +196,48 @@ static bool exportLevel() {
 	LevelIO_Proj proj = { projX, projY, projectileBomb };
 
 	int tilesMaxX = 0;
+	size_t numOverlayTiles = 0;
 	for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
-		for (int x = tilesMaxX; x < LEVEL_MAX_WIDTH_TILES; x++) {
-			if (Tile_GetSprite(tiles[x][y]) != SPRITE_TILE_SKY) {
+		for (int x = 0; x < LEVEL_MAX_WIDTH_TILES; x++) {
+			if (overlayTiles[x][y] != 0) {
+				numOverlayTiles++;
+			}
+			if (Tile_GetSprite(tiles[x][y]) != SPRITE_TILE_SKY
+					&& x > tilesMaxX) {
 				tilesMaxX = x;
 			}
 		}
 	}
 
-	return LevelIO_Write(path, hole, proj, tiles, (tilesMaxX + 1) * TILE_SIZE,
-			par, name);
+	Tile_WithPos *denseOverlayTiles = malloc(sizeof(*denseOverlayTiles)
+	                                         * numOverlayTiles);
+	size_t i = 0;
+	for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
+		for (int x = 0; x < LEVEL_MAX_WIDTH_TILES; x++) {
+			if (overlayTiles[x][y] != 0) {
+				denseOverlayTiles[i] = overlayTiles[x][y];
+				i++;
+			}	
+		}
+	}
+
+	return LevelIO_Write(path, hole, proj, tiles, denseOverlayTiles,
+			numOverlayTiles, (tilesMaxX + 1) * TILE_SIZE, par, name);
 }
 
 static void changeTile(int tileX, int tileY, Tile newTile) {
-	tiles[tileX][tileY] = newTile;
-	BG_DrawTile(bg, newTile, tileX * TILE_SIZE, tileY * TILE_SIZE, true);
+	if (Tile_IsOverlay(newTile)) {
+		overlayTiles[tileX][tileY] = Tile_AddPos(newTile, tileX * TILE_SIZE,
+		                                         tileY * TILE_SIZE);
+		BG_DrawTile(bg, tiles[tileX][tileY], tileX * TILE_SIZE,
+				tileY * TILE_SIZE, true);
+		BG_DrawTile(bg, newTile, tileX * TILE_SIZE, tileY * TILE_SIZE,
+				false);
+	} else {
+		tiles[tileX][tileY] = newTile;
+		overlayTiles[tileX][tileY] = 0;
+		BG_DrawTile(bg, newTile, tileX * TILE_SIZE, tileY * TILE_SIZE, true);
+	}
 }
 
 static bool handleTouchInput() {
