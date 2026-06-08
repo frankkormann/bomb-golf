@@ -7,13 +7,14 @@
 #include "levelselector.h"
 #include "title.h"
 #include "components/levelcard.h"
-#include "components/text.h"
 #include "components/background.h"
+#include "components/text.h"
 #include "components/border.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
 #include "../util/dispatcher.h"
+#include "../terrain.h"
 #include "../levelio.h"
 
 #define LEVEL_NAME_X 10
@@ -53,16 +54,19 @@ static void displayLevel(int levelNum) {
 		char path[LEVEL_PATH_MAX];
 		LevelIO_MakePath(levelNum, false, path);
 		Tile (*tiles)[LEVEL_HEIGHT_TILES];
+		Tile_WithPos *overlayTiles;
+		size_t numOverlayTiles;
 		int width, par;
 		char *name;
 
-		if (!LevelIO_Read(path, NULL, NULL, &tiles, NULL, NULL, &width, &par,
-				&name)) {
+		if (!LevelIO_Read(path, NULL, NULL, &tiles, &overlayTiles,
+				&numOverlayTiles, &width, &par, &name)) {
 			// Spaces to maintain center alignment
 			Text_SetContent(infoText, "     Level does not exist");
 			levelIsSelected = false;
 			return;
 		}
+
 		BG_ClearAll(levelPreview);
 		for (int x = 0; x < width / TILE_SIZE; x++) {
 			for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
@@ -70,7 +74,14 @@ static void displayLevel(int levelNum) {
 						y * TILE_SIZE, false);
 			}
 		}
+		for (size_t i = 0; i < numOverlayTiles; i++) {
+			int x, y;
+			Tile_GetPos(overlayTiles[i], &x, &y);
+			BG_DrawTile(levelPreview, overlayTiles[i], x, y, false);
+		}
+
 		free(tiles);
+		free(overlayTiles);
 
 		Text_SetContent(nameText, "%s", name);
 		free(name);
