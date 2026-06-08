@@ -37,8 +37,8 @@ typedef struct {
 void LevelIO_MakePath(int levelNum, bool inRomfs, char *path);
 
 /*
- * Reads the level file at path and fills in *proj, *width, and **tiles with
- * the data therein.
+ * Reads the level file at path and fills in the arguments with the data
+ * therein. If any argument is NULL, that variable will not be filled.
  *
  * **tiles is allocated with length *width / TILE_SIZE.
  * **name is allocated with a null terminator.
@@ -47,11 +47,6 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path);
  * is returned.
  */
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		Tile (**tiles)[LEVEL_HEIGHT_TILES],
-		int *width, int *par, char **name);
-
-//FIXME Make this the new default, transition everything to use it
-bool LevelIO_ReadNew(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 		Tile (**tiles)[LEVEL_HEIGHT_TILES],
 		Tile_WithPos **overlayTiles, size_t *numOverlayTiles,
 		int *width, int *par, char **name);

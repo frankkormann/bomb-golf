@@ -29,77 +29,103 @@ static int projToNum(Projectile proj) {
 	return -1;
 }
 
-bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		Tile (**tiles)[LEVEL_HEIGHT_TILES],
-		int *width, int *par, char **name) {
-	Tile_WithPos *overlayTiles;
-	size_t overlayTilesSize;
-	if (!LevelIO_ReadNew(path, hole, proj, tiles, &overlayTiles,
-			&overlayTilesSize, width, par, name)) {
-		return false;
+/*
+ * If buf is NULL, advances file by size. Otherwise, uses fread to read the
+ * next object of size size into buf.
+ *
+ * Returns true if the object was successfully read or if size is 0.
+ */
+bool maybeRead(void *buf, size_t size, FILE *file) {
+	if (size == 0) return true;
+
+	if (buf) {
+		return fread(buf, size, 1, file);
 	} else {
-		free(overlayTiles);
+		fseek(file, size, SEEK_CUR);
 		return true;
 	}
 }
 
-bool LevelIO_ReadNew(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
+bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 		Tile (**tiles)[LEVEL_HEIGHT_TILES],
 		Tile_WithPos **overlayTiles, size_t *numOverlayTiles,
 		int *width, int *par, char **name) {
 	FILE *data = fopen(path, "rb");
 	if (!data) goto f_data;
 
-	if (!fread(width, sizeof(*width), 1, data)) goto f_fread1;
-	if (!fread(par,   sizeof(*par),   1, data)) goto f_fread1;
-
-	size_t tilesSize = sizeof(**tiles) * *width / TILE_SIZE;
-	*tiles = malloc(tilesSize);
-	if (!(*tiles)) goto f_tiles;
-
-	int projNum;
+	// We use these values, so make sure there is space allocated for them
+	int readWidth, projNum;
 	size_t nameSize, overlayTilesSize;
 
-	if (!fread(&hole->x,      sizeof(hole->x),      1, data)) goto f_fread2;
-	if (!fread(&hole->y,      sizeof(hole->y),      1, data)) goto f_fread2;
-	if (!fread(&hole->width,  sizeof(hole->width),  1, data)) goto f_fread2;
-	if (!fread(&hole->height, sizeof(hole->height), 1, data)) goto f_fread2;
-	if (!fread(&proj->startX, sizeof(proj->startX), 1, data)) goto f_fread2;
-	if (!fread(&proj->startY, sizeof(proj->startY), 1, data)) goto f_fread2;
-	if (!fread(&projNum,      sizeof(projNum),      1, data)) goto f_fread2;
-	if (!fread(**tiles,       tilesSize,            1, data)) goto f_fread2;
-	if (!fread(&nameSize,     sizeof(nameSize),     1, data)) goto f_fread2;
+	if (!maybeRead(&readWidth, sizeof(readWidth), data)) goto f_maybeRead1;
+	if (!maybeRead(par, sizeof(*par), data)) goto f_maybeRead1;
 
-	*name = malloc(nameSize);
-	if (!(*name)) goto f_name;
-	if (!fread(*name,         nameSize,             1, data)) goto f_fread3;
+	size_t tilesSize = sizeof(**tiles) * readWidth / TILE_SIZE;
+	if (tiles) {
+		*tiles = malloc(tilesSize);
+		if (!(*tiles)) goto f_tiles;
+	}
 
-	if (!fread(&overlayTilesSize, sizeof(overlayTilesSize), 1, data))
-		goto f_fread3;
-	*numOverlayTiles = overlayTilesSize / sizeof(**overlayTiles);
+	if (!maybeRead(hole  ? &hole->x      : NULL, sizeof(hole->x),      data))
+		goto f_maybeRead2;
+	if (!maybeRead(hole  ? &hole->y      : NULL, sizeof(hole->y),      data))
+		goto f_maybeRead2;
+	if (!maybeRead(hole  ? &hole->width  : NULL, sizeof(hole->width),  data))
+		goto f_maybeRead2;
+	if (!maybeRead(hole  ? &hole->height : NULL, sizeof(hole->height), data))
+		goto f_maybeRead2;
+	if (!maybeRead(proj  ? &proj->startX : NULL, sizeof(proj->startX), data))
+		goto f_maybeRead2;
+	if (!maybeRead(proj  ? &proj->startY : NULL, sizeof(proj->startY), data))
+		goto f_maybeRead2;
+	if (!maybeRead(&projNum,                     sizeof(projNum),      data))
+		goto f_maybeRead2;
+	if (!maybeRead(tiles ? **tiles       : NULL, tilesSize,            data))
+		goto f_maybeRead2;
+	if (!maybeRead(&nameSize,                    sizeof(nameSize),     data))
+		goto f_maybeRead2;
 
-	*overlayTiles = malloc(overlayTilesSize);
-	if (!(*overlayTiles)) goto f_overlayTiles;
+	if (name) {
+		*name = malloc(nameSize);
+		if (!(*name)) goto f_name;
+	}
 
-	if (overlayTilesSize > 0 && !fread(*overlayTiles, overlayTilesSize, 1, data)) goto f_fread4;
+	if (!maybeRead(name ? *name : NULL, nameSize,                 data))
+		goto f_maybeRead3;
+	if (!maybeRead(&overlayTilesSize,   sizeof(overlayTilesSize), data))
+		goto f_maybeRead3;
 
-	proj->type = numToProj(projNum);
-	if (!proj->type) goto f_projtype;
+	if (overlayTiles) {
+		*overlayTiles = malloc(overlayTilesSize);
+		if (!(*overlayTiles)) goto f_overlayTiles;
+	}
+
+	if (!maybeRead(overlayTiles ? *overlayTiles : NULL, overlayTilesSize, data))
+		goto f_maybeRead4;
+
+	if (proj) {
+		proj->type = numToProj(projNum);
+		if (!proj->type) goto f_projtype;
+	}
+	if (width) *width = readWidth;
+	if (numOverlayTiles) {
+		*numOverlayTiles = overlayTilesSize / sizeof(**overlayTiles);
+	}
 
 	fclose(data);
 	return true;
 
 f_projtype:
-f_fread4:
-	free(*overlayTiles);
+f_maybeRead4:
+	if (overlayTiles) free(*overlayTiles);
 f_overlayTiles:
-f_fread3:
-	free(*name);
+f_maybeRead3:
+	if (name) free(*name);
 f_name:
-f_fread2:
-	free(*tiles);
+f_maybeRead2:
+	if (tiles) free(*tiles);
 f_tiles:
-f_fread1:
+f_maybeRead1:
 	fclose(data);
 f_data:
 	return false;
@@ -118,21 +144,21 @@ bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
 	size_t nameSize = (strlen(name) + 1) * sizeof(char);
 	size_t overlayTilesSize = numOverlayTiles * sizeof(*overlayTiles);
 
-	if (!fwrite(&width,       sizeof(width),       1, data)) goto f_fwrite;
-	if (!fwrite(&par,         sizeof(par),         1, data)) goto f_fwrite;
-	if (!fwrite(&hole.x,      sizeof(hole.x),      1, data)) goto f_fwrite;
-	if (!fwrite(&hole.y,      sizeof(hole.y),      1, data)) goto f_fwrite;
-	if (!fwrite(&hole.width,  sizeof(hole.width),  1, data)) goto f_fwrite;
+	if (!fwrite(&width, sizeof(width), 1, data)) goto f_fwrite;
+	if (!fwrite(&par, sizeof(par), 1, data)) goto f_fwrite;
+	if (!fwrite(&hole.x, sizeof(hole.x), 1, data)) goto f_fwrite;
+	if (!fwrite(&hole.y, sizeof(hole.y), 1, data)) goto f_fwrite;
+	if (!fwrite(&hole.width, sizeof(hole.width), 1, data)) goto f_fwrite;
 	if (!fwrite(&hole.height, sizeof(hole.height), 1, data)) goto f_fwrite;
 	if (!fwrite(&proj.startX, sizeof(proj.startX), 1, data)) goto f_fwrite;
 	if (!fwrite(&proj.startY, sizeof(proj.startY), 1, data)) goto f_fwrite;
-	if (!fwrite(&projNum,     sizeof(projNum),     1, data)) goto f_fwrite;
-	if (!fwrite(tiles,        tilesSize,           1, data)) goto f_fwrite;
-	if (!fwrite(&nameSize,    sizeof(nameSize),    1, data)) goto f_fwrite;
-	if (!fwrite(name,         nameSize,            1, data)) goto f_fwrite;
+	if (!fwrite(&projNum, sizeof(projNum), 1, data)) goto f_fwrite;
+	if (!fwrite(tiles, tilesSize, 1, data)) goto f_fwrite;
+	if (!fwrite(&nameSize, sizeof(nameSize), 1, data)) goto f_fwrite;
+	if (!fwrite(name, nameSize, 1, data)) goto f_fwrite;
 	if (!fwrite(&overlayTilesSize, sizeof(overlayTilesSize), 1, data))
 		goto f_fwrite;
-	if (!fwrite(overlayTiles, overlayTilesSize,    1, data)) goto f_fwrite;
+	if (!fwrite(overlayTiles, overlayTilesSize, 1, data)) goto f_fwrite;
 
 	fclose(data);
 	return true;
