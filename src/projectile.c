@@ -208,7 +208,7 @@ bool ProjDefault_IsMoving() {
 	return maxX - minX > STOPPED_THRESHOLD || maxY - minY > STOPPED_THRESHOLD;
 }
 
-void ProjDefault_OnHitGround(float hitX, float hitY) {
+void ProjDefault_OnHitGround(int hitX, int hitY) {
 	// Use this formula from https://math.stackexchange.com/a/13263 to reflect
 	// the velocity vector over the line between the hit point and the center
 	// of the ball:
@@ -226,8 +226,16 @@ void ProjDefault_OnHitGround(float hitX, float hitY) {
 	data.velX -= 2 * vDotN * nX;
 	data.velY -= 2 * vDotN * nY;
 
-	data.velX *= BOUNCE_VELOCITY_RETENTION_X;
-	data.velY *= BOUNCE_VELOCITY_RETENTION_Y;
+	switch (Terrain_TypeAt(hitX, hitY)) {
+		case TERRAIN_GROUND:
+		// Cover for an imprecise hit position
+		case TERRAIN_NOTHING:
+			data.velX *= BOUNCE_VELOCITY_RETENTION_X;
+			data.velY *= BOUNCE_VELOCITY_RETENTION_Y;
+			break;
+		case TERRAIN_BOUNCY:
+			break;
+	}
 }
 
 void ProjDefault_Draw(float depth) {}

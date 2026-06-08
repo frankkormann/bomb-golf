@@ -125,7 +125,7 @@ static bool isMoving() {
 	return ProjDefault_IsMoving();
 }
 
-static void onHitGround(float hitX, float hitY) {
+static void onHitGround(int hitX, int hitY) {
 	if (ballState == WAITING) return;
 
 	if ((ballState == FLYING_SHOULD_EXPLODE || ballState == FLYING_TIME_SLOWED)

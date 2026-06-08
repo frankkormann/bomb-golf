@@ -32,7 +32,7 @@ struct projectile {
 	 * Updates the projectile after it has hit a ground pixel located at
 	 * (hitX, hitY).
 	 */
-	void (*const onHitGround)(float hitX, float hitY);
+	void (*const onHitGround)(int hitX, int hitY);
 	/*
 	 * Draws the projectile to the screen at z-level depth.
 	 */
@@ -59,7 +59,7 @@ void ProjDefault_Reset();
 void ProjDefault_Launch(float velX, float velY);
 bool ProjDefault_Move(int *hitX, int *hitY);
 bool ProjDefault_IsMoving();
-void ProjDefault_OnHitGround(float hitX, float hitY);
+void ProjDefault_OnHitGround(int hitX, int hitY);
 void ProjDefault_Draw(float depth);  // Does nothing
 
 #endif
