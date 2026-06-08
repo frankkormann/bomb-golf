@@ -126,19 +126,11 @@ static void quit() {
 static bool sceneInit(Scene_Params params) {
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.results.level, params.results.levelInRomfs, path);
-	// These are for the function signature
-	//TODO allow passing nulls to LevelIO_Read
-	LevelIO_Hole hole;
-	LevelIO_Proj proj;
-	Tile (*tiles)[LEVEL_HEIGHT_TILES];
-	int width;
-	// And these are what are used
 	int par;
 	char *name;
-	if (!LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) {
+	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, &par, &name)) {
 		goto f_LevelIO_Read;
 	}
-	free(tiles);  // Don't need this
 
 	completeText = Text_Create(strlen("Hole Complete!") + 1);
 	if (!completeText) goto f_completeText;

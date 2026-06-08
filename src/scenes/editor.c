@@ -88,7 +88,10 @@ static bool sceneInit(Scene_Params params) {
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	int width;
-	if (LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) {
+	Tile_WithPos *denseOverlayTiles;
+	size_t numOverlayTiles;
+	if (LevelIO_Read(path, &hole, &proj, &tiles, &denseOverlayTiles,
+			&numOverlayTiles, &width, &par, &name)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!newTiles) {

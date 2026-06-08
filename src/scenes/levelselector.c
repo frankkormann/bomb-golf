@@ -52,13 +52,12 @@ static void displayLevel(int levelNum) {
 	} else {
 		char path[LEVEL_PATH_MAX];
 		LevelIO_MakePath(levelNum, false, path);
-		LevelIO_Hole hole;
-		LevelIO_Proj proj;
 		Tile (*tiles)[LEVEL_HEIGHT_TILES];
 		int width, par;
 		char *name;
 
-		if (!LevelIO_Read(path, &hole, &proj, &tiles, &width, &par, &name)) {
+		if (!LevelIO_Read(path, NULL, NULL, &tiles, NULL, NULL, &width, &par,
+				&name)) {
 			// Spaces to maintain center alignment
 			Text_SetContent(infoText, "     Level does not exist");
 			levelIsSelected = false;

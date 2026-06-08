@@ -99,7 +99,7 @@ static bool sceneInit(Scene_Params params) {
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
 	int par;
 	char *name;
-	if (!LevelIO_Read(path, &hole, &proj, &tiles, &fieldWidth, &par, &name)) {
+	if (!LevelIO_Read(path, &hole, &proj, &tiles, NULL, NULL, &fieldWidth, &par, &name)) {
 		errMsg = "Level file is malformed or doesn't exist";
 		goto f_LevelIORead;
 	}
