@@ -43,12 +43,18 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path);
  * **tiles is allocated with length *width / TILE_SIZE.
  * **name is allocated with a null terminator.
  *
- * Returns false if an error occurred. *tiles will not be allocated if false is
- * returned.
+ * Returns false if an error occurred. **tiles will not be allocated if false
+ * is returned.
  */
 bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
-		Tile (**tiles)[LEVEL_HEIGHT_TILES], int *width, int *par,
-		char **name);
+		Tile (**tiles)[LEVEL_HEIGHT_TILES],
+		int *width, int *par, char **name);
+
+//FIXME Make this the new default, transition everything to use it
+bool LevelIO_ReadNew(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
+		Tile (**tiles)[LEVEL_HEIGHT_TILES],
+		Tile_WithPos **overlayTiles, size_t *numOverlayTiles,
+		int *width, int *par, char **name);
 
 /*
  * Writes a level to the file at path, overwriting it if it already exists.
@@ -57,6 +63,7 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
  * Returns false if an error occurred.
  */
 bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
-		const Tile (*tiles)[LEVEL_HEIGHT_TILES], int width, int par,
-		const char *name);
+		const Tile (*tiles)[LEVEL_HEIGHT_TILES],
+		const Tile_WithPos *overlayTiles, size_t numOverlayTiles,
+		int width, int par, const char *name);
 #endif
