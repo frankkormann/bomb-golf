@@ -97,9 +97,12 @@ static bool sceneInit(Scene_Params params) {
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
+	Tile_WithPos *overlayTiles;
+	size_t numOverlayTiles;
 	int par;
 	char *name;
-	if (!LevelIO_Read(path, &hole, &proj, &tiles, NULL, NULL, &fieldWidth, &par, &name)) {
+	if (!LevelIO_Read(path, &hole, &proj, &tiles, &overlayTiles,
+			&numOverlayTiles, &fieldWidth, &par, &name)) {
 		errMsg = "Level file is malformed or doesn't exist";
 		goto f_LevelIORead;
 	}
@@ -127,6 +130,11 @@ static bool sceneInit(Scene_Params params) {
 		}
 	}
 	free(tiles);
+	for (size_t i = 0; i < numOverlayTiles; i++) {
+		int x, y;
+		Tile_GetPos(overlayTiles[i], &x, &y);
+		Terrain_FillTile(x, y, overlayTiles[i], false);
+	}
 
 	holeX = hole.x;
 	holeY = hole.y;
@@ -147,6 +155,7 @@ f_projPath:
 	Terrain_Exit();
 f_Terrain:
 	free(tiles);
+	free(overlayTiles);
 f_LevelIORead:
 	Text_Free(strokesText);
 f_strokesText:
