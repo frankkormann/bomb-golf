@@ -81,7 +81,7 @@ bool LevelIO_ReadNew(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 	*overlayTiles = malloc(overlayTilesSize);
 	if (!(*overlayTiles)) goto f_overlayTiles;
 
-	if (!fread(*overlayTiles, overlayTilesSize, 1, data)) goto f_fread4;
+	if (overlayTilesSize > 0 && !fread(*overlayTiles, overlayTilesSize, 1, data)) goto f_fread4;
 
 	proj->type = numToProj(projNum);
 	if (!proj->type) goto f_projtype;
