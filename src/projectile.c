@@ -58,7 +58,9 @@ void Projectile_Launch(float velX, float velY) {
 void Projectile_Update() {
 	oldIsMoving = Projectile_IsMoving();
 	int hitX, hitY;
-	if (proj->move(&hitX, &hitY)) proj->onHitGround(hitX, hitY);
+	if (proj->move(&hitX, &hitY)) {
+		proj->onHitGround(hitX, hitY, Terrain_TypeAt(hitX, hitY));
+	}
 
 	lastXs[lastPosIndex] = data.x;
 	lastYs[lastPosIndex] = data.y;
@@ -208,7 +210,7 @@ bool ProjDefault_IsMoving() {
 	return maxX - minX > STOPPED_THRESHOLD || maxY - minY > STOPPED_THRESHOLD;
 }
 
-void ProjDefault_OnHitGround(int hitX, int hitY) {
+void ProjDefault_OnHitGround(int hitX, int hitY, Terrain_Type hitType) {
 	// Use this formula from https://math.stackexchange.com/a/13263 to reflect
 	// the velocity vector over the line between the hit point and the center
 	// of the ball:
@@ -226,7 +228,7 @@ void ProjDefault_OnHitGround(int hitX, int hitY) {
 	data.velX -= 2 * vDotN * nX;
 	data.velY -= 2 * vDotN * nY;
 
-	switch (Terrain_TypeAt(hitX, hitY)) {
+	switch (hitType) {
 		case TERRAIN_GROUND:
 		// Cover for an imprecise hit position
 		case TERRAIN_NOTHING:

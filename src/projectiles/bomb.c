@@ -125,7 +125,7 @@ static bool isMoving() {
 	return ProjDefault_IsMoving();
 }
 
-static void onHitGround(int hitX, int hitY) {
+static void onHitGround(int hitX, int hitY, Terrain_Type hitType) {
 	if (ballState == WAITING) return;
 
 	if ((ballState == FLYING_SHOULD_EXPLODE || ballState == FLYING_TIME_SLOWED)
@@ -134,7 +134,7 @@ static void onHitGround(int hitX, int hitY) {
 		doExplosion();
 	}
 
-	ProjDefault_OnHitGround(hitX, hitY);
+	ProjDefault_OnHitGround(hitX, hitY, hitType);
 }
 
 static void drawCircle(int x, int y, int radius, u32 color) {

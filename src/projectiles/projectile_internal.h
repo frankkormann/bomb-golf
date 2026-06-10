@@ -6,6 +6,7 @@
 #define PROJECTILE_INTERNAL_H
 
 #include "../projectile.h"
+#include "../terrain.h"
 
 struct projectile {
 	const int radius;
@@ -32,7 +33,7 @@ struct projectile {
 	 * Updates the projectile after it has hit a ground pixel located at
 	 * (hitX, hitY).
 	 */
-	void (*const onHitGround)(int hitX, int hitY);
+	void (*const onHitGround)(int hitX, int hitY, Terrain_Type hitType);
 	/*
 	 * Draws the projectile to the screen at z-level depth.
 	 */
@@ -59,7 +60,7 @@ void ProjDefault_Reset();
 void ProjDefault_Launch(float velX, float velY);
 bool ProjDefault_Move(int *hitX, int *hitY);
 bool ProjDefault_IsMoving();
-void ProjDefault_OnHitGround(int hitX, int hitY);
+void ProjDefault_OnHitGround(int hitX, int hitY, Terrain_Type hitType);
 void ProjDefault_Draw(float depth);  // Does nothing
 
 #endif
