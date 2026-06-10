@@ -33,11 +33,12 @@ void Terrain_Exit() {
 }
 
 Terrain_Type getTerrainForTile(Tile tile) {
-	SpriteSheet_TileSprite sprite = Tile_GetSprite(tile);
-	if (sprite == SPRITE_TILE_OVERLAY_BOUNCY) {
-		return TERRAIN_BOUNCY;
-	} else {
-		return TERRAIN_GROUND;
+	switch (Tile_GetSprite(tile)) {
+		default:
+			return TERRAIN_GROUND;
+		case SPRITE_TILE_OVERLAY_BOUNCY:
+		case SPRITE_TILE_OVERLAY_BOUNCY_TRIANGLE:
+			return TERRAIN_BOUNCY;
 	}
 }
 

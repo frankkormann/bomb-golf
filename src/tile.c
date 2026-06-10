@@ -41,6 +41,7 @@ Tile_Hitbox spriteToHitbox(SpriteSheet_TileSprite sprite) {
 		case SPRITE_TILE_GRASS_TRIANGLE_2:
 		case SPRITE_TILE_ROOF_TRIANGLE_INTERIOR:
 		case SPRITE_TILE_ROOF_TRIANGLE_EXTERIOR:
+		case SPRITE_TILE_OVERLAY_BOUNCY_TRIANGLE:
 			return TILE_HITBOX_TRIANGLE;
 		case SPRITE_TILE_GRASS_HALF:
 		case SPRITE_TILE_DIRT_HALF:
@@ -52,10 +53,12 @@ Tile_Hitbox spriteToHitbox(SpriteSheet_TileSprite sprite) {
 }
 
 u8 isOverlay(SpriteSheet_TileSprite sprite) {
-	if (sprite == SPRITE_TILE_OVERLAY_BOUNCY) {
-		return 1;
-	} else {
-		return 0;
+	switch (sprite) {
+		default:
+			return 0;
+		case SPRITE_TILE_OVERLAY_BOUNCY:
+		case SPRITE_TILE_OVERLAY_BOUNCY_TRIANGLE:
+			return 1;
 	}
 }
 
