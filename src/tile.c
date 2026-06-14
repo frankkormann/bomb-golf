@@ -35,6 +35,7 @@ Tile_Hitbox spriteToHitbox(SpriteSheet_TileSprite sprite) {
 		case SPRITE_TILE_HOUSE_FLOOR:
 		case SPRITE_TILE_ROOF:
 		case SPRITE_TILE_ROOF_WALL:
+		case SPRITE_TILE_EXPLOSIVE:
 			return TILE_HITBOX_FULL;
 		case SPRITE_TILE_DIRT_TRIANGLE:
 		case SPRITE_TILE_GRASS_TRIANGLE_1:

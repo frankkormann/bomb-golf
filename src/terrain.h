@@ -14,9 +14,9 @@
 typedef enum {
 	TERRAIN_NOTHING,
 	TERRAIN_GROUND,
-	TERRAIN_BOUNCY
+	TERRAIN_BOUNCY,
+	TERRAIN_EXPLOSIVE
 //	TERRAIN_STICKY,    // Future idea
-//	TERRAIN_EXPLOSIVE  // Future idea
 } Terrain_Type;
 
 /*
@@ -34,11 +34,21 @@ void Terrain_Exit();
 void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious);
 
 /*
+ * Removes the terrain at (x, y).
+ */
+void Terrain_ClearPixel(int x, int y);
+
+/*
  * Removes the terrain in a circle of radius radius centered at (x, y).
  */
 void Terrain_ClearCircle(int x, int y, int radius);
 
 Terrain_Type Terrain_TypeAt(int x, int y);
+
+/*
+ * Call this once per physics frame.
+ */
+void Terrain_Update();
 
 /*
  * Call this once per graphics frame.

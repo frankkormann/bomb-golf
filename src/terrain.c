@@ -1,15 +1,20 @@
 #include <stdbool.h>
+#include <limits.h>
 #include <malloc.h>
 #include "terrain.h"
 #include "tile.h"
 #include "scenes/components/background.h"
 #include "rendering/colors.h"
 #include "rendering/spritesheet.h"
+#include "util/queue.h"
+
+#define EXPLOSIVES_QUEUE_SENTINEL -1
 
 // (x, y) goes to [x + y*width]
 Terrain_Type *typeMap;
 int width, height;
 Background bg;
+Queue explosivesQueue;
 
 bool Terrain_Init(int argWidth, int argHeight) {
 	typeMap = calloc(argWidth * argHeight, sizeof(*typeMap));
@@ -21,6 +26,14 @@ bool Terrain_Init(int argWidth, int argHeight) {
 		return false;
 	}
 
+	explosivesQueue = Queue_Create();
+	if (!explosivesQueue) {
+		free(typeMap);
+		BG_Free(bg);
+		return false;
+	}
+	Queue_Push(explosivesQueue, (void*)EXPLOSIVES_QUEUE_SENTINEL);
+
 	width = argWidth;
 	height = argHeight;
 
@@ -30,6 +43,7 @@ bool Terrain_Init(int argWidth, int argHeight) {
 void Terrain_Exit() {
 	free(typeMap);
 	BG_Free(bg);
+	Queue_Free(explosivesQueue);
 }
 
 Terrain_Type getTerrainForTile(Tile tile) {
@@ -39,6 +53,8 @@ Terrain_Type getTerrainForTile(Tile tile) {
 		case SPRITE_TILE_OVERLAY_BOUNCY:
 		case SPRITE_TILE_OVERLAY_BOUNCY_TRIANGLE:
 			return TERRAIN_BOUNCY;
+		case SPRITE_TILE_EXPLOSIVE:
+			return TERRAIN_EXPLOSIVE;
 	}
 }
 
@@ -145,6 +161,28 @@ void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious) {
 	BG_DrawTile(bg, tile, x, y, clearPrevious);
 }
 
+void Terrain_ClearPixel(int x, int y) {
+	typeMap[x + y*width] = TERRAIN_NOTHING;
+	BG_ClearPixel(bg, x, y);
+
+	if (x > 0 && typeMap[(x-1) + y*width] == TERRAIN_EXPLOSIVE) {
+		typeMap[(x-1) + y*width] = TERRAIN_GROUND;
+		Queue_Push(explosivesQueue, (void*)((x-1) + y*width));
+	}
+	if (x < width-1 && typeMap[(x+1) + y*width] == TERRAIN_EXPLOSIVE) {
+		typeMap[(x+1) + y*width] = TERRAIN_GROUND;
+		Queue_Push(explosivesQueue, (void*)((x+1) + y*width));
+	}
+	if (y > 0 && typeMap[x + (y-1)*width] == TERRAIN_EXPLOSIVE) {
+		typeMap[x + (y-1)*width] = TERRAIN_GROUND;
+		Queue_Push(explosivesQueue, (void*)(x + (y-1)*width));
+	}
+	if (y < height-1 && typeMap[x + (y+1)*width] == TERRAIN_EXPLOSIVE) {
+		typeMap[x + (y+1)*width] = TERRAIN_GROUND;
+		Queue_Push(explosivesQueue, (void*)(x + (y+1)*width));
+	}
+}
+
 void Terrain_ClearCircle(int x, int y, int radius) {
 	//https://stackoverflow.com/a/24453110
 	int r2 = radius * radius;
@@ -154,13 +192,11 @@ void Terrain_ClearCircle(int x, int y, int radius) {
 	for (int i = 0; i < area; i++) {
 		int tx = (i % rr) - radius;
 		int ty = (i / rr) - radius;
-
 		int nx = x + tx;
 		int ny = y + ty;
 		if (tx * tx + ty * ty <= r2 && nx >= 0 && nx < width && ny >= 0
 				&& ny < height) {
-			typeMap[nx + ny*width] = TERRAIN_NOTHING;
-			BG_ClearPixel(bg, nx, ny);
+			Terrain_ClearPixel(nx, ny);
 		}
 	}
 }
@@ -168,6 +204,17 @@ void Terrain_ClearCircle(int x, int y, int radius) {
 Terrain_Type Terrain_TypeAt(int x, int y) {
 	if (x < 0 || x >= width || y < 0 || y >= height) return TERRAIN_GROUND;
 	return typeMap[x + y*width];
+}
+
+void Terrain_Update() {
+	// Queue is prefilled with an EXPLOSIVES_QUEUE_SENTINEL and we re-add it
+	// every time, so no need to check if it's empty
+	int pos;
+	while (pos = (int)Queue_Pop(explosivesQueue),
+			pos != EXPLOSIVES_QUEUE_SENTINEL) {
+		Terrain_ClearPixel(pos % width, pos / width);
+	}
+	Queue_Push(explosivesQueue, (void*)EXPLOSIVES_QUEUE_SENTINEL);
 }
 
 void Terrain_UpdateGraphics() {
