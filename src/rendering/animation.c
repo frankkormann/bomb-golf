@@ -82,8 +82,6 @@ void Animation_Clear(bool doCallbacks) {
 
 void Animation_Draw() {
 	void draw(void *animationObj) {
-		i++;
-		if (i > 100) return;
 		AnimationI_AnimObj *obj = animationObj;
 		obj->anim->draw(obj);
 	}

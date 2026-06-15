@@ -6,6 +6,8 @@
 #include "scenes/components/background.h"
 #include "rendering/colors.h"
 #include "rendering/spritesheet.h"
+#include "rendering/animation.h"
+#include "rendering/animations/explosion.h"
 #include "util/queue.h"
 
 #define EXPLOSIVES_QUEUE_SENTINEL -1
@@ -14,7 +16,7 @@
 Terrain_Type *typeMap;
 int width, height;
 Background bg;
-Queue explosivesQueue;
+Queue tilesToExplode;
 
 bool Terrain_Init(int argWidth, int argHeight) {
 	typeMap = calloc(argWidth * argHeight, sizeof(*typeMap));
@@ -26,13 +28,13 @@ bool Terrain_Init(int argWidth, int argHeight) {
 		return false;
 	}
 
-	explosivesQueue = Queue_Create();
-	if (!explosivesQueue) {
+	tilesToExplode = Queue_Create();
+	if (!tilesToExplode) {
 		free(typeMap);
 		BG_Free(bg);
 		return false;
 	}
-	Queue_Push(explosivesQueue, (void*)EXPLOSIVES_QUEUE_SENTINEL);
+	Queue_Push(tilesToExplode, (void*)EXPLOSIVES_QUEUE_SENTINEL);
 
 	width = argWidth;
 	height = argHeight;
@@ -43,7 +45,7 @@ bool Terrain_Init(int argWidth, int argHeight) {
 void Terrain_Exit() {
 	free(typeMap);
 	BG_Free(bg);
-	Queue_Free(explosivesQueue);
+	Queue_Free(tilesToExplode);
 }
 
 Terrain_Type getTerrainForTile(Tile tile) {
@@ -162,24 +164,11 @@ void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious) {
 }
 
 void Terrain_ClearPixel(int x, int y) {
-	typeMap[x + y*width] = TERRAIN_NOTHING;
-	BG_ClearPixel(bg, x, y);
-
-	if (x > 0 && typeMap[(x-1) + y*width] == TERRAIN_EXPLOSIVE) {
-		typeMap[(x-1) + y*width] = TERRAIN_GROUND;
-		Queue_Push(explosivesQueue, (void*)((x-1) + y*width));
-	}
-	if (x < width-1 && typeMap[(x+1) + y*width] == TERRAIN_EXPLOSIVE) {
-		typeMap[(x+1) + y*width] = TERRAIN_GROUND;
-		Queue_Push(explosivesQueue, (void*)((x+1) + y*width));
-	}
-	if (y > 0 && typeMap[x + (y-1)*width] == TERRAIN_EXPLOSIVE) {
-		typeMap[x + (y-1)*width] = TERRAIN_GROUND;
-		Queue_Push(explosivesQueue, (void*)(x + (y-1)*width));
-	}
-	if (y < height-1 && typeMap[x + (y+1)*width] == TERRAIN_EXPLOSIVE) {
-		typeMap[x + (y+1)*width] = TERRAIN_GROUND;
-		Queue_Push(explosivesQueue, (void*)(x + (y+1)*width));
+	if (typeMap[x + y*width] == TERRAIN_EXPLOSIVE) {
+		Queue_Push(tilesToExplode, (void*)(x + y*width));
+	} else {
+		typeMap[x + y*width] = TERRAIN_NOTHING;
+		BG_ClearPixel(bg, x, y);
 	}
 }
 
@@ -206,15 +195,36 @@ Terrain_Type Terrain_TypeAt(int x, int y) {
 	return typeMap[x + y*width];
 }
 
+static void explodeTile(int x, int y) {
+	if (typeMap[x + y*width] != TERRAIN_EXPLOSIVE) return;
+
+	int gridX = (x / TILE_SIZE) * TILE_SIZE;
+	int gridY = (y / TILE_SIZE) * TILE_SIZE;
+	// Fill the tile with TERRAIN_GROUND so consecutive calls for the same tile
+	// do nothing
+	for (int i = gridX; i < gridX + TILE_SIZE; i++) {
+		for (int j = gridY; j < gridY + TILE_SIZE; j++) {
+			typeMap[i + j*width] = TERRAIN_GROUND;
+		}
+	}
+
+	int midX = gridX + TILE_SIZE/2;
+	int midY = gridY + TILE_SIZE/2;
+	int radius = (TILE_SIZE/2) * 1.41 + 1;
+	Animation_Start(animationExplosion,
+			Explosion_MakeParams(midX, midY, radius), NULL);
+	Terrain_ClearCircle(midX, midY, radius);
+}
+
 void Terrain_Update() {
 	// Queue is prefilled with an EXPLOSIVES_QUEUE_SENTINEL and we re-add it
 	// every time, so no need to check if it's empty
 	int pos;
-	while (pos = (int)Queue_Pop(explosivesQueue),
+	while (pos = (int)Queue_Pop(tilesToExplode),
 			pos != EXPLOSIVES_QUEUE_SENTINEL) {
-		Terrain_ClearPixel(pos % width, pos / width);
+		explodeTile(pos % width, pos / width);
 	}
-	Queue_Push(explosivesQueue, (void*)EXPLOSIVES_QUEUE_SENTINEL);
+	Queue_Push(tilesToExplode, (void*)EXPLOSIVES_QUEUE_SENTINEL);
 }
 
 void Terrain_UpdateGraphics() {
