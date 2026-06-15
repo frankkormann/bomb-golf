@@ -240,7 +240,6 @@ static void sceneUpdate() {
 	}
 	Tracer_AddPoint(projPath, x, y);
 
-	Terrain_Update();
 	Projectile_Update();
 
 	Text_SetContent(strokesText, "Strokes %i", strokes );
