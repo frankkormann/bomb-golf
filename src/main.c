@@ -24,6 +24,7 @@ int main() {
 	
 	SpriteSheet_Init();
 	Text_Init();
+	Animation_Init();
 	Scene_Start(sceneTitle, Title_MakeParams());
 
 	if (!SaveData_Mount()) {
@@ -68,6 +69,7 @@ int main() {
 
 	SaveData_Unmount();
 	Scene_Exit();
+	Animation_Exit();
 	Text_Exit();
 	SpriteSheet_Exit();
 	RenderTarget_DeleteAll();

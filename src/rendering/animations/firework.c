@@ -39,11 +39,9 @@ Animation_Params Firework_MakeParams(float x, float y) {
 	return (Animation_Params) { .firework = { x, y } };
 }
 
-static AnimationI_CreateAnimReturnValue create(Animation_Params params) {
+static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
 	FireworkData *data = malloc(sizeof(*data));
-	if (!data) {
-		return (AnimationI_CreateAnimReturnValue) { .success = false };
-	}
+	if (!data) return false;
 
 	data->loc.x = params.firework.startX;
 	data->loc.y = params.firework.startY;
@@ -54,10 +52,9 @@ static AnimationI_CreateAnimReturnValue create(Animation_Params params) {
 	}
 	data->oldestTrailParticle = 0;
 
-	return (AnimationI_CreateAnimReturnValue) {
-		.success = true,
-		.obj = { .data = data }
-	};
+	obj->data = data;
+
+	return true;
 }
 
 static SpriteSheet_Sprite getSpriteForFrame(int frame) {

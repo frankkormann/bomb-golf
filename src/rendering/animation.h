@@ -19,6 +19,13 @@ union animation_params {
 };
 
 /*
+ * Returns false if an error occurs.
+ */
+bool Animation_Init();
+
+void Animation_Exit();
+
+/*
  * Starts playing anim using params. When it ends, calls onFinish if onFinish
  * isn't NULL.
  * Each implementor of Animation should provide a function to make their params.
@@ -27,7 +34,8 @@ union animation_params {
  *
  * Returns false if an error occured in starting the animation.
  */
-bool Animation_Start(Animation anim, Animation_Params params, void (*onFinish)(void));
+bool Animation_Start(Animation anim, Animation_Params params,
+		void (*onFinish)(void));
 
 /*
  * Call this once per frame.

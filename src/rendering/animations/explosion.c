@@ -22,21 +22,17 @@ Animation_Params Explosion_MakeParams(float x, float y, float radius) {
 	return (Animation_Params) { .explosion = { x, y, radius } };
 }
 
-static AnimationI_CreateAnimReturnValue create(Animation_Params params) {
+static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
 	ExplosionData *data = malloc(sizeof(*data));
-	if (!data) {
-		return (AnimationI_CreateAnimReturnValue) { .success = false };
-	}
+	if (!data) return false;
 
 	data->x = params.explosion.x;
 	data->y = params.explosion.y;
 	data->radius = params.explosion.radius;
 	data->counter = 0;
 
-	return (AnimationI_CreateAnimReturnValue) {
-		.success = true,
-		.obj = { .data = data }
-	};
+	obj->data = data;
+	return true;
 }
 
 static void update(AnimationI_AnimObj *obj) {

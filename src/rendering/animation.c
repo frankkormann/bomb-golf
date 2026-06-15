@@ -1,63 +1,91 @@
 #include <stddef.h>
+#include <malloc.h>
 #include <stdbool.h>
 #include "animation.h"
 #include "animations/animation_internal.h"
+#include "../util/list.h"
 
-#define CONCURRENT_ANIMATIONS 4
+static List activeAnimations;
 
-// Empty slots are denoted by struct member anim = NULL
-static AnimationI_AnimObj animationObjs[CONCURRENT_ANIMATIONS];
+bool Animation_Init() {
+	activeAnimations = List_Create();
+	if (!activeAnimations) return false;
 
-bool Animation_Start(Animation anim, Animation_Params params, void (*onFinish)(void)) {
-	size_t i = 0;
-	while (i < CONCURRENT_ANIMATIONS) {
-		if (!animationObjs[i].anim) break;
-		i++;
-	}
-	if (i >= CONCURRENT_ANIMATIONS) return false;
-
-	AnimationI_CreateAnimReturnValue rv = anim->create(params);
-	if (!rv.success) return false;
-
-	animationObjs[i] = rv.obj;
-	animationObjs[i].anim = anim;
-	animationObjs[i].onFinish = onFinish;
 	return true;
 }
 
+void Animation_Exit() {
+	Animation_Clear(false);
+	List_Free(activeAnimations);
+}
+
+bool Animation_Start(Animation anim, Animation_Params params,
+		void (*onFinish)(void)) {
+	AnimationI_AnimObj *obj = malloc(sizeof(*obj));
+	if (!obj) return false;
+
+	if (!anim->create(params, obj)) {
+		free(obj);
+		return false;
+	}
+
+	obj->anim = anim;
+	obj->onFinish = onFinish;
+
+	if (List_Push(activeAnimations, obj)) {
+		return true;
+	} else {
+		anim->free(obj);
+		free(obj);
+		return false;
+	}
+}
+
 void Animation_Update() {
-	for (size_t i = 0; i < CONCURRENT_ANIMATIONS; i++) {
-		Animation anim = animationObjs[i].anim;
-		if (!anim) continue;
-
-		anim->update(&animationObjs[i]);
-
-		if (anim->isFinished(&animationObjs[i])) {
-			if (animationObjs[i].onFinish) {
-				animationObjs[i].onFinish();
-			}
-			anim->free(&animationObjs[i]);
-			animationObjs[i].anim = NULL;
+	void update(void *animationObj) {
+		AnimationI_AnimObj *obj = animationObj;
+		Animation anim = obj->anim;
+		anim->update(obj);
+		if (anim->isFinished(obj) && obj->onFinish) {
+			obj->onFinish();
 		}
 	}
+	bool isFinished(void *animationObj) {
+		AnimationI_AnimObj *obj = animationObj;
+		return obj->anim->isFinished(obj);
+	}
+	void freeAnim(void *animationObj) {
+		AnimationI_AnimObj *obj = animationObj;
+		obj->anim->free(obj);
+		free(obj);
+	}
+
+	List_ForEach(activeAnimations, update);
+	List_Filter(activeAnimations, isFinished, freeAnim);
 }
 
 void Animation_Clear(bool doCallbacks) {
-	for (size_t i = 0; i < CONCURRENT_ANIMATIONS; i++) {
-		Animation anim = animationObjs[i].anim;
-		if (!anim) continue;
-
-		if (doCallbacks && animationObjs[i].onFinish) {
-			animationObjs[i].onFinish();
-		}
-		anim->free(&animationObjs[i]);
-		animationObjs[i].anim = NULL;
+	bool returnTrue() { return true; }
+	void doOnFinish(void *animationObj) {
+		AnimationI_AnimObj *obj = animationObj;
+		if (obj->onFinish) obj->onFinish();
 	}
+	void freeAnim(void *animationObj) {
+		AnimationI_AnimObj *obj = animationObj;
+		obj->anim->free(obj);
+		free(obj);
+	}
+
+	if (doCallbacks) List_ForEach(activeAnimations, doOnFinish);
+	List_Filter(activeAnimations, returnTrue, freeAnim);
 }
 
 void Animation_Draw() {
-	for (size_t i = 0; i < CONCURRENT_ANIMATIONS; i++) {
-		if (!animationObjs[i].anim) continue;
-		animationObjs[i].anim->draw(&animationObjs[i]);
+	void draw(void *animationObj) {
+		i++;
+		if (i > 100) return;
+		AnimationI_AnimObj *obj = animationObj;
+		obj->anim->draw(obj);
 	}
+	List_ForEach(activeAnimations, draw);
 }

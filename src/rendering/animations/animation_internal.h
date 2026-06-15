@@ -14,17 +14,12 @@ typedef struct {
 	void *data;
 } AnimationI_AnimObj;
 
-typedef struct {
-	bool success;
-	AnimationI_AnimObj obj;
-} AnimationI_CreateAnimReturnValue;
-
 struct animation {
 	/*
-	 * Creates an AnimationI_AnimObj for params and allocates animation-
-	 * specific data. Does not need to fill in anim or onFinish.
+	 * Creates Animation-specific data and fills it into obj. Does not need
+	 * to fill other fields in obj.
 	 */
-	AnimationI_CreateAnimReturnValue (*const create)(Animation_Params params);
+	bool (*const create)(Animation_Params params, AnimationI_AnimObj *obj);
 	/*
 	 * Updates obj for one frame.
 	 */
