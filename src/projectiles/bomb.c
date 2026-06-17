@@ -196,6 +196,7 @@ static void drawAimingCircle(float depth) {
 }
 
 static void draw(float depth) {
+	//TODO Add rotation
 	ProjectileI_Data *data = ProjectileI_AccessData();
 	// Adding 1 to x and y when drawing makes it look better
 	switch (ballState) {
