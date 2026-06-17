@@ -8,13 +8,13 @@
 #include "rendering/spritesheet.h"
 #include "rendering/animation.h"
 #include "rendering/animations/explosion.h"
-
-#define EXPLOSIVES_QUEUE_SENTINEL -1
+#include "util/queue.h"
 
 // (x, y) goes to [x + y*width]
 Terrain_Type *typeMap;
 int width, height;
 Background bg;
+Queue tilesToExplode;
 
 bool Terrain_Init(int argWidth, int argHeight) {
 	typeMap = calloc(argWidth * argHeight, sizeof(*typeMap));
@@ -23,6 +23,13 @@ bool Terrain_Init(int argWidth, int argHeight) {
 	bg = BG_Create(argWidth, argHeight, COLOR_BLUE);
 	if (!bg) {
 		free(typeMap);
+		return false;
+	}
+
+	tilesToExplode = Queue_Create();
+	if (!tilesToExplode) {
+		free(typeMap);
+		BG_Free(bg);
 		return false;
 	}
 
@@ -35,6 +42,7 @@ bool Terrain_Init(int argWidth, int argHeight) {
 void Terrain_Exit() {
 	free(typeMap);
 	BG_Free(bg);
+	Queue_Free(tilesToExplode);
 }
 
 Terrain_Type getTerrainForTile(Tile tile) {
@@ -152,30 +160,9 @@ void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious) {
 	BG_DrawTile(bg, tile, x, y, clearPrevious);
 }
 
-static void explodeTile(int x, int y) {
-	if (typeMap[x + y*width] != TERRAIN_EXPLOSIVE) return;
-
-	int gridX = (x / TILE_SIZE) * TILE_SIZE;
-	int gridY = (y / TILE_SIZE) * TILE_SIZE;
-	// Fill the tile with TERRAIN_GROUND so consecutive calls for the same tile
-	// do nothing
-	for (int i = gridX; i < gridX + TILE_SIZE; i++) {
-		for (int j = gridY; j < gridY + TILE_SIZE; j++) {
-			typeMap[i + j*width] = TERRAIN_GROUND;
-		}
-	}
-
-	int midX = gridX + TILE_SIZE/2;
-	int midY = gridY + TILE_SIZE/2;
-	int radius = (TILE_SIZE/2) * 1.41 + 1;
-	Animation_Start(animationExplosion, Explosion_MakeParams(midX, midY, radius),
-			NULL);
-	Terrain_ClearCircle(midX, midY, radius);
-}
-
 void Terrain_ClearPixel(int x, int y) {
 	if (typeMap[x + y*width] == TERRAIN_EXPLOSIVE) {
-		explodeTile(x, y);
+		Queue_Push(tilesToExplode, (void*)(x + y*width));
 	} else {
 		typeMap[x + y*width] = TERRAIN_NOTHING;
 		BG_ClearPixel(bg, x, y);
@@ -203,6 +190,34 @@ void Terrain_ClearCircle(int x, int y, int radius) {
 Terrain_Type Terrain_TypeAt(int x, int y) {
 	if (x < 0 || x >= width || y < 0 || y >= height) return TERRAIN_GROUND;
 	return typeMap[x + y*width];
+}
+
+static void explodeTile(int x, int y) {
+	if (typeMap[x + y*width] != TERRAIN_EXPLOSIVE) return;
+
+	int gridX = (x / TILE_SIZE) * TILE_SIZE;
+	int gridY = (y / TILE_SIZE) * TILE_SIZE;
+	// Fill the tile with TERRAIN_GROUND so consecutive calls for the same tile
+	// do nothing
+	for (int i = gridX; i < gridX + TILE_SIZE; i++) {
+		for (int j = gridY; j < gridY + TILE_SIZE; j++) {
+			typeMap[i + j*width] = TERRAIN_GROUND;
+		}
+	}
+
+	int midX = gridX + TILE_SIZE/2;
+	int midY = gridY + TILE_SIZE/2;
+	int radius = (TILE_SIZE/2) * 1.41 + 1;
+	Animation_Start(animationExplosion,
+			Explosion_MakeParams(midX, midY, radius), NULL);
+	Terrain_ClearCircle(midX, midY, radius);
+}
+
+void Terrain_Update() {
+	while (!Queue_IsEmpty(tilesToExplode)) {
+		int pos = (int)Queue_Pop(tilesToExplode);
+		explodeTile(pos % width, pos / width);
+	}
 }
 
 void Terrain_UpdateGraphics() {

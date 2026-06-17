@@ -46,6 +46,11 @@ void Terrain_ClearCircle(int x, int y, int radius);
 Terrain_Type Terrain_TypeAt(int x, int y);
 
 /*
+ * Call this once per physics frame.
+ */
+void Terrain_Update();
+
+/*
  * Call this once per graphics frame.
  */
 void Terrain_UpdateGraphics();
