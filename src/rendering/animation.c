@@ -1,9 +1,12 @@
 #include <stddef.h>
 #include <malloc.h>
 #include <stdbool.h>
+#include <citro2d.h>
 #include "animation.h"
 #include "animations/animation_internal.h"
 #include "../util/list.h"
+
+#define MAX_ANIMS_TO_DRAW_PER_FRAME (C2D_DEFAULT_MAX_OBJECTS - 100)
 
 static List activeAnimations;
 
@@ -81,7 +84,11 @@ void Animation_Clear(bool doCallbacks) {
 }
 
 void Animation_Draw() {
+	// Needs to be declared static for use within draw without a crash
+	static int animsDrawn;
+	animsDrawn = 0;
 	void draw(void *animationObj) {
+		if (++animsDrawn > MAX_ANIMS_TO_DRAW_PER_FRAME) return;
 		AnimationI_AnimObj *obj = animationObj;
 		obj->anim->draw(obj);
 	}
