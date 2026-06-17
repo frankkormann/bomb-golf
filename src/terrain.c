@@ -124,7 +124,7 @@ static void setTerrainForTriangle(int x, int y, u8 orientation, Terrain_Type typ
 		case TILE_FLIP_HORIZ | TILE_FLIP_VERT:
 			for (int j = 0; j < TILE_SIZE; j++) {
 				for (int i = 0; i < TILE_SIZE - j; i++) {
-					typeMap[x+i + (y+j)] = type;
+					typeMap[x+i + (y+j)*width] = type;
 				}
 			}
 			break;
