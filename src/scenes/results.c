@@ -38,7 +38,7 @@
 static int level, nextLevel;
 static bool levelInRomfs;
 
-static int score;
+static int strokes, par;
 
 static Text completeText, parText, strokesText, scoreText;
 static int textRevealCounter;
@@ -58,8 +58,13 @@ Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
 	} };
 }
 
-static void getScoreForStrokes(int score, char *buf) {
-	switch (score) {
+static void getScoreForStrokes(int strokes, int par, char *buf) {
+	if (strokes == 1) {
+		strcpy(buf, "Hole in One!");
+		return;
+	}
+
+	switch (strokes - par) {
 		case -4: 
 			strcpy(buf, "Condor");
 			return;
@@ -103,10 +108,26 @@ static void getScoreForStrokes(int score, char *buf) {
 			strcpy(buf, "Nonuple Bogey");
 			return;
 	}
-	if (score > 0) {
-		sprintf(buf, "%i Over Par", score);
+	if (strokes > par) {
+		sprintf(buf, "%i Over Par", strokes - par);
 	} else {
-		sprintf(buf, "%i Under Par", -score);
+		sprintf(buf, "%i Under Par", par - strokes);
+	}
+}
+
+static u32 getColorForScore(int strokes, int par) {
+	//TODO Decide on better colors?
+	if (strokes == 1) return COLOR_WHITE;
+
+	int score = strokes - par;
+	if (score <= -2) {
+		return COLOR_YELLOW;
+	} else if (score <= -1) {
+		return COLOR_BLUE;
+	} else if (score <= 0) {
+		return COLOR_GREEN;
+	} else {
+		return COLOR_DBROWN;
 	}
 }
 
@@ -125,7 +146,6 @@ static void quit() {
 static bool sceneInit(Scene_Params params) {
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.results.level, params.results.levelInRomfs, path);
-	int par;
 	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, &par, NULL)) {
 		goto f_LevelIO_Read;
 	}
@@ -145,7 +165,7 @@ static bool sceneInit(Scene_Params params) {
 	scoreText = Text_Create(16);
 	if (!scoreText) goto f_scoreText;
 	char buf[32];
-	getScoreForStrokes(params.results.strokes - par, buf);
+	getScoreForStrokes(params.results.strokes, par, buf);
 	Text_SetContent(scoreText, buf);
 
 	nextText = Text_Create(16);
@@ -188,7 +208,7 @@ static bool sceneInit(Scene_Params params) {
 
 	level = params.results.level;
 	levelInRomfs = params.results.levelInRomfs;
-	score = params.results.strokes - par;
+	strokes = params.results.strokes;
 
 	textRevealCounter = 0;
 	projPath = params.results.projPath;
@@ -253,18 +273,6 @@ static void sceneUpdate() {
 	textRevealCounter++;
 }
 
-static u32 getColorForScore(int score) {
-	if (score <= -2) {
-		return COLOR_YELLOW;
-	} else if (score <= -1) {
-		return COLOR_BLUE;
-	} else if (score <= 0) {
-		return COLOR_GREEN;
-	} else {
-		return COLOR_DBROWN;
-	}
-}
-
 static void sceneDraw() {
 	Tracer_UpdateGraphics(projPath);
 
@@ -285,7 +293,7 @@ static void sceneDraw() {
 	}
 	if (textRevealCounter >= TIMER_REVEAL_SCORE) {
 		Text_Draw(scoreText, 200, LEVEL_STATS_Y + TEXT_LINE_HEIGHT, 0,
-				getColorForScore(score), 1, TEXT_CENTERED);
+				getColorForScore(strokes, par), 1, TEXT_CENTERED);
 	}
 
 	int terrainX, terrainY, terrainWidth, terrainHeight;
