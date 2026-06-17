@@ -19,12 +19,14 @@ struct projectile {
 	 */
 	void (*const launch)(float velX, float velY);
 	/*
-	 * Updates the projectile for one physics frame. If it hit a ground pixel,
-	 * returns true and fills hitX and hitY with the pixel's position.
+	 * Updates the projectile for one physics frame. If it hit a ground
+	 * pixel, returns true and fills hitX, hitY, and hitType with the
+	 * pixel's position and Terrain_Type.
 	 *
-	 * If this returns false, the values of hitX and hitY are undefined.
+	 * If this returns false, the values of hitX, hitY, and hitType are
+	 * undefined.
 	 */
-	bool (*const move)(int *hitX, int *hitY);
+	bool (*const move)(float *hitX, float *hitY, Terrain_Type *hitType);
 	/*
 	 * Returns true if the projectile is considered moving.
 	 */
@@ -33,7 +35,7 @@ struct projectile {
 	 * Updates the projectile after it has hit a ground pixel located at
 	 * (hitX, hitY).
 	 */
-	void (*const onHitGround)(int hitX, int hitY, Terrain_Type hitType);
+	void (*const onHitGround)(float hitX, float hitY, Terrain_Type hitType);
 	/*
 	 * Draws the projectile to the screen at z-level depth.
 	 */
@@ -58,9 +60,9 @@ ProjectileI_Data* ProjectileI_AccessData();
  */
 void ProjDefault_Reset();
 void ProjDefault_Launch(float velX, float velY);
-bool ProjDefault_Move(int *hitX, int *hitY);
+bool ProjDefault_Move(float *hitX, float *hitY, Terrain_Type *hitType);
 bool ProjDefault_IsMoving();
-void ProjDefault_OnHitGround(int hitX, int hitY, Terrain_Type hitType);
+void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType);
 void ProjDefault_Draw(float depth);  // Does nothing
 
 #endif

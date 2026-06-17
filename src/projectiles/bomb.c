@@ -84,7 +84,7 @@ static void doExplosion() {
 	ballState = FLYING_EXPLODED;
 }
 
-static bool move(int *hitX, int *hitY) {
+static bool move(float *hitX, float *hitY, Terrain_Type *hitType) {
 	ProjectileI_Data *data = ProjectileI_AccessData();
 	if (TouchInput_JustStarted() && ballState == FLYING_SHOULD_EXPLODE) {
 		beginSlowTime();
@@ -100,7 +100,7 @@ static bool move(int *hitX, int *hitY) {
 
 	float prevVelX = data->velX;
 	float prevVelY = data->velY;
-	bool hitSomething = ProjDefault_Move(hitX, hitY);
+	bool hitSomething = ProjDefault_Move(hitX, hitY, hitType);
 	if (ballState == FLYING_TIME_SLOWED) {
 		// Use TIME_SLOW_FACTOR squared because this is acceleration
 		data->velX = prevVelX + (data->velX - prevVelX)
@@ -125,7 +125,7 @@ static bool isMoving() {
 	return ProjDefault_IsMoving();
 }
 
-static void onHitGround(int hitX, int hitY, Terrain_Type hitType) {
+static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
 	if (ballState == WAITING) return;
 
 	if ((ballState == FLYING_SHOULD_EXPLODE || ballState == FLYING_TIME_SLOWED)

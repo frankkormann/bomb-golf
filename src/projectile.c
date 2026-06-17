@@ -57,9 +57,10 @@ void Projectile_Launch(float velX, float velY) {
 
 void Projectile_Update() {
 	oldIsMoving = Projectile_IsMoving();
-	int hitX, hitY;
-	if (proj->move(&hitX, &hitY)) {
-		proj->onHitGround(hitX, hitY, Terrain_TypeAt(hitX, hitY));
+	float hitX, hitY;
+	Terrain_Type hitType;
+	if (proj->move(&hitX, &hitY, &hitType)) {
+		proj->onHitGround(hitX, hitY, hitType);
 	}
 
 	lastXs[lastPosIndex] = data.x;
@@ -89,7 +90,7 @@ void ProjDefault_Launch(float velX, float velY) {
 	data.velY = velY;
 }
 
-static void checkCircle(int x, int y, int radius, int *hitX, int *hitY) {
+static void checkCircle(int x, int y, int radius, float *hitX, float *hitY) {
 	int hitsX = 0, hitsY = 0;
 	int numHits = 0;
 	void checkTerrain(int x, int y) {
@@ -134,14 +135,14 @@ static void checkCircle(int x, int y, int radius, int *hitX, int *hitY) {
 		*hitX = 0;
 		*hitY = 0;
 	} else {
-		*hitX = hitsX / numHits;
-		*hitY = hitsY / numHits;
+		*hitX = (float)hitsX / numHits;
+		*hitY = (float)hitsY / numHits;
 	}
 }
 
 static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 		int *ultimateX, int *ultimateY, int *penultimateX,
-		int *penultimateY, int *hitX, int *hitY) {
+		int *penultimateY, float *hitX, float *hitY) {
 	//https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
 	int dx = x1 - x0 > 0 ? x1 - x0 : x0 - x1;
     	int sx = x0 < x1 ? 1 : -1;
@@ -179,7 +180,7 @@ static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 	}
 }
 
-bool ProjDefault_Move(int *hitX, int *hitY) {
+bool ProjDefault_Move(float *hitX, float *hitY, Terrain_Type *hitType) {
 	data.velY += PROJECTILE_GRAVITY;
 
 	bool hasHitSomething;
@@ -189,6 +190,9 @@ bool ProjDefault_Move(int *hitX, int *hitY) {
 			&finalY, &lastOkX, &lastOkY, hitX, hitY);
 
 	if (hasHitSomething) {
+		*hitType = Terrain_TypeAt(*hitX, *hitY);
+		*hitX -= (finalX - lastOkX);
+		*hitY -= (finalY - lastOkY);
 		data.x = lastOkX;
 		data.y = lastOkY;
 		return true;
@@ -210,7 +214,7 @@ bool ProjDefault_IsMoving() {
 	return maxX - minX > STOPPED_THRESHOLD || maxY - minY > STOPPED_THRESHOLD;
 }
 
-void ProjDefault_OnHitGround(int hitX, int hitY, Terrain_Type hitType) {
+void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType) {
 	// Use this formula from https://math.stackexchange.com/a/13263 to reflect
 	// the velocity vector over the line between the hit point and the center
 	// of the ball:
@@ -242,4 +246,3 @@ void ProjDefault_OnHitGround(int hitX, int hitY, Terrain_Type hitType) {
 }
 
 void ProjDefault_Draw(float depth) {}
-
