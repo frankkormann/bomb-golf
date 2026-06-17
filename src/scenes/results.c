@@ -20,7 +20,6 @@
 
 #define TEXT_MARGIN 10
 #define COMPLETE_TEXT_Y 20
-#define LEVEL_NAME_Y /* TODO */
 #define LEVEL_STATS_Y (COMPLETE_TEXT_Y + 2*TEXT_LINE_HEIGHT)
 
 #define TIMER_REVEAL_PAR                           30
@@ -41,7 +40,7 @@ static bool levelInRomfs;
 
 static int score;
 
-static Text completeText, nameText, parText, strokesText, scoreText;
+static Text completeText, parText, strokesText, scoreText;
 static int textRevealCounter;
 static Tracer projPath;
 
@@ -127,18 +126,13 @@ static bool sceneInit(Scene_Params params) {
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.results.level, params.results.levelInRomfs, path);
 	int par;
-	char *name;
-	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, &par, &name)) {
+	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, &par, NULL)) {
 		goto f_LevelIO_Read;
 	}
 
 	completeText = Text_Create(strlen("Hole Complete!") + 1);
 	if (!completeText) goto f_completeText;
 	Text_SetContent(completeText, "Hole Complete!");
-
-	nameText = Text_Create(strlen(name) + 1);
-	if (!nameText) goto f_nameText;
-	Text_SetContent(nameText, name);
 
 	parText = Text_Create(16);
 	if (!parText) goto f_parText;
@@ -216,8 +210,6 @@ f_scoreText:
 f_strokesText:
 	Text_Free(parText);
 f_parText:
-	Text_Free(nameText);
-f_nameText:
 	Text_Free(completeText);
 f_completeText:
 f_LevelIO_Read:
@@ -227,7 +219,6 @@ f_LevelIO_Read:
 
 static void sceneExit() {
 	Text_Free(completeText);
-	Text_Free(nameText);
 	Text_Free(parText);
 	Text_Free(strokesText);
 	Text_Free(scoreText);
@@ -284,7 +275,6 @@ static void sceneDraw() {
 
 	Text_Draw(completeText, 200, COMPLETE_TEXT_Y, 0, COLOR_DGREEN, 2,
 			TEXT_CENTERED);
-//	Text_Draw(nameText, 200, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1, TEXT_CENTERED);
 	if (textRevealCounter >= TIMER_REVEAL_PAR) {
 		Text_Draw(parText, 150, LEVEL_STATS_Y, 0, COLOR_DGRAY, 1,
 				TEXT_CENTERED);
