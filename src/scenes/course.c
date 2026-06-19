@@ -143,6 +143,7 @@ static bool sceneInit(Scene_Params params) {
 
 	Projectile_SetType(proj.type);
 	Projectile_SetPos(proj.startX, proj.startY);
+	Projectile_Reset();
 
 	strokes  = 0;
 	hasFinished = false;
