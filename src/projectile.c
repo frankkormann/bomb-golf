@@ -9,8 +9,8 @@
 #include "terrain.h"
 #include "levelio.h"
 
-#define LAST_POS_COUNT 20
-#define STOPPED_THRESHOLD 1.5
+#define LAST_POS_COUNT 30
+#define STOPPED_THRESHOLD 2
 
 #define BOUNCE_VELOCITY_RETENTION_X 0.8
 #define BOUNCE_VELOCITY_RETENTION_Y 0.6
