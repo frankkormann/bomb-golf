@@ -14,6 +14,7 @@
 #include "../util/macros.h"
 #include "../terrain.h"
 
+#define BALL_RADIUS 4
 #define EXPLOSION_RADIUS 20
 #define EXPLOSION_BOOST 1
 #define MIN_SPEED_AFTER_EXPLOSION 3
@@ -26,11 +27,14 @@ static enum {
 } ballState;
 
 static unsigned int timeSlowFrames;
+static float rotation, rotationVel;
 
 static void reset() {
 	ProjDefault_Reset();
 	ballState = WAITING;
 	timeSlowFrames = 0;
+	rotation = 0;
+	rotationVel = 0;
 }
 
 static void launch(float velX, float velY) {
@@ -102,6 +106,7 @@ static bool move(float *hitX, float *hitY, Terrain_Type *hitType) {
 	float prevVelY = data->velY;
 	bool hitSomething = ProjDefault_Move(hitX, hitY, hitType);
 	if (ballState == FLYING_TIME_SLOWED) {
+		// Correct the magnitude any acceleration the ball received
 		// Use TIME_SLOW_FACTOR squared because this is acceleration
 		data->velX = prevVelX + (data->velX - prevVelX)
 				* TIME_SLOW_FACTOR * TIME_SLOW_FACTOR;
@@ -115,6 +120,9 @@ static bool move(float *hitX, float *hitY, Terrain_Type *hitType) {
 			ballState = FLYING_SHOULD_EXPLODE;
 		}
 	}
+
+	if (ballState == FLYING_EXPLODED) rotation -= rotationVel;
+
 	return hitSomething;
 }
 
@@ -126,12 +134,23 @@ static bool isMoving() {
 }
 
 static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
+	ProjectileI_Data *data = ProjectileI_AccessData();
 	if (ballState == WAITING) return;
 
 	if ((ballState == FLYING_SHOULD_EXPLODE || ballState == FLYING_TIME_SLOWED)
 			&& hitX > 0 && hitX < Course_GetFieldWidth()
 			&& hitY > 0 && hitY < Course_GetFieldHeight()) {
 		doExplosion();
+	}
+
+	if (ballState == FLYING_EXPLODED) {
+		// Vector from the center of the ball to the hit position
+		float nx = data->x - hitX;
+		float ny = data->y - hitY;
+		// Amount of the velocity vector in the direction of n
+		float p = fabs(nx * data->velY + ny * data->velX)
+					/ sqrt(nx*nx + ny*ny);
+		rotationVel = p / BALL_RADIUS;
 	}
 
 	ProjDefault_OnHitGround(hitX, hitY, hitType);
@@ -196,7 +215,6 @@ static void drawAimingCircle(float depth) {
 }
 
 static void draw(float depth) {
-	//TODO Add rotation
 	ProjectileI_Data *data = ProjectileI_AccessData();
 	// Adding 1 to x and y when drawing makes it look better
 	switch (ballState) {
@@ -210,13 +228,13 @@ static void draw(float depth) {
 			break;
 		case FLYING_EXPLODED:
 			SpriteSheet_DrawCentered(SPRITE_BALL, data->x + 1,
-					data->y + 1, depth, 0, false, false);
+					data->y + 1, depth, rotation, false, false);
 			break;
 	}
 }
 
 Projectile projectileBomb = &(struct projectile) {
-	.radius = 	4,
+	.radius = 	BALL_RADIUS,
 	.reset = 	reset,
 	.launch = 	launch,
 	.move = 	move,
