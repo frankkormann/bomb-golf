@@ -20,8 +20,7 @@
 
 static Text   startText,   editorText;
 static Button startButton, editorButton;
-
-static Dispatcher touchDispatcher;
+static Dispatcher touchDispatcher, keyDispatcher;
 
 Scene_Params Title_MakeParams() {
 	return (Scene_Params) {};
@@ -47,21 +46,28 @@ static bool sceneInit(Scene_Params ignored) {
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
 
+	keyDispatcher = Dispatcher_Create();
+	if (!keyDispatcher) goto f_keyDispatcher;
+
 	startButton = Button_Create(BUTTON_X, BUTTON_START_Y, SPRITE_LARGE_BUTTON,
-			NULL, startGame);
+			KEY_A, NULL, startGame);
 	if (!startButton) goto f_startButton;
 	Button_RegisterForTouchEvents(startButton, touchDispatcher, 1);
+	Button_RegisterForKeyEvents(startButton, keyDispatcher, 1);
 
 	editorButton = Button_Create(BUTTON_X, BUTTON_START_Y + BUTTON_GAP,
-			SPRITE_LARGE_BUTTON, NULL, openEditor);
+			SPRITE_LARGE_BUTTON, KEY_X, NULL, openEditor);
 	if (!editorButton) goto f_editorButton;
 	Button_RegisterForTouchEvents(editorButton, touchDispatcher, 1);
+	Button_RegisterForKeyEvents(editorButton, keyDispatcher, 1);
 
 	return true;
 
 f_editorButton:
 	Button_Free(startButton);
 f_startButton:
+	Dispatcher_Free(keyDispatcher);
+f_keyDispatcher:
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
 	Text_Free(editorText);
@@ -77,10 +83,13 @@ static void sceneExit() {
 	Text_Free(editorText);
 	Button_Free(startButton);
 	Button_Free(editorButton);
+	Dispatcher_Free(touchDispatcher);
+	Dispatcher_Free(keyDispatcher);
 }
 
 static void sceneUpdate() {
 	Dispatcher_DispatchEvent(touchDispatcher);
+	Dispatcher_DispatchEvent(keyDispatcher);
 }
 
 static void sceneDraw() {
