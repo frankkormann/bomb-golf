@@ -42,7 +42,7 @@ static bool shouldFreeTerrain;
 static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
 
-static unsigned int strokes;
+static int strokes, par;
 static bool hasFinished;
 static Tracer projPath;
 static bool shouldFreeProjPath;
@@ -99,7 +99,6 @@ static bool sceneInit(Scene_Params params) {
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
 	Tile_WithPos *overlayTiles;
 	size_t numOverlayTiles;
-	int par;
 	char *name;
 	if (!LevelIO_Read(path, &hole, &proj, &tiles, &overlayTiles,
 			&numOverlayTiles, &fieldWidth, &par, &name)) {
@@ -234,7 +233,8 @@ static void sceneUpdate() {
 	if (!hasFinished && holeX <= x && x <= holeX + holeWidth && holeY <= y
 			&& y <= holeY + holeHeight) {
 		hasFinished = true;
-		if (!Animation_Start(animationFirework, Firework_MakeParams(x, y),
+		if (!Animation_Start(animationFirework,
+				Firework_MakeParams(x, y, strokes < par),
 				nextLevel)) {
 			nextLevel();
 		}

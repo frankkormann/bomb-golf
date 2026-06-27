@@ -9,12 +9,13 @@
 typedef struct {
 	float startX;
 	float startY;
+	bool isUnderPar;
 } Firework_Params;
 
 #include "../animation.h"
 
 extern Animation animationFirework;
 
-Animation_Params Firework_MakeParams (float x, float y);
+Animation_Params Firework_MakeParams (float x, float y, bool isUnderPar);
 
 #endif

@@ -1,5 +1,3 @@
-//TODO Make a separate bird-themed animation for under par
-
 #include <citro2d.h>
 #include <malloc.h>
 #include <stdbool.h>
@@ -11,6 +9,7 @@
 #include "../spritesheet.h"
 #include "../../scenes/course.h"
 #include "../../terrain.h"
+#include "../../util/macros.h"
 
 #define ANIMATION_FRAME_LENGTH 5
 #define ANIMATION_LENGTH \
@@ -31,14 +30,15 @@ typedef struct {
 
 typedef struct {
 	Point loc;
+	bool isUnderPar;
 	bool exploding;
 	int explosionFrame;
 	Point trail[TRAIL_LENGTH];
 	int oldestTrailParticle;
 } FireworkData;
 
-Animation_Params Firework_MakeParams(float x, float y) {
-	return (Animation_Params) { .firework = { x, y } };
+Animation_Params Firework_MakeParams(float x, float y, bool isUnderPar) {
+	return (Animation_Params) { .firework = { x, y, isUnderPar } };
 }
 
 static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
@@ -47,6 +47,7 @@ static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
 
 	data->loc.x = params.firework.startX;
 	data->loc.y = params.firework.startY;
+	data->isUnderPar = params.firework.isUnderPar;
 	data->exploding = false;
 	data->explosionFrame = 0;
 	for (size_t i = 0; i < TRAIL_LENGTH; i++) {
@@ -59,8 +60,19 @@ static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
 	return true;
 }
 
-static SpriteSheet_Sprite getSpriteForFrame(int frame) {
-	return (frame / ANIMATION_FRAME_LENGTH) + SPRITE_FIREWORK_1;
+static bool getSpriteForFrame(SpriteSheet_Sprite *spr, FireworkData *data) {
+	SpriteSheet_Sprite firstSprite = data->isUnderPar
+			? SPRITE_FIREWORK_ALT_1
+			: SPRITE_FIREWORK_1;
+	SpriteSheet_Sprite lastSprite = data->isUnderPar
+			? SPRITE_FIREWORK_ALT_12
+			: SPRITE_FIREWORK_12;
+	*spr = firstSprite + (data->explosionFrame / ANIMATION_FRAME_LENGTH);
+	return *spr <= lastSprite;
+}
+
+static u32 getTrailColor(FireworkData *data) {
+	return data->isUnderPar ? COLOR_YELLOW : COLOR_ORANGE;
 }
 
 static void update(AnimationI_AnimObj *obj) {
@@ -90,8 +102,8 @@ static void draw(AnimationI_AnimObj *obj) {
 
 	FireworkData *data = (FireworkData*)obj->data;
 	if (data->exploding) {
-		SpriteSheet_Sprite spr = getSpriteForFrame(data->explosionFrame);
-		if (spr <= SPRITE_FIREWORK_12) {
+		SpriteSheet_Sprite spr;
+		if (getSpriteForFrame(&spr, data)) {
 			SpriteSheet_DrawCentered(spr, data->loc.x, data->loc.y, 0.5,
 					0, false, false);
 		}
@@ -103,7 +115,7 @@ static void draw(AnimationI_AnimObj *obj) {
 	for (size_t i = 0; i < TRAIL_LENGTH; i++) {
 		C2D_DrawRectSolid(data->trail[i].x, data->trail[i].y, 0.5,
 				TRAIL_PARTICLE_SIZE, TRAIL_PARTICLE_SIZE,
-				COLOR_ORANGE);
+				getTrailColor(data));
 	}
 
 	C2D_ViewReset();
