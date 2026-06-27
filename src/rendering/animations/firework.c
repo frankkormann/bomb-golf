@@ -1,3 +1,5 @@
+//TODO Make a separate bird-themed animation for under par
+
 #include <citro2d.h>
 #include <malloc.h>
 #include <stdbool.h>

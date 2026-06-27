@@ -1,3 +1,6 @@
+//TODO Redesign this UI
+//	Put stats on the bottom screen
+//	Overall stats as well
 #include <stdlib.h>
 #include <3ds.h>
 #include <citro2d.h>
