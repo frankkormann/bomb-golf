@@ -32,29 +32,16 @@ int main() {
 				Error_MakeParams("Failed to mount save data"));
 	}
 
-	// This is a hack
-	// TODO Figure out a better way to provide keybinds for all Buttons
-	// Probably a key Dispatcher for each Button?
-	bool pauseMenuIsOpen = false;
-
 	while (aptMainLoop()) {
 		hidScanInput();
 		TouchInput_Scan();
 
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START) {
-			if (pauseMenuIsOpen) {
-				Popup_Exit();
-				pauseMenuIsOpen = false;
-			} else {
-				Popup_Button buttons[] = {
-						{ "Resume", NULL, Popup_Exit }
-					};
-				if (Popup_Init("Paused", POPUP_ONE_BUTTON,
-						buttons)) {
-					pauseMenuIsOpen = true;
-				}
-			}
+			Popup_Button buttons[] = {
+					{ "Resume", KEY_START, NULL, Popup_Exit }
+				};
+			Popup_Init("Paused", POPUP_ONE_BUTTON, buttons);
 		}
 		#ifndef _CIA
 			if (kDown & KEY_SELECT) break;

@@ -23,6 +23,7 @@ typedef enum {
 
 typedef struct {
 	char *label;
+	int keybind;
 	void *onTouchParam;
 	void (*onTouch)(void *param);
 } Popup_Button;

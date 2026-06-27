@@ -28,9 +28,9 @@ static Popup_Format format;
 static Text messageText;
 static float messageHeight;
 
-static Dispatcher touchDispatcher;
 static Text   buttonsText[MAX_BUTTONS];
 static Button buttons[MAX_BUTTONS];
+static Dispatcher touchDispatcher, keyDispatcher;
 
 static float calculateButtonY(float messageHeight) {
 	return 120 - (messageHeight + BUTTON_HEIGHT + 3*MARGIN_Y)/2
@@ -51,18 +51,26 @@ bool Popup_Init(char *message, Popup_Format argFormat, Popup_Button argButtons[]
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
 
+	keyDispatcher = Dispatcher_Create();
+	if (!keyDispatcher) goto f_keyDispatcher;
+
 	switch (format) {
 		case POPUP_ONE_BUTTON:
 			buttons[0] = Button_Create(
 					ONE_BUTTON_X,
 					calculateButtonY(messageHeight),
 					SPRITE_MEDIUM_BUTTON,
+					argButtons[0].keybind,
 					argButtons[0].onTouchParam,
 					argButtons[0].onTouch
 				);
 			if (!buttons[0]) goto f_buttons;
 			Button_RegisterForTouchEvents(buttons[0], touchDispatcher,
 					1);
+			if (argButtons[0].keybind >= 0) {
+				Button_RegisterForKeyEvents(buttons[0],
+						keyDispatcher, 1);
+			}
 			buttonsText[0] = Text_Create(
 					strlen(argButtons[0].label) + 1);
 			if (!buttonsText[0]) goto f_buttons;
@@ -75,12 +83,18 @@ bool Popup_Init(char *message, Popup_Format argFormat, Popup_Button argButtons[]
 							+ i*TWO_BUTTON_GAP,
 						calculateButtonY(messageHeight),
 						SPRITE_MEDIUM_BUTTON,
+						argButtons[i].keybind,
 						argButtons[i].onTouchParam,
 						argButtons[i].onTouch
 					);
 				if (!buttons[i]) goto f_buttons;
 				Button_RegisterForTouchEvents(buttons[i],
 						touchDispatcher, 1);
+				if (argButtons[i].keybind >= 0) {
+					Button_RegisterForKeyEvents(buttons[i],
+							keyDispatcher, 1);
+				}
+
 				buttonsText[i] = Text_Create(
 						strlen(argButtons[i].label) + 1);
 				if (!buttonsText[i]) goto f_buttons;
@@ -100,6 +114,8 @@ f_buttons:
 		if (buttonsText[i]) Text_Free(buttonsText[i]);
 		buttons[i] = NULL;
 	}
+	Dispatcher_Free(keyDispatcher);
+f_keyDispatcher:
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
 	Text_Free(messageText);
@@ -127,6 +143,7 @@ bool Popup_IsOpen() {
 
 void Popup_Update() {
 	Dispatcher_DispatchEvent(touchDispatcher);
+	Dispatcher_DispatchEvent(keyDispatcher);
 }
 
 void Popup_Draw() {

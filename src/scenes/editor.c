@@ -319,8 +319,8 @@ static void exitNoSave() {
 
 static void showExitPopup() {
 	Popup_Button buttons[] = {
-			{ "Don't Save", NULL, exitNoSave },
-			{ "Save & Exit", NULL, saveExit }
+			{ "Don't Save", KEY_B, NULL, exitNoSave },
+			{ "Save & Exit", KEY_A, NULL, saveExit }
 		};
 	Popup_Init("Save before exiting?", POPUP_TWO_BUTTON, buttons);
 }
