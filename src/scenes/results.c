@@ -49,7 +49,7 @@ static Tracer projPath;
 
 static Text   nextText,   quitText;
 static Button nextButton, quitButton;
-static Dispatcher touchDispatcher;
+static Dispatcher touchDispatcher, keyDispatcher;
 
 Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
 		Tracer projPath) {
@@ -182,15 +182,20 @@ static bool sceneInit(Scene_Params params) {
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
 
-	nextButton = Button_Create(BUTTON_X, BUTTON_START_Y, SPRITE_LARGE_BUTTON,
-			NULL, goNextLevel);
+	keyDispatcher = Dispatcher_Create();
+	if (!keyDispatcher) goto f_keyDispatcher;
+
+	nextButton = Button_Create(BUTTON_X, BUTTON_START_Y,
+			SPRITE_LARGE_BUTTON, KEY_A, NULL, goNextLevel);
 	if (!nextButton) goto f_nextButton;
 	Button_RegisterForTouchEvents(nextButton, touchDispatcher, 1);
+	Button_RegisterForKeyEvents(nextButton, keyDispatcher, 1);
 
 	quitButton = Button_Create(BUTTON_X, BUTTON_START_Y + BUTTON_GAP,
-			SPRITE_LARGE_BUTTON, NULL, quit);
+			SPRITE_LARGE_BUTTON, KEY_B, NULL, quit);
 	if (!quitButton) goto f_quitButton;
 	Button_RegisterForTouchEvents(quitButton, touchDispatcher, 1);
+	Button_RegisterForKeyEvents(quitButton, keyDispatcher, 1);
 
 	//TODO Create a "final results"/summary Scene
 	nextLevel = params.results.level + 1;
@@ -221,6 +226,8 @@ static bool sceneInit(Scene_Params params) {
 f_quitButton:
 	Button_Free(nextButton);
 f_nextButton:
+	Dispatcher_Free(keyDispatcher);
+f_keyDispatcher:
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
 	Text_Free(quitText);
@@ -251,27 +258,13 @@ static void sceneExit() {
 	Text_Free(quitText);
 	Button_Free(quitButton);
 	Dispatcher_Free(touchDispatcher);
+	Dispatcher_Free(keyDispatcher);
 	Terrain_Exit();
 }
 
 static void sceneUpdate() {
-	u32 kDown = hidKeysDown();
-
-	//TODO Figure out a better way to provide keybinds for all Buttons
-	if (kDown & KEY_B) {
-		if (levelInRomfs) {
-			Scene_SetNext(sceneTitle, Title_MakeParams());
-		} else {
-			Scene_SetNext(sceneLevelSelector,
-					LevelSelector_MakeParams(level));
-		}
-	}
-	if (kDown & KEY_A) {
-		Scene_SetNext(sceneCourse, Course_MakeParams(nextLevel,
-				levelInRomfs));
-	}
-
 	Dispatcher_DispatchEvent(touchDispatcher);
+	Dispatcher_DispatchEvent(keyDispatcher);
 
 	textRevealCounter++;
 }
