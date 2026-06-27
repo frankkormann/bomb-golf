@@ -46,17 +46,17 @@ bool EditorMenu_Init(
 		void (*editName)(),
 		void (*exit)(),
 		void (*changePar)(int change)) {
-	showButton = Button_Create(307, MENU_Y, SPRITE_BUTTON_LEFT, NULL,
+	showButton = Button_Create(307, MENU_Y, SPRITE_BUTTON_LEFT, -1, NULL,
 			toggleMenu);
 	if (!showButton) goto f_showButton;
 
 	hideButton = Button_Create(MENU_X - BORDER_WIDTH - 11, MENU_Y,
-			SPRITE_BUTTON_RIGHT, NULL, toggleMenu);
+			SPRITE_BUTTON_RIGHT, -1, NULL, toggleMenu);
 	if (!hideButton) goto f_hideButton;
 	Button_Disable(hideButton);
 
 	editNameButton = Button_Create(MENU_BUTTON_X, MENU_BUTTON_Y,
-			SPRITE_MEDIUM_BUTTON, NULL, editName);
+			SPRITE_MEDIUM_BUTTON, -1, NULL, editName);
 	if (!editNameButton) goto f_editNameButton;
 	Button_Disable(editNameButton);
 
@@ -65,7 +65,7 @@ bool EditorMenu_Init(
 	Text_SetContent(editNameText, "Edit Name");
 
 	exitButton = Button_Create(MENU_BUTTON_X, MENU_BUTTON_Y + MENU_BUTTON_GAP,
-			SPRITE_MEDIUM_BUTTON, NULL, exit);
+			SPRITE_MEDIUM_BUTTON, -1, NULL, exit);
 	if (!exitButton) goto f_exitButton;
 	Button_Disable(exitButton);
 
@@ -75,7 +75,8 @@ bool EditorMenu_Init(
 
 	parUpButton = Button_Create(MENU_X + MENU_WIDTH - 58,
 			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 25,
-			SPRITE_SMALL_BUTTON, (void*)1, (void(*)(void*))changePar);
+			SPRITE_SMALL_BUTTON, -1,
+			(void*)1, (void(*)(void*))changePar);
 	if (!parUpButton) goto f_parUpButton;
 	Button_Disable(parUpButton);
 
@@ -85,7 +86,8 @@ bool EditorMenu_Init(
 
 	parDownButton = Button_Create(MENU_BUTTON_X,
 			MENU_BUTTON_Y + 2*MENU_BUTTON_GAP + 25,
-			SPRITE_SMALL_BUTTON, (void*)-1, (void(*)(void*))changePar);
+			SPRITE_SMALL_BUTTON, -1,
+			(void*)-1, (void(*)(void*))changePar);
 	if (!parDownButton) goto f_parDownButton;
 	Button_Disable(parDownButton);
 

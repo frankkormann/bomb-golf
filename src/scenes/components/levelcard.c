@@ -49,19 +49,19 @@ LevelCard LevelCard_Create(float x, float y, int levelNum,
 	LevelCard levelCard = malloc(sizeof(struct levelcard));
 	if (!levelCard) goto f_levelCard;
 
-	levelCard->mainButton = Button_Create(x, y, SPRITE_LEVEL_CARD_BACKGROUND,
+	levelCard->mainButton = Button_Create(x, y, SPRITE_LEVEL_CARD_BACKGROUND, -1,
 			(void*)levelNum, (void (*)(void*))onPress);
 	if (!levelCard->mainButton) goto f_mainButton;
 
 	levelCard->editButton = Button_Create(x + BUTTON_X, y + EDIT_BUTTON_Y,
-			SPRITE_LEVEL_EDIT_BUTTON, (void*)levelNum,
+			SPRITE_LEVEL_EDIT_BUTTON, -1, (void*)levelNum,
 			(void (*)(void*))editLevel);
 	if (!levelCard->editButton) goto f_editButton;
 
 	bool levelExists = checkLevelExists(levelNum);
 	levelCard->playButton = Button_Create(x + BUTTON_X, y + PLAY_BUTTON_Y,
 			levelExists ? SPRITE_LEVEL_PLAY_BUTTON
-			            : SPRITE_LEVEL_PLAY_BUTTON_DISABLED,
+			            : SPRITE_LEVEL_PLAY_BUTTON_DISABLED, -1,
 			(void*)levelNum,
 			levelExists ? (void (*)(void*))playLevel : doNothing);
 	if (!levelCard->playButton) goto f_playButton;

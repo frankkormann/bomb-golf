@@ -66,11 +66,11 @@ bool TileSelector_Init(Tile defaultTile) {
 	if (!popupBg) goto fail_popupBg;
 
 	buttonExpand = Button_Create(HOTBAR_X + HOTBAR_WIDTH + 5, HOTBAR_Y,
-			SPRITE_BUTTON_DOWN, NULL, handleExpand);
+			SPRITE_BUTTON_DOWN, -1, NULL, handleExpand);
 	if (!buttonExpand) goto fail_buttonExpand;
 
 	buttonShrink = Button_Create(HOTBAR_X + HOTBAR_WIDTH + 23, HOTBAR_Y,
-			SPRITE_BUTTON_UP, NULL, handleShrink);
+			SPRITE_BUTTON_UP, -1, NULL, handleShrink);
 	if (!buttonShrink) goto fail_buttonShrink;
 
 	mode = HOTBAR;

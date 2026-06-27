@@ -40,32 +40,32 @@ static void setBrush(BrushSelector_Brush newBrush) {
 }
 
 bool BrushSelector_Init(BrushSelector_Brush defaultBrush) {
-	expandButton = Button_Create(3, BUTTON_START_Y - 18, SPRITE_BUTTON_RIGHT,
+	expandButton = Button_Create(3, BUTTON_START_Y - 18, SPRITE_BUTTON_RIGHT, -1,
 			NULL, toggleOpen);
 	if (!expandButton) goto f_expandButton;
 	Button_Disable(expandButton);
 
-	shrinkButton = Button_Create(3, BUTTON_START_Y - 18, SPRITE_BUTTON_LEFT,
+	shrinkButton = Button_Create(3, BUTTON_START_Y - 18, SPRITE_BUTTON_LEFT, -1,
 			NULL, toggleOpen);
 	if (!shrinkButton) goto f_shrinkButton;
 
 	pencilButton = Button_Create(BUTTON_X, BUTTON_START_Y,
-			SPRITE_PENCIL_BUTTON,
+			SPRITE_PENCIL_BUTTON, -1,
 			(void*)BRUSH_PENCIL, (void(*)(void*))setBrush);
 	if (!pencilButton) goto f_pencilButton;
 
 	rectangleButton = Button_Create(BUTTON_X, BUTTON_START_Y + BUTTON_GAP,
-			SPRITE_RECTANGLE_BUTTON,
+			SPRITE_RECTANGLE_BUTTON, -1,
 			(void*)BRUSH_RECTANGLE, (void(*)(void*))setBrush);
 	if (!rectangleButton) goto f_rectangleButton;
 
 	ballButton = Button_Create(BUTTON_X, BUTTON_START_Y + 2*BUTTON_GAP,
-			SPRITE_BALL_BUTTON,
+			SPRITE_BALL_BUTTON, -1,
 			(void*)BRUSH_BALL_POS, (void(*)(void*))setBrush);
 	if (!ballButton) goto f_ballButton;
 
 	holeButton = Button_Create(BUTTON_X, BUTTON_START_Y + 3*BUTTON_GAP,
-			SPRITE_HOLE_BUTTON,
+			SPRITE_HOLE_BUTTON, -1,
 			(void*)BRUSH_HOLE_POS, (void(*)(void*))setBrush);
 	if (!holeButton) goto f_holeButton;
 
