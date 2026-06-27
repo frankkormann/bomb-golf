@@ -10,12 +10,13 @@ struct button {
 	float x;
 	float y;
 	SpriteSheet_Sprite icon;
+	int keybind;
 	void *onTouchParam;
 	void (*onTouch)(void* param);
 	bool isEnabled;
 };
 
-Button Button_Create(float x, float y, SpriteSheet_Sprite icon,
+Button Button_Create(float x, float y, SpriteSheet_Sprite icon, int keybind,
 		void *onTouchParam, void (*onTouch)(void* param)) {
 	Button button = malloc(sizeof(struct button));
 	if (!button) return NULL;
@@ -23,6 +24,7 @@ Button Button_Create(float x, float y, SpriteSheet_Sprite icon,
 	button->x = x;
 	button->y = y;
 	button->icon = icon;
+	button->keybind = keybind;
 	button->onTouchParam = onTouchParam;
 	button->onTouch = onTouch;
 	button->isEnabled = true;
@@ -42,7 +44,7 @@ static bool touchWithinBounds(Button button, touchPosition touch) {
 		&& touch.py < button->y + iconImg.subtex->height;
 }
 
-static bool handleTouch(void* buttonParam) {
+static bool handleTouch(void *buttonParam) {
 	if (!TouchInput_InProgress() && !TouchInput_JustFinished()) return false;
 
 	Button button = (Button)buttonParam;
@@ -67,6 +69,28 @@ bool Button_RegisterForTouchEvents(Button button, Dispatcher touchDispatcher,
 void Button_RemoveFromTouchDispatcher(Button button, Dispatcher touchDispatcher) {
 	Dispatcher_RemoveHandler(touchDispatcher,
 			(Dispatcher_Handler) { 0, button, handleTouch });
+}
+
+static bool handleKey(void *buttonParam) {
+	Button button = (Button)buttonParam;
+	if (!button->isEnabled) return false;
+
+	if (hidKeysDown() & button->keybind) {
+		button->onTouch(button->onTouchParam);
+		return true;
+	}
+	return false;
+}
+
+bool Button_RegisterForKeyEvents(Button button, Dispatcher keyDispatcher,
+		int priority) {
+	return Dispatcher_AddHandler(keyDispatcher,
+			(Dispatcher_Handler) { priority, button, handleKey });
+}
+
+void Button_RemoveFromKeyDispatcher(Button button, Dispatcher keyDispatcher) {
+	Dispatcher_RemoveHandler(keyDispatcher,
+			(Dispatcher_Handler) { 0, button, handleKey });
 }
 
 void Button_Draw(Button button, float depth) {
