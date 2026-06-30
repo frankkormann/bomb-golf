@@ -26,6 +26,7 @@ a `cia`. Some files compile differently depending on the final build type.
 * [devkitPro](https://devkitpro.org/) for the 3DS
 * [citro2d](https://github.com/devkitPro/citro2d/) and
   [citro3d](https://github.com/devkitPro/citro3d/)
+* [libopusfile](https://opus-codec.org/docs/opusfile_api-0.12/index.html)
 
 To compile as `cia`:
 
