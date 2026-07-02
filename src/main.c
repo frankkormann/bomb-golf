@@ -16,6 +16,8 @@
 int main() {
 	romfsInit();
 	gfxInitDefault();
+	ndspInit();
+	ndspSetOutputMode(NDSP_OUTPUT_STEREO);
 
 	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
 	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
@@ -62,6 +64,7 @@ int main() {
 	RenderTarget_DeleteAll();
 	C2D_Fini();
 	C3D_Fini();
+	ndspExit();
 	gfxExit();
 	romfsExit();
 	return 0;
