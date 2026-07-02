@@ -9,6 +9,7 @@
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
 #include "../rendering/animations/explosion.h"
+#include "../audio/soundeffect.h"
 #include "../scenes/course.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
@@ -84,6 +85,7 @@ static void doExplosion() {
 			Explosion_MakeParams(data->x, data->y,
 				EXPLOSION_RADIUS + 1),
 			NULL);
+	SoundEffect_Play(SFX_EXPLOSION);
 	if (ballState == FLYING_TIME_SLOWED) endSlowTime();
 	ballState = FLYING_EXPLODED;
 }
