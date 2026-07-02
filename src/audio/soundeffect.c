@@ -64,12 +64,13 @@ f_opusFile:
 }
 
 void freeSfxObj(SfxObj *sfx) {
-	linearFree(sfx->audioBuffer);
+	if (sfx->audioBuffer) linearFree(sfx->audioBuffer);
 }
 
 bool SoundEffect_Init() {
 	for (SoundEffect i = 0; i < NUM_SOUND_EFFECTS; i++) {
 		if (!fillSfxObj(&sfxObjs[i], sfxPaths[i], i + MIN_CHN)) {
+			for (SoundEffect j = 0; j < i; j++) freeSfxObj(&sfxObjs[j]);
 			return false;
 		}
 	}
