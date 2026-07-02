@@ -11,6 +11,7 @@
 #include "rendering/spritesheet.h"
 #include "rendering/rendertarget.h"
 #include "rendering/animation.h"
+#include "audio/soundeffect.h"
 #include "util/touchinput.h"
 
 int main() {
@@ -27,6 +28,7 @@ int main() {
 	SpriteSheet_Init();
 	Text_Init();
 	Animation_Init();
+	SoundEffect_Init();
 	Scene_Start(sceneTitle, Title_MakeParams());
 
 	if (!SaveData_Mount()) {
@@ -58,6 +60,7 @@ int main() {
 
 	SaveData_Unmount();
 	Scene_Exit();
+	SoundEffect_Exit();
 	Animation_Exit();
 	Text_Exit();
 	SpriteSheet_Exit();

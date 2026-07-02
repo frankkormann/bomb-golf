@@ -15,26 +15,18 @@
 #define MIN_CHN 1
 #define MAX_CHN 23
 
-struct soundeffect {
+typedef struct {
 	ndspWaveBuf waveBuf;
 	s16 *audioBuffer;
 	int chn;
+} SfxObj;
+
+// Indexed by SoundEffect
+static char *sfxPaths[NUM_SOUND_EFFECTS] = {
+	"romfs:sfx/explosion.opus"
 };
 
-static bool chnInUse[MAX_CHN - MIN_CHN + 1];
-
-static int reserveChannel() {
-	for (int i = MIN_CHN; i <= MAX_CHN; i++) {
-		if (chnInUse[i - MIN_CHN]) continue;
-		chnInUse[i - MIN_CHN] = true;
-		return i;
-	}
-	return -1;
-}
-
-static void freeChannel(int chn) {
-	chnInUse[chn - MIN_CHN] = false;
-}
+static SfxObj sfxObjs[NUM_SOUND_EFFECTS];
 
 static void fillBuffer(s16 *bufStart, s16 *bufEnd, OggOpusFile *opusFile) {
 	int readSamples = 0;
@@ -45,13 +37,7 @@ static void fillBuffer(s16 *bufStart, s16 *bufEnd, OggOpusFile *opusFile) {
 	} while (readSamples > 0);
 }
 
-SoundEffect SoundEffect_Create(char *path) {
-	SoundEffect sfx = malloc(sizeof(*sfx));
-	if (!sfx) goto f_sfx;
-
-	sfx->chn = reserveChannel();
-	if (sfx->chn < 0) goto f_chn;
-
+bool fillSfxObj(SfxObj *sfx, char *path, int chn) {
 	OggOpusFile *opusFile = op_open_file(path, NULL);
 	if (!opusFile) goto f_opusFile;
 
@@ -66,20 +52,38 @@ SoundEffect SoundEffect_Create(char *path) {
 			opusFile);
 	sfx->waveBuf.nsamples = totalSamples;
 
-	op_free(opusFile);
+	sfx->chn = chn;
 
-	return sfx;
+	op_free(opusFile);
+	return true;
 
 f_audioBuffer:
 	op_free(opusFile);
 f_opusFile:
-f_chn:
-	free(sfx);
-f_sfx:
-	return NULL;
+	return false;
 }
 
-void SoundEffect_Play(SoundEffect sfx) {
+void freeSfxObj(SfxObj *sfx) {
+	linearFree(sfx->audioBuffer);
+}
+
+bool SoundEffect_Init() {
+	for (SoundEffect i = 0; i < NUM_SOUND_EFFECTS; i++) {
+		if (!fillSfxObj(&sfxObjs[i], sfxPaths[i], i + MIN_CHN)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+void SoundEffect_Exit() {
+	for (SoundEffect i = 0; i < NUM_SOUND_EFFECTS; i++) {
+		freeSfxObj(&sfxObjs[i]);
+	}
+}
+
+void SoundEffect_Play(SoundEffect sfxIndex) {
+	SfxObj *sfx = &sfxObjs[sfxIndex];
 	ndspChnReset(sfx->chn);
 	ndspChnSetInterp(sfx->chn, NDSP_INTERP_POLYPHASE);
 	ndspChnSetRate(sfx->chn, SAMPLE_RATE);
@@ -91,12 +95,6 @@ void SoundEffect_Play(SoundEffect sfx) {
 					* CHNS_PER_SAMPLE);
 }
 
-void SoundEffect_Stop(SoundEffect sfx) {
-	ndspChnReset(sfx->chn);
-}
-
-void SoundEffect_Free(SoundEffect sfx) {
-	linearFree(sfx->audioBuffer);
-	freeChannel(sfx->chn);
-	free(sfx);
+void SoundEffect_Stop(SoundEffect sfxIndex) {
+	ndspChnReset(sfxObjs[sfxIndex].chn);
 }
