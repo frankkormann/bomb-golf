@@ -21,9 +21,9 @@ typedef struct {
 	int chn;
 } SfxObj;
 
-// Indexed by SoundEffect
 static char *sfxPaths[NUM_SOUND_EFFECTS] = {
-	"romfs:sfx/explosion.opus"
+	"romfs:sfx/explosion.opus",
+	"romfs:sfx/bounce.opus"
 };
 
 static SfxObj sfxObjs[NUM_SOUND_EFFECTS];
@@ -83,8 +83,10 @@ void SoundEffect_Exit() {
 	}
 }
 
-void SoundEffect_Play(SoundEffect sfxIndex) {
+void SoundEffect_Play(SoundEffect sfxIndex, bool restart) {
 	SfxObj *sfx = &sfxObjs[sfxIndex];
+	if (!restart && ndspChnIsPlaying(sfx->chn)) return;
+
 	ndspChnReset(sfx->chn);
 	ndspChnSetInterp(sfx->chn, NDSP_INTERP_POLYPHASE);
 	ndspChnSetRate(sfx->chn, SAMPLE_RATE);

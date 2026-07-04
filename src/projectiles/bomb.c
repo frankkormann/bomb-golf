@@ -85,7 +85,7 @@ static void doExplosion() {
 			Explosion_MakeParams(data->x, data->y,
 				EXPLOSION_RADIUS + 1),
 			NULL);
-	SoundEffect_Play(SFX_EXPLOSION);
+	SoundEffect_Play(SFX_EXPLOSION, true);
 	if (ballState == FLYING_TIME_SLOWED) endSlowTime();
 	ballState = FLYING_EXPLODED;
 }
@@ -153,6 +153,10 @@ static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
 		float p = fabs(nx * data->velY + ny * data->velX)
 					/ sqrt(nx*nx + ny*ny);
 		rotationVel = p / BALL_RADIUS;
+
+		if (data->velX*data->velX + data->velY*data->velY > 1) {
+			SoundEffect_Play(SFX_BOUNCE, false);
+		}
 	}
 
 	ProjDefault_OnHitGround(hitX, hitY, hitType);

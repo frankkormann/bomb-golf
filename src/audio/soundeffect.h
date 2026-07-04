@@ -10,6 +10,7 @@
 
 typedef enum {
 	SFX_EXPLOSION,
+	SFX_BOUNCE,
 
 	NUM_SOUND_EFFECTS
 } SoundEffect;
@@ -22,9 +23,9 @@ bool SoundEffect_Init();
 void SoundEffect_Exit();
 
 /*
- * Begins sfx. If it's already playing, restarts it.
+ * Begins sfx. If it's already playing, optionally restarts it or does nothing.
  */
-void SoundEffect_Play(SoundEffect sfx);
+void SoundEffect_Play(SoundEffect sfx, bool restart);
 
 /*
  * Ends sfx prematurely.
