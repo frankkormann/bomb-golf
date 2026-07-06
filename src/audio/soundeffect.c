@@ -23,7 +23,9 @@ typedef struct {
 
 static char *sfxPaths[NUM_SOUND_EFFECTS] = {
 	"romfs:sfx/explosion.opus",
-	"romfs:sfx/bounce.opus"
+	"romfs:sfx/bounce.opus",
+	"romfs:sfx/explosion.opus"  //TODO Make FIREWORK_EXPLOSION different
+	                            // from EXPLOSION--more crinkly
 };
 
 static SfxObj sfxObjs[NUM_SOUND_EFFECTS];

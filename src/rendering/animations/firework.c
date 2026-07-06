@@ -8,6 +8,7 @@
 #include "../rendertarget.h"
 #include "../spritesheet.h"
 #include "../../scenes/course.h"
+#include "../../audio/soundeffect.h"
 #include "../../terrain.h"
 #include "../../util/macros.h"
 
@@ -92,6 +93,7 @@ static void update(AnimationI_AnimObj *obj) {
 			data->exploding = true;
 			Terrain_ClearCircle(data->loc.x, data->loc.y,
 					EXPLOSION_RADIUS);
+			SoundEffect_Play(SFX_FIREWORK_EXPLOSION, true);
 		}
 	}
 }
