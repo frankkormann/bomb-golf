@@ -39,7 +39,7 @@ static void fillBuffer(s16 *bufStart, s16 *bufEnd, OggOpusFile *opusFile) {
 	} while (readSamples > 0);
 }
 
-bool fillSfxObj(SfxObj *sfx, char *path, int chn) {
+static bool fillSfxObj(SfxObj *sfx, char *path, int chn) {
 	OggOpusFile *opusFile = op_open_file(path, NULL);
 	if (!opusFile) goto f_opusFile;
 
@@ -65,7 +65,7 @@ f_opusFile:
 	return false;
 }
 
-void freeSfxObj(SfxObj *sfx) {
+static void freeSfxObj(SfxObj *sfx) {
 	if (sfx->audioBuffer) linearFree(sfx->audioBuffer);
 }
 
