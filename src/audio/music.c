@@ -26,6 +26,7 @@ static s16 *audioBuffer;
 static OggOpusFile *opusFile;
 
 static LightEvent event;
+static bool eventInitd = false;
 static volatile bool playing;
 static Thread thread;
 
@@ -66,7 +67,10 @@ static void audioThread() {
 }
 
 bool Music_Start(char *path) {
-	LightEvent_Init(&event, RESET_ONESHOT);
+	if (!eventInitd) {
+		LightEvent_Init(&event, RESET_ONESHOT);
+		eventInitd = true;
+	}
 	ndspChnReset(MUSIC_CHN);
 	ndspChnSetInterp(MUSIC_CHN, NDSP_INTERP_POLYPHASE);
 	ndspChnSetRate(MUSIC_CHN, SAMPLE_RATE);
