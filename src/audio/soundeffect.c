@@ -30,13 +30,15 @@ static char *sfxPaths[NUM_SOUND_EFFECTS] = {
 
 static SfxObj sfxObjs[NUM_SOUND_EFFECTS];
 
-static void fillBuffer(s16 *bufStart, s16 *bufEnd, OggOpusFile *opusFile) {
-	int readSamples = 0;
+static int fillBuffer(s16 *bufStart, s16 *bufEnd, OggOpusFile *opusFile) {
+	int totalSamples = 0, readSamples = 0;
 	s16 *buf = bufStart;
 	do {
-		buf += readSamples * CHNS_PER_SAMPLE;
 		readSamples = op_read_stereo(opusFile, buf, bufEnd - buf);
-	} while (readSamples > 0);
+		buf += readSamples * CHNS_PER_SAMPLE;
+		totalSamples += readSamples;
+	} while (readSamples > 0 && buf < bufEnd);
+	return totalSamples;
 }
 
 static bool fillSfxObj(SfxObj *sfx, char *path, int chn) {
