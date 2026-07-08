@@ -32,3 +32,7 @@ To compile as `cia`:
 
 * [makerom](https://github.com/3DSGuy/Project_CTR/tree/master/makerom)
 * [bannertool](https://github.com/diasurgical/bannertool)
+
+## Music Credits
+
+Kevin MacLeod

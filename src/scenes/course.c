@@ -19,6 +19,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/animation.h"
 #include "../rendering/animations/firework.h"
+#include "../audio/music.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../terrain.h"
@@ -144,6 +145,8 @@ static bool sceneInit(Scene_Params params) {
 	Projectile_SetPos(proj.startX, proj.startY);
 	Projectile_Reset();
 
+	Music_Start(MUSIC_OVERWORLD);
+
 	strokes  = 0;
 	hasFinished = false;
 	level = params.course.level;
@@ -173,6 +176,7 @@ static void sceneExit() {
 	Text_Free(strokesText);
 	Text_Free(parText);
 	Text_Free(nameText);
+	Music_Stop();
 }
 
 static void calculateLaunchVelocity(float *velX, float *velY) {
