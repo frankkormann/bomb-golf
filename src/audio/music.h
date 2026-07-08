@@ -7,12 +7,26 @@
 
 #include <stdbool.h>
 
+typedef enum {
+	MUSIC_OVERWORLD,
+
+	NUM_MUSIC_SONGS
+} Music_Song;
+
 /*
- * Begins playing the song at path. Only opus files are supported. Music will
- * automatically loop. If a song is already playing, replaces it--there is no
- * need to call Music_Stop between songs.
+ * Loads all Music_Songs for playback.
  */
-bool Music_Start(char *path);
+bool Music_Init();
+
+void Music_Exit();
+
+/*
+ * Begins playing song. Music will automatically loop. If a song is already
+ * playing, replaces it--there is no need to call Music_Stop between songs.
+ *
+ * Music_Init must be called first, exactly once.
+ */
+bool Music_Start(Music_Song song);
 
 /*
  * Exits and frees any resources being used.

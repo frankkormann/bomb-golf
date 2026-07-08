@@ -21,14 +21,37 @@
 
 #define MUSIC_CHN 0
 
+static char *songPaths[NUM_MUSIC_SONGS] = {
+	"romfs:sfx/Overworld.opus"
+};
+
+static OggOpusFile *opusFiles[NUM_MUSIC_SONGS];
+static Music_Song song;
+
 static ndspWaveBuf waveBufs[NUM_WAVEBUFS];
 static s16 *audioBuffer;
-static OggOpusFile *opusFile;
 
 static LightEvent event;
 static bool eventInitd = false;
 static volatile bool playing;
 static Thread thread;
+
+bool Music_Init() {
+	for (Music_Song i = 0; i < NUM_MUSIC_SONGS; i++) {
+		opusFiles[i] = op_open_file(songPaths[i], NULL);
+		if (!opusFiles[i]) {
+			for (Music_Song j = 0; j < i; j++) op_free(opusFiles[j]);
+			return false;
+		}
+	}
+	return true;
+}
+
+void Music_Exit() {
+	for (Music_Song i = 0; i < NUM_MUSIC_SONGS; i++) {
+		op_free(opusFiles[i]);
+	}
+}
 
 static void audioCallback() {
 	if (!playing) return;
@@ -39,7 +62,7 @@ static int fillBuffer(s16 *bufStart, s16 *bufEnd) {
 	int totalSamples = 0, readSamples = 0;
 	s16 *buf = bufStart;
 	do {
-		readSamples = op_read_stereo(opusFile, buf, bufEnd - buf);
+		readSamples = op_read_stereo(opusFiles[song], buf, bufEnd - buf);
 		buf += readSamples * CHNS_PER_SAMPLE;
 		totalSamples += readSamples;
 	} while (readSamples > 0 && buf < bufEnd);
@@ -54,7 +77,7 @@ static void audioThread() {
 			int samples = fillBuffer(waveBufs[i].data_pcm16,
 					waveBufs[i].data_pcm16 +SAMPLES_PER_WAVEBUF);
 			if (samples == 0) {
-				op_raw_seek(opusFile, 0);
+				op_raw_seek(opusFiles[song], 0);
 			}
 			waveBufs[i].nsamples = samples;
 			ndspChnWaveBufAdd(MUSIC_CHN, &waveBufs[i]);
@@ -66,7 +89,7 @@ static void audioThread() {
 	}
 }
 
-bool Music_Start(char *path) {
+bool Music_Start(Music_Song argSong) {
 	if (!eventInitd) {
 		LightEvent_Init(&event, RESET_ONESHOT);
 		eventInitd = true;
@@ -89,22 +112,19 @@ bool Music_Start(char *path) {
 		buf += SAMPLES_PER_WAVEBUF;
 	}
 
-	opusFile = op_open_file(path, NULL);
-	if (!opusFile) goto f_opusFile;
-
+	song = argSong;
 	playing = true;
+	op_raw_seek(opusFiles[song], 0);
 	ndspSetCallback(audioCallback, NULL);
 
 	s32 threadPriority = 0x30;
 	svcGetThreadPriority(&threadPriority, CUR_THREAD_HANDLE);
 	threadPriority = clamp(threadPriority + 1, 0x18, 0x3F);
-	thread = threadCreate(audioThread, opusFile, THREAD_STACK_SIZE,
+	thread = threadCreate(audioThread, NULL, THREAD_STACK_SIZE,
 			threadPriority, -1, false);
 
 	return true;
 
-f_opusFile:
-	linearFree(audioBuffer);
 f_audioBuffer:
 	return false;
 }
@@ -120,6 +140,5 @@ void Music_Stop() {
 		linearFree(audioBuffer);
 		audioBuffer = NULL;
 	}
-	op_free(opusFile);
 	ndspChnReset(MUSIC_CHN);
 }
