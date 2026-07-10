@@ -44,6 +44,7 @@ bool Music_Init() {
 			for (Music_Song j = 0; j < i; j++) op_free(opusFiles[j]);
 			return false;
 		}
+		op_set_gain_offset(opusFiles[i], OP_ABSOLUTE_GAIN, -768);
 	}
 	return true;
 }
