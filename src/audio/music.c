@@ -22,7 +22,8 @@
 #define MUSIC_CHN 0
 
 static char *songPaths[NUM_MUSIC_SONGS] = {
-	"romfs:sfx/Overworld.opus"
+	"romfs:music/Bit Shift.opus",
+	"romfs:music/Bit Shift.opus"  //TODO Find a different song
 };
 
 static OggOpusFile *opusFiles[NUM_MUSIC_SONGS];

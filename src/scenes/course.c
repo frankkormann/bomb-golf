@@ -145,7 +145,7 @@ static bool sceneInit(Scene_Params params) {
 	Projectile_SetPos(proj.startX, proj.startY);
 	Projectile_Reset();
 
-	Music_Start(MUSIC_OVERWORLD);
+	Music_Start(MUSIC_LEVEL);
 
 	strokes  = 0;
 	hasFinished = false;

@@ -16,6 +16,7 @@
 #include "components/tracer.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
+#include "../audio/music.h"
 #include "../util/dispatcher.h"
 #include "../terrain.h"
 #include "../levelio.h"
@@ -214,6 +215,8 @@ static bool sceneInit(Scene_Params params) {
 		nextLevel++;
 	}
 
+	Music_Start(MUSIC_RESULTS);
+
 	level = params.results.level;
 	levelInRomfs = params.results.levelInRomfs;
 	strokes = params.results.strokes;
@@ -260,6 +263,7 @@ static void sceneExit() {
 	Dispatcher_Free(touchDispatcher);
 	Dispatcher_Free(keyDispatcher);
 	Terrain_Exit();
+	Music_Stop();
 }
 
 static void sceneUpdate() {

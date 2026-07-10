@@ -8,7 +8,10 @@
 #include <stdbool.h>
 
 typedef enum {
-	MUSIC_OVERWORLD,
+	MUSIC_LEVEL,
+	MUSIC_RESULTS,
+//	MUSIC_SUMMARY,  // Future idea
+//	MUSIC_CREDITS,  // Future idea
 
 	NUM_MUSIC_SONGS
 } Music_Song;
