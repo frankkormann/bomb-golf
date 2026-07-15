@@ -23,15 +23,15 @@
 
 #define DECIBELS(x) (256 * x)
 
-static char *songPaths[NUM_MUSIC_SONGS] = {
-	"romfs:music/Bit Shift.opus",
-	"romfs:music/Itty Bitty 8 Bit (Beginning).opus",
-	"romfs:music/Deliberate Thought.opus"
-};
-static int songGains[NUM_MUSIC_SONGS] = {
-	DECIBELS(-3),
-	DECIBELS(-1),
-	DECIBELS(4)
+typedef struct {
+	char *path;
+	int gain;
+} SongInfo;
+
+static SongInfo songInfo[NUM_MUSIC_SONGS] = {
+	{ "romfs:music/Bit Shift.opus",                    DECIBELS(-3) },
+	{ "romfs:music/Itty Bitty 8 Bit (Beginning).opus", DECIBELS(0)  },
+	{ "romfs:music/Deliberate Thought.opus",           DECIBELS(5)  }
 };
 
 static OggOpusFile *opusFiles[NUM_MUSIC_SONGS];
@@ -47,12 +47,12 @@ static Thread thread;
 
 bool Music_Init() {
 	for (Music_Song i = 0; i < NUM_MUSIC_SONGS; i++) {
-		opusFiles[i] = op_open_file(songPaths[i], NULL);
+		opusFiles[i] = op_open_file(songInfo[i].path, NULL);
 		if (!opusFiles[i]) {
 			for (Music_Song j = 0; j < i; j++) op_free(opusFiles[j]);
 			return false;
 		}
-		op_set_gain_offset(opusFiles[i], OP_ABSOLUTE_GAIN, songGains[i]);
+		op_set_gain_offset(opusFiles[i], OP_ABSOLUTE_GAIN, songInfo[i].gain);
 	}
 	return true;
 }
