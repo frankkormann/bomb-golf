@@ -23,8 +23,9 @@
 
 static char *songPaths[NUM_MUSIC_SONGS] = {
 	"romfs:music/Bit Shift.opus",
-	"romfs:music/Bit Shift.opus"  //TODO Find a different song
+	"romfs:music/Itty Bitty 8 Bit (Beginning).opus"
 };
+static int songGains[NUM_MUSIC_SONGS] = { -768, -256 };
 
 static OggOpusFile *opusFiles[NUM_MUSIC_SONGS];
 static Music_Song song;
@@ -44,7 +45,7 @@ bool Music_Init() {
 			for (Music_Song j = 0; j < i; j++) op_free(opusFiles[j]);
 			return false;
 		}
-		op_set_gain_offset(opusFiles[i], OP_ABSOLUTE_GAIN, -768);
+		op_set_gain_offset(opusFiles[i], OP_ABSOLUTE_GAIN, songGains[i]);
 	}
 	return true;
 }
