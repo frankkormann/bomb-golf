@@ -12,6 +12,7 @@ typedef enum {
 	MUSIC_RESULTS,
 //	MUSIC_SUMMARY,  // Future idea
 //	MUSIC_CREDITS,  // Future idea
+	MUSIC_EDITOR,
 
 	NUM_MUSIC_SONGS
 } Music_Song;
@@ -32,7 +33,7 @@ void Music_Exit();
 bool Music_Start(Music_Song song);
 
 /*
- * Exits and frees any resources being used.
+ * Stops the current song.
  */
 void Music_Stop();
 

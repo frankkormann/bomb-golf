@@ -18,6 +18,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
+#include "../audio/music.h"
 #include "../projectiles/bomb.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
@@ -148,6 +149,8 @@ static bool sceneInit(Scene_Params params) {
 	if (!BrushSelector_Init(BRUSH_PENCIL)) goto f_BrushSelector;
 	BrushSelector_RegisterForTouchEvents(touchDispatcher, 1);
 
+	Music_Start(MUSIC_EDITOR);
+
 	scroll = 0;
 	level = params.editor.level;
 
@@ -186,6 +189,7 @@ static void sceneExit() {
 	TileSelector_Exit();
 	EditorMenu_Exit();
 	BrushSelector_Exit();
+	Music_Stop();
 }
 
 static bool exportLevel() {

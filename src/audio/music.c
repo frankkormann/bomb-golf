@@ -21,11 +21,18 @@
 
 #define MUSIC_CHN 0
 
+#define DECIBELS(x) (256 * x)
+
 static char *songPaths[NUM_MUSIC_SONGS] = {
 	"romfs:music/Bit Shift.opus",
-	"romfs:music/Itty Bitty 8 Bit (Beginning).opus"
+	"romfs:music/Itty Bitty 8 Bit (Beginning).opus",
+	"romfs:music/Deliberate Thought.opus"
 };
-static int songGains[NUM_MUSIC_SONGS] = { -768, -256 };
+static int songGains[NUM_MUSIC_SONGS] = {
+	DECIBELS(-3),
+	DECIBELS(-1),
+	DECIBELS(4)
+};
 
 static OggOpusFile *opusFiles[NUM_MUSIC_SONGS];
 static Music_Song song;
