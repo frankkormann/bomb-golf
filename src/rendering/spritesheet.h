@@ -91,6 +91,13 @@ typedef enum {
 	NUM_TILES
 } SpriteSheet_TileSprite;
 
+// These values are written directly into level files, so be careful when
+// reassigning or removing them
+typedef enum {
+	SPRITE_OBST_TEST1,
+	SPRITE_OBST_TEST2
+} SpriteSheet_ObstSprite;
+
 /*
  * Returns false on failure.
  */
