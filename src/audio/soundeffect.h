@@ -12,6 +12,7 @@ typedef enum {
 	SFX_EXPLOSION,
 	SFX_BOUNCE,
 	SFX_FIREWORK_EXPLOSION,
+//	SFX_HOLE_IN_ONE,  // Future idea
 
 	NUM_SOUND_EFFECTS
 } SoundEffect;
