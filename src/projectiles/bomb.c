@@ -140,8 +140,8 @@ static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
 	if (ballState == WAITING) return;
 
 	if ((ballState == FLYING_SHOULD_EXPLODE || ballState == FLYING_TIME_SLOWED)
-			&& hitX > 0 && hitX < Course_GetFieldWidth()
-			&& hitY > 0 && hitY < Course_GetFieldHeight()) {
+			&& hitX > 0 && hitX < Course_GetFieldWidth()-1
+			&& hitY > 0 && hitY < Course_GetFieldHeight()-1) {
 		doExplosion();
 	}
 

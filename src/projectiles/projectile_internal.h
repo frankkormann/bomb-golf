@@ -20,8 +20,9 @@ struct projectile {
 	void (*const launch)(float velX, float velY);
 	/*
 	 * Updates the projectile for one physics frame. If it hit a ground
-	 * pixel, returns true and fills hitX, hitY, and hitType with the
-	 * pixel's position and Terrain_Type.
+	 * pixel, returns true and fills hitX, hitY, and hitType. hitType is
+	 * the Terrain_Type of the ground pixel which was hit; (hitX, hitY)
+	 * is the pixel on the ball which hit the ground.
 	 *
 	 * If this returns false, the values of hitX, hitY, and hitType are
 	 * undefined.
