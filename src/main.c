@@ -8,6 +8,7 @@
 #include "scenes/error.h"
 #include "scenes/components/text.h"
 #include "scenes/components/popup.h"
+#include "environment/obstacle.h"
 #include "rendering/spritesheet.h"
 #include "rendering/rendertarget.h"
 #include "rendering/animation.h"
@@ -31,6 +32,7 @@ int main() {
 	Animation_Init();
 	Music_Init();
 	SoundEffect_Init();
+	Obstacle_Init();
 	Scene_Start(sceneTitle, Title_MakeParams());
 
 	if (!SaveData_Mount()) {
@@ -62,6 +64,7 @@ int main() {
 
 	SaveData_Unmount();
 	Scene_Exit();
+	Obstacle_Exit();
 	SoundEffect_Exit();
 	Music_Exit();
 	Animation_Exit();

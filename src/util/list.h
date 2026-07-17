@@ -37,4 +37,10 @@ void List_ForEach(List list, void (*func)(void *elem));
  */
 void List_Filter(List list, bool (*test)(void *elem), void (*free)(void *elem));
 
+/*
+ * Returns true if any element in list returns true for test. May not call test
+ * for every element.
+ */
+bool List_Check(List list, bool (*test)(void *elem));
+
 #endif

@@ -63,3 +63,10 @@ void List_Filter(List list, bool (*test)(void *elem), void (*argFree)(void *elem
 		n = next;
 	}
 }
+
+bool List_Check(List list, bool (*test)(void *elem)) {
+	for (Node *n = list->head; n; n = n->next) {
+		if (test(n->val)) return true;
+	}
+	return false;
+}

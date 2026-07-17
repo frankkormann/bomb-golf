@@ -100,6 +100,8 @@ void SpriteSheet_Exit();
 
 C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite);
 
+C2D_Image SpriteSheet_GetObstacleImage(SpriteSheet_ObstSprite obst);
+
 /*
  * For SPRITE_BOMB, the "center" is offset vertically to match the visual
  * center of mass.
@@ -115,5 +117,11 @@ void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
  */
 void SpriteSheet_DrawTile(SpriteSheet_TileSprite tile, float x, float y, float depth,
 		float angle, bool flipHoriz, bool flipVert);
+
+/*
+ * Note: (x, y) is the center of the sprite.
+ */
+void SpriteSheet_DrawObstacle(SpriteSheet_ObstSprite obst, float x, float y,
+		float depth, float angle, bool flipHoriz, bool flipVert);
 
 #endif

@@ -2,8 +2,7 @@
 #include <citro2d.h>
 #include "spritesheet.h"
 
-static C2D_SpriteSheet spriteSheet;
-static C2D_SpriteSheet tileSheet;
+static C2D_SpriteSheet spriteSheet, tileSheet, obstSheet;
 
 bool SpriteSheet_Init() {
 	spriteSheet = C2D_SpriteSheetLoad("romfs:/gfx/sprites.t3x");
@@ -12,6 +11,13 @@ bool SpriteSheet_Init() {
 	tileSheet = C2D_SpriteSheetLoad("romfs:/gfx/tiles.t3x");
 	if (!tileSheet) {
 		C2D_SpriteSheetFree(spriteSheet);
+		return false;
+	}
+
+	obstSheet = C2D_SpriteSheetLoad("romfs:/gfx/obstacles.t3x");
+	if (!obstSheet) {
+		C2D_SpriteSheetFree(spriteSheet);
+		C2D_SpriteSheetFree(tileSheet);
 		return false;
 	}
 
@@ -27,9 +33,12 @@ C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite) {
 	return C2D_SpriteSheetGetImage(spriteSheet, sprite);
 }
 
-void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
-		float depth, float angle, bool flipHoriz, bool flipVert) {
-	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
+C2D_Image SpriteSheet_GetObstacleImage(SpriteSheet_ObstSprite obst) {
+	return C2D_SpriteSheetGetImage(obstSheet, obst);
+}
+
+void drawCenter(C2D_Image img, float x, float y, float depth, float angle,
+		bool flipHoriz, bool flipVert) {
 	C2D_DrawImage(img, &(C2D_DrawParams) {
 		.pos = {
 			x,
@@ -39,7 +48,7 @@ void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
 		},
 		.center = {
 			img.subtex->width * 0.5,
-			sprite == SPRITE_BOMB ? 10 : img.subtex->height * 0.5
+			img.subtex->height * 0.5
 		},
 		.depth = depth,
 		.angle = angle
@@ -67,6 +76,14 @@ void drawTopLeft(C2D_Image img, float x, float y, float depth, float angle,
 	}, NULL);
 }
 
+void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
+		float depth, float angle, bool flipHoriz, bool flipVert) {
+	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
+	// Make the drawn position match center of mass better
+	if (sprite == SPRITE_BOMB) y -= 3;
+	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert);
+}
+
 void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
 		float angle, bool flipHoriz, bool flipVert) {
 	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
@@ -77,5 +94,11 @@ void SpriteSheet_DrawTile(SpriteSheet_TileSprite tile, float x, float y, float d
 		float angle, bool flipHoriz, bool flipVert) {
 	C2D_Image img = C2D_SpriteSheetGetImage(tileSheet, tile);
 	drawTopLeft(img, x, y, depth, angle, flipHoriz, flipVert);
+}
+
+void SpriteSheet_DrawObstacle(SpriteSheet_ObstSprite obst, float x, float y,
+		float depth, float angle, bool flipHoriz, bool flipVert) {
+	C2D_Image img = C2D_SpriteSheetGetImage(obstSheet, obst);
+	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert);
 }
 
