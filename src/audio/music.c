@@ -140,6 +140,8 @@ f_audioBuffer:
 }
 
 void Music_Stop() {
+	if (!playing) return;
+
 	// Make sure thread is finished
 	playing = false;
 	LightEvent_Signal(&event);
