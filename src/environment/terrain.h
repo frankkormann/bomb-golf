@@ -9,7 +9,7 @@
 #define TERRAIN_H
 
 #include <stdbool.h>
-#include "tile.h"
+#include "../tile.h"
 
 typedef enum {
 	TERRAIN_NOTHING,

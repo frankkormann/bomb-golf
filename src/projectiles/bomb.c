@@ -11,9 +11,9 @@
 #include "../rendering/animations/explosion.h"
 #include "../audio/soundeffect.h"
 #include "../scenes/course.h"
+#include "../environment/terrain.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
-#include "../terrain.h"
 
 #define BALL_RADIUS 4
 #define EXPLOSION_RADIUS 20

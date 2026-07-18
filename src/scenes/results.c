@@ -14,11 +14,11 @@
 #include "components/button.h"
 #include "components/border.h"
 #include "components/tracer.h"
+#include "../environment/terrain.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../audio/music.h"
 #include "../util/dispatcher.h"
-#include "../terrain.h"
 #include "../levelio.h"
 #include "../savedata.h"
 

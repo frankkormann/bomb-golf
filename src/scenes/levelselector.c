@@ -10,11 +10,11 @@
 #include "components/background.h"
 #include "components/text.h"
 #include "components/border.h"
+#include "../environment/terrain.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
 #include "../util/dispatcher.h"
-#include "../terrain.h"
 #include "../levelio.h"
 
 #define LEVEL_NAME_X 10

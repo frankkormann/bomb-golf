@@ -5,8 +5,8 @@
 #include "projectile.h"
 #include "projectiles/projectile_internal.h"
 #include "rendering/spritesheet.h"
+#include "environment/terrain.h"
 #include "util/macros.h"
-#include "terrain.h"
 #include "levelio.h"
 
 #define LAST_POS_COUNT 30

@@ -6,7 +6,7 @@
 #define PROJECTILE_INTERNAL_H
 
 #include "../projectile.h"
-#include "../terrain.h"
+#include "../environment/terrain.h"
 
 struct projectile {
 	const int radius;

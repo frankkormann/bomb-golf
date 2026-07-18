@@ -9,7 +9,7 @@
 #include "../spritesheet.h"
 #include "../../scenes/course.h"
 #include "../../audio/soundeffect.h"
-#include "../../terrain.h"
+#include "../../environment/terrain.h"
 #include "../../util/macros.h"
 
 #define ANIMATION_FRAME_LENGTH 5

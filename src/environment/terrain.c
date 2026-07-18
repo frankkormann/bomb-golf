@@ -2,13 +2,13 @@
 #include <limits.h>
 #include <malloc.h>
 #include "terrain.h"
-#include "tile.h"
-#include "scenes/components/background.h"
-#include "rendering/colors.h"
-#include "rendering/spritesheet.h"
-#include "rendering/animation.h"
-#include "rendering/animations/explosion.h"
-#include "util/queue.h"
+#include "../tile.h"
+#include "../scenes/components/background.h"
+#include "../rendering/colors.h"
+#include "../rendering/spritesheet.h"
+#include "../rendering/animation.h"
+#include "../rendering/animations/explosion.h"
+#include "../util/queue.h"
 
 // (x, y) goes to [x + y*width]
 Terrain_Type *typeMap;

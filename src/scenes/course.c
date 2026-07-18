@@ -15,6 +15,7 @@
 #include "components/border.h"
 #include "../projectile.h"
 #include "../projectiles/bomb.h"
+#include "../environment/terrain.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/animation.h"
@@ -22,7 +23,6 @@
 #include "../audio/music.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
-#include "../terrain.h"
 #include "../levelio.h"
 
 #define LAUNCH_SPEED_MAX 6
