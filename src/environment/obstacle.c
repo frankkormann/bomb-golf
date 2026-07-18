@@ -18,7 +18,8 @@ typedef struct {
 	int width;
 	int height;
 	float speed;
-	int counter;
+	int pathCounter;
+	int animCounter;
 } Obstacle;
 
 static List obstacleList;
@@ -58,8 +59,8 @@ bool Obstacle_Add(SpriteSheet_ObstSprite sprite1, SpriteSheet_ObstSprite sprite2
 
 	obst->spr1 = sprite1;
 	obst->spr2 = sprite2;
-	obst->flipHoriz = false;
-	obst->flipVert = false;
+	obst->flipHoriz = numPoints > 1 && xs[0] > xs[1];
+	obst->flipVert = numPoints > 1 && xs[0] == xs[1] && ys[0] > ys[1];
 	for (int i = 0; i < numPoints; i++) {
 		obst->xs[i] = xs[i];
 		obst->ys[i] = ys[i];
@@ -67,7 +68,8 @@ bool Obstacle_Add(SpriteSheet_ObstSprite sprite1, SpriteSheet_ObstSprite sprite2
 	obst->numPoints = numPoints;
 	obst->curPoint = 0;
 	obst->speed = speed;
-	obst->counter = 0;
+	obst->pathCounter = 0;
+	obst->animCounter = 0;  //TODO Consider randomizing this
 
 	if (!List_Push(obstacleList, obst)) goto f_List_Push;
 
@@ -95,8 +97,8 @@ static void getObstaclePos(Obstacle *obst, float *x, float *y) {
 	int dx = curX - nextX, dy = curY - nextY;
 	float radical = sqrt(dx*dx + dy*dy);
 
-	*x = curX - (obst->counter * obst->speed * dx) / radical;
-	*y = curY - (obst->counter * obst->speed * dy) / radical;
+	*x = curX - (obst->pathCounter * obst->speed * dx) / radical;
+	*y = curY - (obst->pathCounter * obst->speed * dy) / radical;
 }
 
 static bool obstacleIntersects(Obstacle *obst, int x, int y) {
@@ -138,24 +140,27 @@ bool Obstacle_IsAt(int argX, int argY) {
 void Obstacle_Update() {
 	void update(void *elem) {
 		Obstacle *obst = (Obstacle*)elem;
-		obst->counter++;
+		obst->pathCounter++;
+		obst->animCounter++;
 
 		float x, y;
 		getObstaclePos(obst, &x, &y);
 
 		int curX = obst->xs[obst->curPoint];
-		int curY = obst->xs[obst->curPoint];
+		int curY = obst->ys[obst->curPoint];
 		int nextX = obst->xs[(obst->curPoint + 1) % obst->numPoints];
 		int nextY = obst->ys[(obst->curPoint + 1) % obst->numPoints];
+		int nextNextX = obst->xs[(obst->curPoint + 2) % obst->numPoints];
+		int nextNextY = obst->ys[(obst->curPoint + 2) % obst->numPoints];
 
-		if ((curX > nextX && x < nextX) || (nextX > curX && x > nextX)) {
-			obst->counter = 0;
+		if ((nextX > curX && x >= nextX) || (nextX < curX && x <= nextX)
+				|| (nextY > curY && y >= nextY)
+				|| (nextY < curY && y <= nextY)) {
+			obst->pathCounter = 0;
 			obst->curPoint = (obst->curPoint + 1) % obst->numPoints;
-			if (nextX != curX) {
-				obst->flipHoriz = !obst->flipHoriz;
-			} else if (nextY != curY) {
-				obst->flipVert = !obst->flipVert;
-			}
+
+			obst->flipHoriz = nextNextX < nextX;
+			obst->flipVert = nextNextX == nextX && nextNextY < nextY;
 		}
 	}
 	List_ForEach(obstacleList, update);
@@ -170,7 +175,8 @@ void Obstacle_Draw(float argDepth) {
 		float x, y;
 		getObstaclePos(obst, &x, &y);
 		SpriteSheet_DrawObstacle(
-				obst->counter/30 % 2 == 0 ? obst->spr1 : obst->spr2,
+				obst->animCounter/30 % 2 == 0
+					? obst->spr1 : obst->spr2,
 				x, y, depth,
 				0, obst->flipHoriz, obst->flipVert
 			);
