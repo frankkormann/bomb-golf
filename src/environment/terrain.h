@@ -38,11 +38,6 @@ void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious);
  */
 void Terrain_ClearPixel(int x, int y);
 
-/*
- * Removes the terrain in a circle of radius radius centered at (x, y).
- */
-void Terrain_ClearCircle(int x, int y, int radius);
-
 Terrain_Type Terrain_TypeAt(int x, int y);
 
 /*

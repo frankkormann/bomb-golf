@@ -11,6 +11,7 @@
 #include "../rendering/animations/explosion.h"
 #include "../audio/soundeffect.h"
 #include "../scenes/course.h"
+#include "../environment/environment.h"
 #include "../environment/terrain.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
@@ -80,7 +81,7 @@ static void boostFromExplosion(float explosionX, float explosionY) {
  */
 static void doExplosion() {
 	ProjectileI_Data *data = ProjectileI_AccessData();
-	Terrain_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
+	Env_ClearCircle(data->x, data->y, EXPLOSION_RADIUS);
 	Animation_Start(animationExplosion,
 			Explosion_MakeParams(data->x, data->y,
 				EXPLOSION_RADIUS + 1),

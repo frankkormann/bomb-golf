@@ -38,6 +38,12 @@ bool Obstacle_Add(SpriteSheet_ObstSprite sprite1, SpriteSheet_ObstSprite sprite2
 void Obstacle_Destroy(int x, int y);
 
 /*
+ * Removes any obstacles which overlap the circle centered at (x, y) and with
+ * radius radius.
+ */
+void Obstacle_DestroyCircle(int x, int y, int radius);
+
+/*
  * Removes all obstacles.
  */
 void Obstacle_Clear();

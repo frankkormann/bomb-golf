@@ -9,6 +9,7 @@
 #include "../spritesheet.h"
 #include "../../scenes/course.h"
 #include "../../audio/soundeffect.h"
+#include "../../environment/environment.h"
 #include "../../environment/terrain.h"
 #include "../../util/macros.h"
 
@@ -88,10 +89,10 @@ static void update(AnimationI_AnimObj *obj) {
 	} else {
 		data->loc.y--;
 		if (data->loc.y < EXPLOSION_Y
-				|| Terrain_TypeAt(data->loc.x, data->loc.y)
+				|| Env_TypeAt(data->loc.x, data->loc.y)
 					!= TERRAIN_NOTHING) {
 			data->exploding = true;
-			Terrain_ClearCircle(data->loc.x, data->loc.y,
+			Env_ClearCircle(data->loc.x, data->loc.y,
 					EXPLOSION_RADIUS);
 			SoundEffect_Play(SFX_FIREWORK_EXPLOSION, true);
 		}

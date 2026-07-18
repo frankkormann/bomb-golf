@@ -5,6 +5,7 @@
 #include "obstacle.h"
 #include "../rendering/spritesheet.h"
 #include "../util/list.h"
+#include "../util/macros.h"
 
 typedef struct {
 	SpriteSheet_ObstSprite spr1;
@@ -117,6 +118,27 @@ void Obstacle_Destroy(int argX, int argY) {
 	x = argX, y = argY;
 	bool intersects(void *elem) {
 		return obstacleIntersects((Obstacle*)elem, x, y);
+	}
+	List_Filter(obstacleList, intersects, freeObstacle);
+}
+
+void Obstacle_DestroyCircle(int argX, int argY, int argRadius) {
+	// Need these to be static so 3ds doesn't crash when they're used in
+	// intersects
+	static int x, y, radius;
+	//https://stackoverflow.com/a/1879223
+	x = argX, y = argY, radius = argRadius;
+	bool intersects(void *elem) {
+		Obstacle *obst = (Obstacle*)elem;
+		float ox, oy;
+		getObstaclePos(obst, &ox, &oy);
+
+		float closestX = clamp(x, ox, ox + obst->width);
+		float closestY = clamp(y, oy, oy + obst->height);
+		float distX = x - closestX;
+		float distY = y - closestY;
+
+		return distX*distX + distY*distY <= radius*radius;
 	}
 	List_Filter(obstacleList, intersects, freeObstacle);
 }

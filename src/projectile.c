@@ -5,6 +5,7 @@
 #include "projectile.h"
 #include "projectiles/projectile_internal.h"
 #include "rendering/spritesheet.h"
+#include "environment/environment.h"
 #include "environment/terrain.h"
 #include "util/macros.h"
 #include "levelio.h"
@@ -94,7 +95,7 @@ static void checkCircle(int x, int y, int radius, float *hitX, float *hitY) {
 	int hitsX = 0, hitsY = 0;
 	int numHits = 0;
 	void checkTerrain(int x, int y) {
-		if (Terrain_TypeAt(x, y) != TERRAIN_NOTHING) {
+		if (Env_TypeAt(x, y) != TERRAIN_NOTHING) {
 			hitsX += x;
 			hitsY += y;
 			numHits++;
@@ -190,7 +191,7 @@ bool ProjDefault_Move(float *hitX, float *hitY, Terrain_Type *hitType) {
 			&finalY, &lastOkX, &lastOkY, hitX, hitY);
 
 	if (hasHitSomething) {
-		*hitType = Terrain_TypeAt(*hitX, *hitY);
+		*hitType = Env_TypeAt(*hitX, *hitY);
 		*hitX -= (finalX - lastOkX);
 		*hitY -= (finalY - lastOkY);
 		data.x = lastOkX;

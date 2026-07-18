@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <malloc.h>
 #include "terrain.h"
+#include "environment.h"
 #include "../tile.h"
 #include "../scenes/components/background.h"
 #include "../rendering/colors.h"
@@ -11,10 +12,10 @@
 #include "../util/queue.h"
 
 // (x, y) goes to [x + y*width]
-Terrain_Type *typeMap;
-int width, height;
-Background bg;
-Queue tilesToExplode;
+static Terrain_Type *typeMap;
+static int width, height;
+static Background bg;
+static Queue tilesToExplode;
 
 bool Terrain_Init(int argWidth, int argHeight) {
 	typeMap = calloc(argWidth * argHeight, sizeof(*typeMap));
@@ -169,24 +170,6 @@ void Terrain_ClearPixel(int x, int y) {
 	}
 }
 
-void Terrain_ClearCircle(int x, int y, int radius) {
-	//https://stackoverflow.com/a/24453110
-	int r2 = radius * radius;
-	int area = r2 << 2;
-	int rr = radius << 1;
-
-	for (int i = 0; i < area; i++) {
-		int tx = (i % rr) - radius;
-		int ty = (i / rr) - radius;
-		int nx = x + tx;
-		int ny = y + ty;
-		if (tx * tx + ty * ty <= r2 && nx >= 0 && nx < width && ny >= 0
-				&& ny < height) {
-			Terrain_ClearPixel(nx, ny);
-		}
-	}
-}
-
 Terrain_Type Terrain_TypeAt(int x, int y) {
 	if (x < 0 || x >= width || y < 0 || y >= height) return TERRAIN_GROUND;
 	return typeMap[x + y*width];
@@ -210,7 +193,7 @@ static void explodeTile(int x, int y) {
 	int radius = (TILE_SIZE/2) * 1.41 + 1;
 	Animation_Start(animationExplosion,
 			Explosion_MakeParams(midX, midY, radius), NULL);
-	Terrain_ClearCircle(midX, midY, radius);
+	Env_ClearCircle(midX, midY, radius);
 }
 
 void Terrain_Update() {
