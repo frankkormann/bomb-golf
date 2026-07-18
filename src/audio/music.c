@@ -29,7 +29,7 @@ typedef struct {
 } SongInfo;
 
 static SongInfo songInfo[NUM_MUSIC_SONGS] = {
-	{ "romfs:music/Bit Shift.opus",                    DECIBELS(-3) },
+	{ "romfs:music/Bit Shift (Loop).opus",             DECIBELS(-3) },
 	{ "romfs:music/Itty Bitty 8 Bit (Beginning).opus", DECIBELS(0)  },
 	{ "romfs:music/Deliberate Thought.opus",           DECIBELS(5)  }
 };
