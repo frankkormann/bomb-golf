@@ -23,6 +23,7 @@
 
 // Make sure Popup_IsOpen returns false without intialization
 static bool isOpen = false;
+static bool justOpened = false;
 
 static Popup_Format format;
 static Text messageText;
@@ -105,6 +106,7 @@ bool Popup_Init(char *message, Popup_Format argFormat, Popup_Button argButtons[]
 	}
 
 	isOpen = true;
+	justOpened = true;
 
 	return true;
 
@@ -143,7 +145,12 @@ bool Popup_IsOpen() {
 
 void Popup_Update() {
 	Dispatcher_DispatchEvent(touchDispatcher);
-	Dispatcher_DispatchEvent(keyDispatcher);
+	// Can't check keys on the first frame in case the key that opened
+	// the popup is also registered to a button
+	if (!justOpened) {
+		Dispatcher_DispatchEvent(keyDispatcher);
+	}
+	justOpened = false;
 }
 
 void Popup_Draw() {
