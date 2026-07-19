@@ -96,6 +96,8 @@ typedef enum {
 typedef enum {
 	SPRITE_OBST_BIRD1,
 	SPRITE_OBST_BIRD2,
+	SPRITE_OBST_EAGLE1,
+	SPRITE_OBST_EAGLE2,
 
 	NUM_OBSTS
 } SpriteSheet_ObstSprite;
