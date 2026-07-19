@@ -94,8 +94,10 @@ typedef enum {
 // These values are written directly into level files, so be careful when
 // reassigning or removing them
 typedef enum {
-	SPRITE_OBST_TEST1,
-	SPRITE_OBST_TEST2
+	SPRITE_OBST_BIRD1,
+	SPRITE_OBST_BIRD2,
+
+	NUM_OBSTS
 } SpriteSheet_ObstSprite;
 
 /*

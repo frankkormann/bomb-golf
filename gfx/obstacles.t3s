@@ -1,3 +1,3 @@
 --atlas -f rgba8888 -z auto
-obstacles/test1.png
-obstacles/test2.png
+obstacles/bird1.png
+obstacles/bird2.png
