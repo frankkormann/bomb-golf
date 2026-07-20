@@ -12,10 +12,12 @@ typedef union animation_params Animation_Params;
 
 #include "animations/explosion.h"
 #include "animations/firework.h"
+#include "animations/smoke.h"
 
 union animation_params {
 	Explosion_Params explosion;
 	Firework_Params firework;
+	Smoke_Params smoke;
 };
 
 /*

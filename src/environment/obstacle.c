@@ -4,6 +4,8 @@
 #include <citro2d.h>
 #include "obstacle.h"
 #include "../rendering/spritesheet.h"
+#include "../rendering/animation.h"
+#include "../rendering/animations/smoke.h"
 #include "../util/list.h"
 #include "../util/macros.h"
 
@@ -111,6 +113,16 @@ static bool obstacleIntersects(Obstacle *obst, int x, int y) {
 			&& y <= oy + obst->height/2;
 }
 
+// Frees an obstacle and plays smoke animation
+// Signature designed for List operations
+static void destroyObstacle(void *elem) {
+	Obstacle *obst = (Obstacle*)elem;
+	float x, y;
+	getObstaclePos(obst, &x, &y);
+	Animation_Start(animationSmoke, Smoke_MakeParams(x, y), NULL);
+	freeObstacle(obst);
+}
+
 void Obstacle_Destroy(int argX, int argY) {
 	// Need these to be static so 3ds doesn't crash when they're used in
 	// intersects
@@ -119,7 +131,7 @@ void Obstacle_Destroy(int argX, int argY) {
 	bool intersects(void *elem) {
 		return obstacleIntersects((Obstacle*)elem, x, y);
 	}
-	List_Filter(obstacleList, intersects, freeObstacle);
+	List_Filter(obstacleList, intersects, destroyObstacle);
 }
 
 void Obstacle_DestroyCircle(int argX, int argY, int argRadius) {
@@ -140,7 +152,7 @@ void Obstacle_DestroyCircle(int argX, int argY, int argRadius) {
 
 		return distX*distX + distY*distY <= radius*radius;
 	}
-	List_Filter(obstacleList, intersects, freeObstacle);
+	List_Filter(obstacleList, intersects, destroyObstacle);
 }
 
 void Obstacle_Clear() {
