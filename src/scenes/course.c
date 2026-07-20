@@ -15,6 +15,7 @@
 #include "components/border.h"
 #include "../projectile.h"
 #include "../projectiles/bomb.h"
+#include "../environment/obstacle.h"
 #include "../environment/terrain.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
@@ -100,9 +101,12 @@ static bool sceneInit(Scene_Params params) {
 	Tile (*tiles)[LEVEL_HEIGHT_TILES];
 	Tile_WithPos *overlayTiles;
 	size_t numOverlayTiles;
+	LevelIO_Obst *obstacles;
+	size_t numObsts;
 	char *name;
 	if (!LevelIO_Read(path, &hole, &proj, &tiles, &overlayTiles,
-			&numOverlayTiles, &fieldWidth, &par, &name)) {
+			&numOverlayTiles, &obstacles, &numObsts, &fieldWidth,
+			&par, &name)) {
 		errMsg = "Level file is malformed or doesn't exist";
 		goto f_LevelIORead;
 	}
@@ -135,6 +139,15 @@ static bool sceneInit(Scene_Params params) {
 		Tile_GetPos(overlayTiles[i], &x, &y);
 		Terrain_FillTile(x, y, overlayTiles[i], false);
 	}
+
+	for (size_t i = 0; i < numObsts; i++) {
+		Obstacle_Add(obstacles[i].sprite1, obstacles[i].sprite2,
+				obstacles[i].xs, obstacles[i].ys,
+				obstacles[i].numPoints, obstacles[i].speed);
+		free(obstacles[i].xs);
+		free(obstacles[i].ys);
+	}
+	free(obstacles);
 
 	holeX = hole.x;
 	holeY = hole.y;
@@ -177,6 +190,7 @@ static void sceneExit() {
 	Text_Free(parText);
 	Text_Free(nameText);
 	Music_Stop();
+	Obstacle_Clear();
 }
 
 static void calculateLaunchVelocity(float *velX, float *velY) {
@@ -246,6 +260,7 @@ static void sceneUpdate() {
 	Tracer_AddPoint(projPath, x, y);
 
 	Terrain_Update();
+	Obstacle_Update();
 	Projectile_Update();
 
 	Text_SetContent(strokesText, "Strokes %i", strokes );
@@ -311,6 +326,7 @@ static void sceneDraw() {
 	}
 
 	Terrain_Draw(0, 0, 0, fieldWidth, LEVEL_HEIGHT, NULL, NULL, NULL, NULL);
+	Obstacle_Draw(1);
 	Projectile_Draw(1);
 
 	C2D_ViewReset();

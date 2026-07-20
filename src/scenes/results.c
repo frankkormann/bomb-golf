@@ -150,7 +150,8 @@ static void quit() {
 static bool sceneInit(Scene_Params params) {
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.results.level, params.results.levelInRomfs, path);
-	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, &par, NULL)) {
+	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &par,
+			NULL)) {
 		goto f_LevelIO_Read;
 	}
 

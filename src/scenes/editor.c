@@ -85,7 +85,7 @@ static bool sceneInit(Scene_Params params) {
 	Tile_WithPos *denseOverlayTiles;
 	size_t numOverlayTiles;
 	if (LevelIO_Read(path, &hole, &proj, &tiles, &denseOverlayTiles,
-			&numOverlayTiles, &width, &par, &name)) {
+			&numOverlayTiles, NULL, NULL, &width, &par, &name)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!newTiles) goto f_newTiles;
@@ -225,8 +225,24 @@ static bool exportLevel() {
 		}
 	}
 
-	return LevelIO_Write(path, hole, proj, tiles, denseOverlayTiles,
-			numOverlayTiles, (tilesMaxX + 1) * TILE_SIZE, par, name);
+	//FIXME
+	LevelIO_Obst obstacles[] = {
+		{ SPRITE_OBST_BIRD1, SPRITE_OBST_BIRD2,
+			(int[]) { 50, 100, 60 },
+			(int[]) { 20, 30,  40 },
+			3, 0.5
+		},
+		{ SPRITE_OBST_EAGLE1, SPRITE_OBST_EAGLE2,
+			(int[]) { 200, 250, 300, 200 },
+			(int[]) { 100, 100, 50,  50  },
+			4, 1
+		}
+	};
+
+	return LevelIO_Write(path, hole, proj, tiles,
+			denseOverlayTiles, numOverlayTiles,
+			obstacles, 2,
+			(tilesMaxX + 1) * TILE_SIZE, par, name);
 }
 
 static void changeTile(int tileX, int tileY, Tile newTile) {
