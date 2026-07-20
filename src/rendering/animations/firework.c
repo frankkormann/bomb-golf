@@ -107,8 +107,8 @@ static void draw(AnimationI_AnimObj *obj) {
 	if (data->exploding) {
 		SpriteSheet_Sprite spr;
 		if (getSpriteForFrame(&spr, data)) {
-			SpriteSheet_DrawCentered(spr, data->loc.x, data->loc.y, 0.5,
-					0, false, false);
+			SpriteSheet_DrawCentered(spr, (int)data->loc.x,
+					(int)data->loc.y, 0.5, 0, false, false);
 		}
 	} else {
 		C2D_DrawRectSolid(data->loc.x, data->loc.y, 0.5, TRAIL_PARTICLE_SIZE,
