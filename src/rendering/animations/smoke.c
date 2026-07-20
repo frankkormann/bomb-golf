@@ -6,9 +6,9 @@
 #include "../rendertarget.h"
 #include "../../scenes/course.h"
 
-#define ANIMATION_FRAME_LENGTH 20
+#define ANIMATION_FRAME_LENGTH 15
 #define ANIMATION_LENGTH \
-	((SPRITE_SMOKE3 - SPRITE_SMOKE1) * ANIMATION_FRAME_LENGTH)
+	((SPRITE_SMOKE3 - SPRITE_SMOKE1 + 1) * ANIMATION_FRAME_LENGTH)
 
 typedef struct {
 	float x;
@@ -51,7 +51,7 @@ static void draw(AnimationI_AnimObj *obj) {
 }
 
 static bool isFinished(AnimationI_AnimObj *obj) {
-	return ((SmokeData*)obj->data)->frame > ANIMATION_LENGTH;
+	return ((SmokeData*)obj->data)->frame >= ANIMATION_LENGTH;
 }
 
 static void _free(AnimationI_AnimObj *obj) {

@@ -125,7 +125,7 @@ static void draw(AnimationI_AnimObj *obj) {
 }
 
 static bool isFinished(AnimationI_AnimObj *obj) {
-	return ((FireworkData*)obj->data)->explosionFrame > ANIMATION_LENGTH;
+	return ((FireworkData*)obj->data)->explosionFrame >= ANIMATION_LENGTH;
 }
 
 static void _free(AnimationI_AnimObj *obj) {
