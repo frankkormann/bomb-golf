@@ -84,11 +84,11 @@ static bool readObstacles(LevelIO_Obst **obsts, size_t *argNumObsts, FILE *file)
 		}
 
 		for (int j = 0; j < curObst.numPoints; j++) {
-			if (!maybeRead(&curObst.xs[j], sizeof(curObst.xs[j]),
-					file))
+			if (!maybeRead(curObst.xs ? &curObst.xs[j] : NULL,
+					sizeof(curObst.xs[j]), file))
 				goto f_curObst;
-			if (!maybeRead(&curObst.ys[j], sizeof(curObst.ys[j]),
-					file))
+			if (!maybeRead(curObst.ys ? &curObst.ys[j] : NULL,
+					sizeof(curObst.ys[j]), file))
 				goto f_curObst;
 		}
 		if (obsts) (*obsts)[i] = curObst;
