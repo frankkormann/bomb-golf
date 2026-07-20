@@ -30,6 +30,15 @@ typedef struct {
 	Projectile type;
 } LevelIO_Proj;
 
+typedef struct {
+	SpriteSheet_ObstSprite sprite1;
+	SpriteSheet_ObstSprite sprite2;
+	int *xs;
+	int *ys;
+	int numPoints;
+	float speed;
+} LevelIO_Obst;
+
 /*
  * Makes a level path suitable for passing to LevelIO_Read or LevelIO_Write and
  * stores it in path. There must be room for at least LEVEL_PATH_MAX characters.
@@ -42,23 +51,44 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path);
  *
  * **tiles is allocated with length *width / TILE_SIZE.
  * **name is allocated with a null terminator.
+ * **overlayTiles is allocated with length *numOverlayTiles.
+ * **obstacles is allocated with length *numObsts.
+ * Each LevelIO_Obst.xs and LevelIO_Obst.ys will also be allocated.
  *
- * Returns false if an error occurred. **tiles will not be allocated if false
- * is returned.
+ * Returns false if an error occurred. Nothing will be allocated if false is
+ * returned.
  */
-bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
+bool LevelIO_Read(
+		const char *path,
+		LevelIO_Hole *hole,
+		LevelIO_Proj *proj,
 		Tile (**tiles)[LEVEL_HEIGHT_TILES],
-		Tile_WithPos **overlayTiles, size_t *numOverlayTiles,
-		int *width, int *par, char **name);
+		Tile_WithPos **overlayTiles,
+		size_t *numOverlayTiles,
+		LevelIO_Obst **obstacles,
+		size_t *numObsts,
+		int *width,
+		int *par,
+		char **name
+	);
 
 /*
  * Writes a level to the file at path, overwriting it if it already exists.
- * name should be null-terminated.
+ * *name should be null-terminated.
  *
  * Returns false if an error occurred.
  */
-bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
+bool LevelIO_Write(
+		const char *path,
+		LevelIO_Hole hole,
+		LevelIO_Proj proj,
 		const Tile (*tiles)[LEVEL_HEIGHT_TILES],
-		const Tile_WithPos *overlayTiles, size_t numOverlayTiles,
-		int width, int par, const char *name);
+		const Tile_WithPos *overlayTiles,
+		size_t numOverlayTiles,
+		LevelIO_Obst *obstacles,
+		size_t numObsts,
+		int width,
+		int par,
+		const char *name
+	);
 #endif

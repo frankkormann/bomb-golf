@@ -46,10 +46,84 @@ bool maybeRead(void *buf, size_t size, FILE *file) {
 	}
 }
 
-bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
+static bool readObstacles(LevelIO_Obst **obsts, size_t *argNumObsts, FILE *file) {
+	// Make sure we have space to read this
+	size_t numObsts;
+	if (!maybeRead(&numObsts, sizeof(numObsts), file)) goto f_numObsts;
+
+	if (obsts) {
+		*obsts = malloc(sizeof(**obsts) * numObsts);
+		if (!(*obsts)) goto f_obsts;
+		for (size_t i = 0; i < numObsts; i++) {
+			(*obsts)[i].xs = NULL;
+			(*obsts)[i].ys = NULL;
+		}
+	}
+
+	LevelIO_Obst curObst;
+	for (size_t i = 0; i < numObsts; i++) {
+		if (!maybeRead(&curObst.sprite1,   sizeof(curObst.sprite1),   file))
+			goto f_curObst;
+		if (!maybeRead(&curObst.sprite2,   sizeof(curObst.sprite2),   file))
+			goto f_curObst;
+		if (!maybeRead(&curObst.speed,     sizeof(curObst.speed),     file))
+			goto f_curObst;
+		if (!maybeRead(&curObst.numPoints, sizeof(curObst.numPoints), file))
+			goto f_curObst;
+
+		// If we need the points, then allocate them; otherwise set to
+		// NULL so maybeRead skips in file
+		if (obsts) {
+			curObst.xs = malloc(sizeof(*curObst.xs) * curObst.numPoints);
+			if (!curObst.xs) goto f_curObst;
+			curObst.ys = malloc(sizeof(*curObst.ys) * curObst.numPoints);
+			if (!curObst.ys) goto f_curObst;
+		} else {
+			curObst.xs = NULL;
+			curObst.ys = NULL;
+		}
+
+		for (int j = 0; j < curObst.numPoints; j++) {
+			if (!maybeRead(&curObst.xs[j], sizeof(curObst.xs[j]),
+					file))
+				goto f_curObst;
+			if (!maybeRead(&curObst.ys[j], sizeof(curObst.ys[j]),
+					file))
+				goto f_curObst;
+		}
+		if (obsts) (*obsts)[i] = curObst;
+	}
+
+	if (argNumObsts) *argNumObsts = numObsts;
+
+	return true;
+
+f_curObst:
+	if (obsts) {
+		for (size_t i = 0; i < numObsts; i++) {
+			if ((*obsts)[i].xs) free((*obsts)[i].xs);
+			if ((*obsts)[i].ys) free((*obsts)[i].ys);
+		}
+		free(*obsts);
+	}
+f_obsts:
+f_numObsts:
+	return false;
+}
+
+bool LevelIO_Read(
+		const char *path,
+		LevelIO_Hole *hole,
+		LevelIO_Proj *proj,
 		Tile (**tiles)[LEVEL_HEIGHT_TILES],
-		Tile_WithPos **overlayTiles, size_t *numOverlayTiles,
-		int *width, int *par, char **name) {
+		Tile_WithPos **overlayTiles,
+		size_t *numOverlayTiles,
+		LevelIO_Obst **obstacles,
+		size_t *numObsts,
+		int *width,
+		int *par,
+		char **name
+	) {
 	FILE *data = fopen(path, "rb");
 	if (!data) goto f_data;
 
@@ -90,9 +164,8 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 		if (!(*name)) goto f_name;
 	}
 
-	if (!maybeRead(name ? *name : NULL, nameSize,                 data))
-		goto f_maybeRead3;
-	if (!maybeRead(&overlayTilesSize,   sizeof(overlayTilesSize), data))
+	if (!maybeRead(name ? *name : NULL, nameSize, data)) goto f_maybeRead3;
+	if (!maybeRead(&overlayTilesSize, sizeof(overlayTilesSize), data))
 		goto f_maybeRead3;
 
 	if (overlayTiles) {
@@ -102,6 +175,7 @@ bool LevelIO_Read(const char *path, LevelIO_Hole *hole, LevelIO_Proj *proj,
 
 	if (!maybeRead(overlayTiles ? *overlayTiles : NULL, overlayTilesSize, data))
 		goto f_maybeRead4;
+	if (!readObstacles(obstacles, numObsts, data)) goto f_maybeRead4;
 
 	if (proj) {
 		proj->type = numToProj(projNum);
@@ -131,10 +205,41 @@ f_data:
 	return false;
 }
 
-bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
+static bool writeObstacles(LevelIO_Obst *obsts, size_t numObsts, FILE *file) {
+	if (!fwrite(&numObsts, sizeof(numObsts), 1, file)) return false;
+	for (size_t i = 0; i < numObsts; i++) {
+		if (!fwrite(&obsts[i].sprite1,   sizeof(obsts[i].sprite1),  1, file))
+			return false;
+		if (!fwrite(&obsts[i].sprite2,   sizeof(obsts[i].sprite2),  1, file))
+			return false;
+		if (!fwrite(&obsts[i].speed,     sizeof(obsts[i].speed),    1, file))
+			return false;
+		if (!fwrite(&obsts[i].numPoints, sizeof(obsts[i].numPoints), 1,file))
+			return false;
+
+		for (int j = 0; j < obsts[i].numPoints; j++) {
+			if (!fwrite(&obsts[i].xs[j], sizeof(obsts[i].xs[j]), 1,file))
+				return false;
+			if (!fwrite(&obsts[i].ys[j], sizeof(obsts[i].ys[j]), 1,file))
+				return false;
+		}
+	}
+	return true;
+}
+
+bool LevelIO_Write(
+		const char *path,
+		LevelIO_Hole hole,
+		LevelIO_Proj proj,
 		const Tile (*tiles)[LEVEL_HEIGHT_TILES],
-		const Tile_WithPos *overlayTiles, size_t numOverlayTiles,
-		int width, int par, const char *name) {
+		const Tile_WithPos *overlayTiles,
+		size_t numOverlayTiles,
+		LevelIO_Obst *obstacles,
+		size_t numObsts,
+		int width,
+		int par,
+		const char *name
+	) {
 	FILE *data = fopen(path, "wb");
 	if (!data) goto f_data;
 
@@ -144,21 +249,22 @@ bool LevelIO_Write(const char *path, LevelIO_Hole hole, LevelIO_Proj proj,
 	size_t nameSize = (strlen(name) + 1) * sizeof(char);
 	size_t overlayTilesSize = numOverlayTiles * sizeof(*overlayTiles);
 
-	if (!fwrite(&width, sizeof(width), 1, data)) goto f_fwrite;
-	if (!fwrite(&par, sizeof(par), 1, data)) goto f_fwrite;
-	if (!fwrite(&hole.x, sizeof(hole.x), 1, data)) goto f_fwrite;
-	if (!fwrite(&hole.y, sizeof(hole.y), 1, data)) goto f_fwrite;
-	if (!fwrite(&hole.width, sizeof(hole.width), 1, data)) goto f_fwrite;
-	if (!fwrite(&hole.height, sizeof(hole.height), 1, data)) goto f_fwrite;
-	if (!fwrite(&proj.startX, sizeof(proj.startX), 1, data)) goto f_fwrite;
-	if (!fwrite(&proj.startY, sizeof(proj.startY), 1, data)) goto f_fwrite;
-	if (!fwrite(&projNum, sizeof(projNum), 1, data)) goto f_fwrite;
-	if (!fwrite(tiles, tilesSize, 1, data)) goto f_fwrite;
-	if (!fwrite(&nameSize, sizeof(nameSize), 1, data)) goto f_fwrite;
-	if (!fwrite(name, nameSize, 1, data)) goto f_fwrite;
+	if (!fwrite(&width,            sizeof(width),       1, data)) goto f_fwrite;
+	if (!fwrite(&par,              sizeof(par),         1, data)) goto f_fwrite;
+	if (!fwrite(&hole.x,           sizeof(hole.x),      1, data)) goto f_fwrite;
+	if (!fwrite(&hole.y,           sizeof(hole.y),      1, data)) goto f_fwrite;
+	if (!fwrite(&hole.width,       sizeof(hole.width),  1, data)) goto f_fwrite;
+	if (!fwrite(&hole.height,      sizeof(hole.height), 1, data)) goto f_fwrite;
+	if (!fwrite(&proj.startX,      sizeof(proj.startX), 1, data)) goto f_fwrite;
+	if (!fwrite(&proj.startY,      sizeof(proj.startY), 1, data)) goto f_fwrite;
+	if (!fwrite(&projNum,          sizeof(projNum),     1, data)) goto f_fwrite;
+	if (!fwrite(tiles,             tilesSize,           1, data)) goto f_fwrite;
+	if (!fwrite(&nameSize,         sizeof(nameSize),    1, data)) goto f_fwrite;
+	if (!fwrite(name,              nameSize,            1, data)) goto f_fwrite;
 	if (!fwrite(&overlayTilesSize, sizeof(overlayTilesSize), 1, data))
 		goto f_fwrite;
-	if (!fwrite(overlayTiles, overlayTilesSize, 1, data)) goto f_fwrite;
+	if (!fwrite(overlayTiles,      overlayTilesSize,    1, data)) goto f_fwrite;
+	if (!writeObstacles(obstacles, numObsts,               data)) goto f_fwrite;
 
 	fclose(data);
 	return true;
