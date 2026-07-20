@@ -39,8 +39,8 @@ typedef struct {
 	int oldestTrailParticle;
 } FireworkData;
 
-Animation_Params Firework_MakeParams(float x, float y, bool isUnderPar) {
-	return (Animation_Params) { .firework = { x, y, isUnderPar } };
+Animation_Params Firework_MakeParams(float startX, float startY, bool isUnderPar) {
+	return (Animation_Params) { .firework = { startX, startY, isUnderPar } };
 }
 
 static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
