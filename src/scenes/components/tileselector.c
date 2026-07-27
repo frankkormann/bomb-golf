@@ -60,18 +60,18 @@ static void setHotbarTile(Tile tile, int index) {
 
 bool TileSelector_Init(Tile defaultTile) {
 	hotbarBg = BG_Create(HOTBAR_WIDTH, TILE_SIZE, COLOR_BLUE);
-	if (!hotbarBg) goto fail_hotbarBg;
+	if (!hotbarBg) goto f_hotbarBg;
 
 	popupBg = BG_Create(POPUP_WIDTH, POPUP_HEIGHT, COLOR_BLUE);
-	if (!popupBg) goto fail_popupBg;
+	if (!popupBg) goto f_popupBg;
 
 	buttonExpand = Button_Create(HOTBAR_X + HOTBAR_WIDTH + 5, HOTBAR_Y,
 			SPRITE_BUTTON_DOWN, -1, NULL, handleExpand);
-	if (!buttonExpand) goto fail_buttonExpand;
+	if (!buttonExpand) goto f_buttonExpand;
 
 	buttonShrink = Button_Create(HOTBAR_X + HOTBAR_WIDTH + 23, HOTBAR_Y,
 			SPRITE_BUTTON_UP, -1, NULL, handleShrink);
-	if (!buttonShrink) goto fail_buttonShrink;
+	if (!buttonShrink) goto f_buttonShrink;
 
 	mode = HOTBAR;
 
@@ -105,13 +105,13 @@ bool TileSelector_Init(Tile defaultTile) {
 
 	return true;
 
-fail_buttonShrink:
+f_buttonShrink:
 	Button_Free(buttonExpand);
-fail_buttonExpand:
+f_buttonExpand:
 	BG_Free(popupBg);
-fail_popupBg:
+f_popupBg:
 	BG_Free(hotbarBg);
-fail_hotbarBg:
+f_hotbarBg:
 	return false;
 }
 
