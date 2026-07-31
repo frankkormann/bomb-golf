@@ -35,7 +35,7 @@
 
 static Button exitButton, speedUpButton, speedDownButton, spriteUpButton,
 		spriteDownButton, pathButton;
-static Text exitText, upText, downText, pathText, speedText;
+static Text exitText, upText, downText, leftText, rightText, pathText, speedText;
 
 static bool isShowing;
 static Obstacle_Data *obst;
@@ -114,6 +114,14 @@ bool ObstacleEditor_Init() {
 	if (!downText) goto f_downText;
 	Text_SetContent(downText, "-");
 
+	leftText = Text_Create(2);
+	if (!leftText) goto f_leftText;
+	Text_SetContent(leftText, "<");
+
+	rightText = Text_Create(2);
+	if (!rightText) goto f_rightText;
+	Text_SetContent(rightText, ">");
+
 	pathText = Text_Create(10);
 	if (!pathText) goto f_pathText;
 	Text_SetContent(pathText, "Edit Path");
@@ -128,6 +136,10 @@ bool ObstacleEditor_Init() {
 f_speedText:
 	Text_Free(speedText);
 f_pathText:
+	Text_Free(rightText);
+f_rightText:
+	Text_Free(leftText);
+f_leftText:
 	Text_Free(downText);
 f_downText:
 	Text_Free(upText);
@@ -159,6 +171,8 @@ void ObstacleEditor_Exit() {
 	Text_Free(pathText);
 	Text_Free(downText);
 	Text_Free(upText);
+	Text_Free(leftText);
+	Text_Free(rightText);
 	Text_Free(exitText);
 	Text_Free(speedText);
 }
@@ -240,9 +254,9 @@ void ObstacleEditor_Draw(float depth) {
 			TEXT_CENTERED);
 	Text_Draw(exitText, EXIT_X + 10, EXIT_Y + 5, depth, COLOR_LGRAY, 1,
 			TEXT_LEFT);
-	Text_Draw(upText, SPRITE_RIGHT_X + 7, SPRITE_RIGHT_Y + 5, depth,
+	Text_Draw(rightText, SPRITE_RIGHT_X + 7, SPRITE_RIGHT_Y + 5, depth,
 			COLOR_LGRAY, 1, TEXT_LEFT);
-	Text_Draw(downText, SPRITE_LEFT_X + 7, SPRITE_LEFT_Y + 5, depth,
+	Text_Draw(leftText, SPRITE_LEFT_X + 7, SPRITE_LEFT_Y + 5, depth,
 			COLOR_LGRAY, 1, TEXT_LEFT);
 	Text_Draw(upText, SPEED_UP_X + 7, SPEED_UP_Y + 5, depth, COLOR_LGRAY,
 			1, TEXT_LEFT);
