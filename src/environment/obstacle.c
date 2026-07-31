@@ -45,32 +45,32 @@ void Obstacle_Exit() {
 	List_Free(obstacleList);
 }
 
-bool Obstacle_Add(SpriteSheet_ObstSprite sprite1, SpriteSheet_ObstSprite sprite2,
-		int xs[], int ys[], int numPoints, float speed) {
+bool Obstacle_Add(Obstacle_Data data) {
 	Obstacle *obst = malloc(sizeof(*obst));
 	if (!obst) goto f_obst;
 
-	obst->xs = malloc(sizeof(*obst->xs) * numPoints);
+	obst->xs = malloc(sizeof(*obst->xs) * data.numPoints);
 	if (!obst->xs) goto f_xs;
 
-	obst->ys = malloc(sizeof(*obst->ys) * numPoints);
+	obst->ys = malloc(sizeof(*obst->ys) * data.numPoints);
 	if (!obst->ys) goto f_ys;
 
-	C2D_Image sprImg = SpriteSheet_GetObstacleImage(sprite1);
+	C2D_Image sprImg = SpriteSheet_GetObstacleImage(data.sprite1);
 	obst->width = sprImg.subtex->width;
 	obst->height = sprImg.subtex->height;
 
-	obst->spr1 = sprite1;
-	obst->spr2 = sprite2;
-	obst->flipHoriz = numPoints > 1 && xs[0] > xs[1];
-	obst->flipVert = numPoints > 1 && xs[0] == xs[1] && ys[0] > ys[1];
-	for (int i = 0; i < numPoints; i++) {
-		obst->xs[i] = xs[i];
-		obst->ys[i] = ys[i];
+	obst->spr1 = data.sprite1;
+	obst->spr2 = data.sprite2;
+	obst->flipHoriz = data.numPoints > 1 && data.xs[0] > data.xs[1];
+	obst->flipVert = data.numPoints > 1 && data.xs[0] == data.xs[1]
+			&& data.ys[0] > data.ys[1];
+	for (int i = 0; i < data.numPoints; i++) {
+		obst->xs[i] = data.xs[i];
+		obst->ys[i] = data.ys[i];
 	}
-	obst->numPoints = numPoints;
+	obst->numPoints = data.numPoints;
 	obst->curPoint = 0;
-	obst->speed = speed;
+	obst->speed = data.speed;
 	obst->pathCounter = 0;
 	obst->animCounter = 0;  //TODO Consider randomizing this
 
@@ -79,9 +79,9 @@ bool Obstacle_Add(SpriteSheet_ObstSprite sprite1, SpriteSheet_ObstSprite sprite2
 	return true;
 
 f_List_Push:
-	free(ys);
+	free(obst->ys);
 f_ys:
-	free(xs);
+	free(obst->xs);
 f_xs:
 	free(obst);
 f_obst:
@@ -209,7 +209,7 @@ void Obstacle_Draw(float argDepth) {
 		float x, y;
 		getObstaclePos(obst, &x, &y);
 		SpriteSheet_DrawObstacle(
-				obst->animCounter/30 % 2 == 0
+				(obst->animCounter / 30) % 2 == 0
 					? obst->spr1 : obst->spr2,
 				x, y, depth,
 				0, obst->flipHoriz, obst->flipVert

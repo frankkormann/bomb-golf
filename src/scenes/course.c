@@ -141,9 +141,11 @@ static bool sceneInit(Scene_Params params) {
 	}
 
 	for (size_t i = 0; i < numObsts; i++) {
-		Obstacle_Add(obstacles[i].sprite1, obstacles[i].sprite2,
+		Obstacle_Add((Obstacle_Data) {
+				obstacles[i].sprite1, obstacles[i].sprite2,
 				obstacles[i].xs, obstacles[i].ys,
-				obstacles[i].numPoints, obstacles[i].speed);
+				obstacles[i].numPoints, obstacles[i].speed
+			} );
 		free(obstacles[i].xs);
 		free(obstacles[i].ys);
 	}

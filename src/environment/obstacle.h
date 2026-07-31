@@ -9,6 +9,26 @@
 #include <stdbool.h>
 #include "../rendering/spritesheet.h"
 
+typedef struct {
+	/*
+	 * Cycles through these two sprites while moving. Both sprites should
+	 * be of the same size.
+	 */
+	SpriteSheet_ObstSprite sprite1;
+	SpriteSheet_ObstSprite sprite2;
+	/*
+	 * Path defined by pairs from xs and ys, both of length numPoints; when
+	 * the last point is reached, cycles back to the first.
+	 */
+	int *xs;
+	int *ys;
+	int numPoints;
+	/*
+	 * In pixels/frame.
+	 */
+	float speed;
+} Obstacle_Data;
+
 /*
  * Call this before anything else.
  */
@@ -17,20 +37,9 @@ bool Obstacle_Init();
 void Obstacle_Exit();
 
 /*
- * Creates an obstacle and adds it to the environment. The obstacle will cycle
- * through sprite1 and sprite2 when moving.
- *
- * sprite1 and sprite2 should have the same width and height.
- *
- * The path is defined by pairs from xs and ys starting with (xs[0], ys[0]);
- * each array should be of length numPoints. When
- * (xs[numPoints-1], ys[numPoints-1]) is reached, the path is automatically
- * connected path back to the start.
- *
- * The obstacle will move at speed pixels/frame.
+ * Creates an obstacle and adds it to the environment.
  */
-bool Obstacle_Add(SpriteSheet_ObstSprite sprite1, SpriteSheet_ObstSprite sprite2,
-		int xs[], int ys[], int numPoints, float speed);
+bool Obstacle_Add(Obstacle_Data data);
 
 /*
  * Removes any obstacles which overlap (x, y).
