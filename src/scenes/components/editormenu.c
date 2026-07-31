@@ -153,19 +153,20 @@ static bool handleBackgroundTouch() {
 }
 
 bool EditorMenu_RegisterForTouchEvents(Dispatcher touchDispatcher, int priority) {
-	if(!Button_RegisterForTouchEvents(showButton, touchDispatcher, priority))
+	if (!Button_RegisterForTouchEvents(showButton, touchDispatcher, priority))
 		goto f_showButton;
-	if(!Button_RegisterForTouchEvents(hideButton, touchDispatcher, priority))
+	if (!Button_RegisterForTouchEvents(hideButton, touchDispatcher, priority))
 		goto f_hideButton;
-	if(!Button_RegisterForTouchEvents(editNameButton, touchDispatcher, priority))
+	if (!Button_RegisterForTouchEvents(editNameButton, touchDispatcher,
+			priority))
 		goto f_editNameButton;
-	if(!Button_RegisterForTouchEvents(exitButton, touchDispatcher, priority))
+	if (!Button_RegisterForTouchEvents(exitButton, touchDispatcher, priority))
 		goto f_exitButton;
-	if(!Button_RegisterForTouchEvents(parUpButton, touchDispatcher, priority))
+	if (!Button_RegisterForTouchEvents(parUpButton, touchDispatcher, priority))
 		goto f_parUpButton;
-	if(!Button_RegisterForTouchEvents(parDownButton, touchDispatcher, priority))
+	if (!Button_RegisterForTouchEvents(parDownButton, touchDispatcher, priority))
 		goto f_parDownButton;
-	if(!Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
+	if (!Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
 			priority, NULL, handleBackgroundTouch }))
 		goto f_handleBackgroundTouch;
 
