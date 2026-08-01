@@ -14,6 +14,7 @@ struct button {
 	void *onTouchParam;
 	void (*onTouch)(void* param);
 	bool isEnabled;
+	bool touchStartedWhileDisabled;
 };
 
 Button Button_Create(float x, float y, SpriteSheet_Sprite icon, int keybind,
@@ -28,6 +29,7 @@ Button Button_Create(float x, float y, SpriteSheet_Sprite icon, int keybind,
 	button->onTouchParam = onTouchParam;
 	button->onTouch = onTouch;
 	button->isEnabled = true;
+	button->touchStartedWhileDisabled = false;
 
 	return button;
 }
@@ -45,10 +47,14 @@ static bool touchWithinBounds(Button button, touchPosition touch) {
 }
 
 static bool handleTouch(void *buttonParam) {
-	if (!TouchInput_InProgress() && !TouchInput_JustFinished()) return false;
-
 	Button button = (Button)buttonParam;
-	if (!button->isEnabled) return false;
+
+	if (!TouchInput_InProgress() && !TouchInput_JustFinished()) {
+		button->touchStartedWhileDisabled = false;
+		return false;
+	}
+
+	if (!button->isEnabled || button->touchStartedWhileDisabled) return false;
 
 	TouchInput_Swipe touch = TouchInput_GetSwipe();
 	if (!touchWithinBounds(button, touch.start)) return false;
@@ -106,4 +112,5 @@ void Button_Disable(Button button) {
 
 void Button_Enable(Button button) {
 	button->isEnabled = true;
+	if (TouchInput_InProgress()) button->touchStartedWhileDisabled = true;
 }
