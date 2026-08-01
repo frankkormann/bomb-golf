@@ -100,8 +100,13 @@ static void getObstaclePos(Obstacle *obst, float *x, float *y) {
 	int dx = curX - nextX, dy = curY - nextY;
 	float radical = sqrt(dx*dx + dy*dy);
 
-	*x = curX - (obst->pathCounter * obst->speed * dx) / radical;
-	*y = curY - (obst->pathCounter * obst->speed * dy) / radical;
+	if (radical == 0) {
+		*x = curX;
+		*y = curY;
+	} else {
+		*x = curX - (obst->pathCounter * obst->speed * dx) / radical;
+		*y = curY - (obst->pathCounter * obst->speed * dy) / radical;
+	}
 }
 
 static bool obstacleIntersects(Obstacle *obst, int x, int y) {
