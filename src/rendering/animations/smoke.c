@@ -1,4 +1,4 @@
-#include <malloc.h>
+#include <stdlib.h>
 #include "../animation.h"
 #include "animation_internal.h"
 #include "smoke.h"
@@ -14,6 +14,8 @@ typedef struct {
 	float x;
 	float y;
 	int frame;
+	bool flipHoriz;
+	bool flipVert;
 } SmokeData;
 
 Animation_Params Smoke_MakeParams(float x, float y) {
@@ -27,6 +29,8 @@ static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
 	data->x = params.smoke.x;
 	data->y = params.smoke.y;	
 	data->frame = 0;
+	data->flipHoriz = rand() % 2 == 0;
+	data->flipVert = rand() % 2 == 0;
 
 	obj->data = data;
 
@@ -44,8 +48,8 @@ static void draw(AnimationI_AnimObj *obj) {
 	SmokeData *data = (SmokeData*)obj->data;
 	SpriteSheet_Sprite sprite = SPRITE_SMOKE1 
 			+ (data->frame / ANIMATION_FRAME_LENGTH);
-	SpriteSheet_DrawCentered(sprite, (int)data->x, (int)data->y, 0.5, 0, false,
-			false);
+	SpriteSheet_DrawCentered(sprite, (int)data->x, (int)data->y, 0.5, 0,
+			data->flipHoriz, data->flipVert);
 
 	C2D_ViewReset();
 }
