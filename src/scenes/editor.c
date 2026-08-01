@@ -330,10 +330,10 @@ static void editName() {
 }
 
 static void saveExit() {
+	Popup_Exit();
 	if (exportLevel()) {
 		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
 	} else {
-		Popup_Exit();
 		Popup_Init("Failed to save file", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "OK", -1, NULL, Popup_Exit } });
 	}
