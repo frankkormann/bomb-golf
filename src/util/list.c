@@ -42,6 +42,12 @@ bool List_Push(List list, void *elem) {
 	return true;
 }
 
+size_t List_Length(List list) {
+	size_t len = 0;
+	for (Node *n = list->head; n; n = n->next) len++;
+	return len;
+}
+
 void List_ForEach(List list, void (*func)(void *elem)) {
 	for (Node *n = list->head; n; n = n->next) {
 		func(n->val);

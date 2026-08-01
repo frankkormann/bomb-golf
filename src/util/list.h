@@ -26,6 +26,8 @@ void List_Free(List list);
  */
 bool List_Push(List list, void *elem);
 
+size_t List_Length(List list);
+
 /*
  * Applies func to every element in list, in no particular order.
  */
