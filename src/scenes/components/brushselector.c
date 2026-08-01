@@ -9,12 +9,15 @@
 #define BUTTON_START_Y 43
 #define BUTTON_X 1
 #define BUTTON_GAP 13
+#define SECTION_GAP 3
 
 static bool isOpen;
 static Button expandButton, shrinkButton;
 
 static BrushSelector_Brush brush;
-static Button pencilButton, rectangleButton, ballButton, holeButton;
+static Button pencilButton, rectangleButton, ballButton, holeButton, obstAddButton,
+		obstEditButton, obstDelButton, obstMoveButton, obstDupeButton;
+static int buttonYs[NUM_BRUSHES];
 
 static void toggleOpen() {
 	isOpen = !isOpen;
@@ -49,31 +52,84 @@ bool BrushSelector_Init(BrushSelector_Brush defaultBrush) {
 			NULL, toggleOpen);
 	if (!shrinkButton) goto f_shrinkButton;
 
-	pencilButton = Button_Create(BUTTON_X, BUTTON_START_Y,
+	int i = 0;
+	buttonYs[i] = BUTTON_START_Y;
+	pencilButton = Button_Create(BUTTON_X, buttonYs[i],
 			SPRITE_PENCIL_BUTTON, -1,
 			(void*)BRUSH_PENCIL, (void(*)(void*))setBrush);
 	if (!pencilButton) goto f_pencilButton;
 
-	rectangleButton = Button_Create(BUTTON_X, BUTTON_START_Y + BUTTON_GAP,
+	i++;
+	buttonYs[i] = buttonYs[i-1] + BUTTON_GAP;
+	rectangleButton = Button_Create(BUTTON_X, buttonYs[i],
 			SPRITE_RECTANGLE_BUTTON, -1,
 			(void*)BRUSH_RECTANGLE, (void(*)(void*))setBrush);
 	if (!rectangleButton) goto f_rectangleButton;
 
-	ballButton = Button_Create(BUTTON_X, BUTTON_START_Y + 2*BUTTON_GAP,
+	i++;
+	buttonYs[i] = buttonYs[i-1] + BUTTON_GAP + SECTION_GAP;
+	ballButton = Button_Create(BUTTON_X, buttonYs[i],
 			SPRITE_BALL_BUTTON, -1,
 			(void*)BRUSH_BALL_POS, (void(*)(void*))setBrush);
 	if (!ballButton) goto f_ballButton;
 
-	holeButton = Button_Create(BUTTON_X, BUTTON_START_Y + 3*BUTTON_GAP,
+	i++;
+	buttonYs[i] = buttonYs[i-1] + BUTTON_GAP;
+	holeButton = Button_Create(BUTTON_X, buttonYs[i],
 			SPRITE_HOLE_BUTTON, -1,
 			(void*)BRUSH_HOLE_POS, (void(*)(void*))setBrush);
 	if (!holeButton) goto f_holeButton;
+
+	i++;
+	buttonYs[i] = buttonYs[i-1] + BUTTON_GAP + SECTION_GAP;
+	obstAddButton = Button_Create(BUTTON_X, buttonYs[i],
+			SPRITE_BIRD_BUTTON, -1,
+			(void*)BRUSH_OBSTACLE_ADD, (void(*)(void*))setBrush);
+	if (!obstAddButton) goto f_obstAddButton;
+
+	i++;
+	buttonYs[i] = buttonYs[i-1] + BUTTON_GAP;
+	obstDelButton = Button_Create(BUTTON_X, buttonYs[i],
+			SPRITE_X_BUTTON, -1,
+			(void*)BRUSH_OBSTACLE_DEL, (void(*)(void*))setBrush);
+	if (!obstDelButton) goto f_obstDelButton;
+
+	i++;
+	buttonYs[i] = buttonYs[i-1] + BUTTON_GAP;
+	obstEditButton = Button_Create(BUTTON_X, buttonYs[i],
+			SPRITE_WRENCH_BUTTON, -1,
+			(void*)BRUSH_OBSTACLE_EDIT, (void(*)(void*))setBrush);
+	if (!obstEditButton) goto f_obstEditButton;
+
+	i++;
+	buttonYs[i] = buttonYs[i-1] + BUTTON_GAP;
+	obstMoveButton = Button_Create(BUTTON_X, buttonYs[i],
+			SPRITE_HAND_BUTTON, -1,
+			(void*)BRUSH_OBSTACLE_MOVE, (void(*)(void*))setBrush);
+	if (!obstMoveButton) goto f_obstMoveButton;
+
+	i++;
+	buttonYs[i] = buttonYs[i-1] + BUTTON_GAP;
+	obstDupeButton = Button_Create(BUTTON_X, buttonYs[i],
+			SPRITE_DUPE_BUTTON, -1,
+			(void*)BRUSH_OBSTACLE_DUPE, (void(*)(void*))setBrush);
+	if (!obstDupeButton) goto f_obstDupeButton;
 
 	isOpen = true;
 	brush = defaultBrush;
 
 	return true;
 
+f_obstDupeButton:
+	Button_Free(obstMoveButton);
+f_obstMoveButton:
+	Button_Free(obstDelButton);
+f_obstDelButton:
+	Button_Free(obstEditButton);
+f_obstEditButton:
+	Button_Free(obstAddButton);
+f_obstAddButton:
+	Button_Free(holeButton);
 f_holeButton:
 	Button_Free(ballButton);
 f_ballButton:
@@ -95,6 +151,11 @@ void BrushSelector_Exit() {
 	Button_Free(rectangleButton);
 	Button_Free(ballButton);
 	Button_Free(holeButton);
+	Button_Free(obstAddButton);
+	Button_Free(obstEditButton);
+	Button_Free(obstDelButton);
+	Button_Free(obstMoveButton);
+	Button_Free(obstDupeButton);
 }
 
 bool BrushSelector_RegisterForTouchEvents(Dispatcher touchDispatcher, int priority) {
@@ -111,9 +172,33 @@ bool BrushSelector_RegisterForTouchEvents(Dispatcher touchDispatcher, int priori
 		goto f_ballButton;
 	if (!Button_RegisterForTouchEvents(holeButton, touchDispatcher, priority))
 		goto f_holeButton;
+	if (!Button_RegisterForTouchEvents(obstAddButton, touchDispatcher, priority))
+		goto f_obstAddButton;
+	if (!Button_RegisterForTouchEvents(obstEditButton, touchDispatcher,
+			priority))
+		goto f_obstEditButton;
+	if (!Button_RegisterForTouchEvents(obstDelButton, touchDispatcher,
+			priority))
+		goto f_obstDelButton;
+	if (!Button_RegisterForTouchEvents(obstMoveButton, touchDispatcher,
+			priority))
+		goto f_obstMoveButton;
+	if (!Button_RegisterForTouchEvents(obstDupeButton, touchDispatcher,
+			priority))
+		goto f_obstDupeButton;
 
 	return true;
 
+f_obstDupeButton:
+	Button_RemoveFromTouchDispatcher(obstMoveButton, touchDispatcher);
+f_obstMoveButton:
+	Button_RemoveFromTouchDispatcher(obstDelButton, touchDispatcher);
+f_obstDelButton:
+	Button_RemoveFromTouchDispatcher(obstEditButton, touchDispatcher);
+f_obstEditButton:
+	Button_RemoveFromTouchDispatcher(obstAddButton, touchDispatcher);
+f_obstAddButton:
+	Button_RemoveFromTouchDispatcher(holeButton, touchDispatcher);
 f_holeButton:
 	Button_RemoveFromTouchDispatcher(ballButton, touchDispatcher);
 f_ballButton:
@@ -133,6 +218,11 @@ void BrushSelector_RemoveFromTouchDispatcher(Dispatcher touchDispatcher) {
 	Button_RemoveFromTouchDispatcher(rectangleButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(ballButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(holeButton, touchDispatcher);
+	Button_RemoveFromTouchDispatcher(obstAddButton, touchDispatcher);
+	Button_RemoveFromTouchDispatcher(obstEditButton, touchDispatcher);
+	Button_RemoveFromTouchDispatcher(obstDelButton, touchDispatcher);
+	Button_RemoveFromTouchDispatcher(obstMoveButton, touchDispatcher);
+	Button_RemoveFromTouchDispatcher(obstDupeButton, touchDispatcher);
 }
 
 BrushSelector_Brush BrushSelector_GetBrush() {
@@ -159,6 +249,10 @@ void BrushSelector_Draw(float depth) {
 	Button_Draw(rectangleButton, depth);
 	Button_Draw(ballButton, depth);
 	Button_Draw(holeButton, depth);
-	drawRectOutline(BUTTON_X, BUTTON_START_Y + (BUTTON_GAP * brush),
-			depth, 14, 14, COLOR_DRED, 1);
+	Button_Draw(obstAddButton, depth);
+	Button_Draw(obstEditButton, depth);
+	Button_Draw(obstDelButton, depth);
+	Button_Draw(obstMoveButton, depth);
+	Button_Draw(obstDupeButton, depth);
+	drawRectOutline(BUTTON_X, buttonYs[brush], depth, 14, 14, COLOR_DRED, 1);
 }

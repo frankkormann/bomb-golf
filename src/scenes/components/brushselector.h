@@ -1,5 +1,6 @@
 /*
- * Menu that allows the user to select from different brush types.
+ * Menu that allows the user to select from different brush types. A brush
+ * controls what happens the user touches a tile in the level editor.
  */
 
 #ifndef BRUSHSELECTOR_H
@@ -12,7 +13,14 @@ typedef enum {
 	BRUSH_PENCIL,
 	BRUSH_RECTANGLE,
 	BRUSH_BALL_POS,
-	BRUSH_HOLE_POS
+	BRUSH_HOLE_POS,
+	BRUSH_OBSTACLE_ADD,
+	BRUSH_OBSTACLE_DEL,
+	BRUSH_OBSTACLE_EDIT,
+	BRUSH_OBSTACLE_MOVE,
+	BRUSH_OBSTACLE_DUPE,
+
+	NUM_BRUSHES
 } BrushSelector_Brush;
 
 /*

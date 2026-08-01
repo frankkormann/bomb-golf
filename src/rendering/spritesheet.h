@@ -63,7 +63,10 @@ typedef enum {
 	SPRITE_BALL_BUTTON,
 	SPRITE_HOLE_BUTTON,
 	SPRITE_BIRD_BUTTON,
-	SPRITE_WRENCH_BUTTON
+	SPRITE_WRENCH_BUTTON,
+	SPRITE_X_BUTTON,
+	SPRITE_HAND_BUTTON,
+	SPRITE_DUPE_BUTTON
 } SpriteSheet_Sprite;
 
 // These values are written directly into level files, so be careful when
