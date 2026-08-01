@@ -215,6 +215,7 @@ static bool exportLevel() {
 
 	Tile_WithPos *denseOverlayTiles = malloc(sizeof(*denseOverlayTiles)
 	                                         * numOverlayTiles);
+	if (!denseOverlayTiles) goto f_denseOverlayTiles;
 	size_t i = 0;
 	for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
 		for (int x = 0; x < LEVEL_MAX_WIDTH_TILES; x++) {
@@ -239,10 +240,16 @@ static bool exportLevel() {
 		}
 	};
 
-	return LevelIO_Write(path, hole, proj, tiles,
+	bool success = LevelIO_Write(path, hole, proj, tiles,
 			denseOverlayTiles, numOverlayTiles,
 			obstacles, 2,
 			(tilesMaxX + 1) * TILE_SIZE, par, name);
+
+	free(denseOverlayTiles);
+	return success;
+
+f_denseOverlayTiles:
+	return false;
 }
 
 static void changeTile(int tileX, int tileY, Tile newTile) {
@@ -326,10 +333,10 @@ static void saveExit() {
 	if (exportLevel()) {
 		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
 	} else {
-		//TODO Figure out better solution than kicking user out
-		Scene_SetNext(sceneError, Error_MakeParams("Failed to save file"));
+		Popup_Exit();
+		Popup_Init("Failed to save file", POPUP_ONE_BUTTON,
+				(Popup_Button[]) { { "OK", -1, NULL, Popup_Exit } });
 	}
-	Popup_Exit();
 }
 
 static void exitNoSave() {
