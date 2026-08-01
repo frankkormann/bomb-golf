@@ -22,14 +22,25 @@ List List_Create();
 void List_Free(List list);
 
 /*
- * Adds elem to list. Returns false if elem couldn't be added.
+ * Adds elem to the front of list. Returns false if elem couldn't be added.
  */
 bool List_Push(List list, void *elem);
+
+/*
+ * Adds elem to list just after anchor. If anchor isn't in list, elem isn't
+ * added.
+ *
+ * If the elements in list aren't unique, the first instance of anchor in list
+ * is used.
+ *
+ * Returns false if elem couldn't be added for any reason.
+ */
+bool List_Insert(List list, void *anchor, void *elem);
 
 size_t List_Length(List list);
 
 /*
- * Applies func to every element in list, in no particular order.
+ * Applies func to every element in list.
  */
 void List_ForEach(List list, void (*func)(void *elem));
 

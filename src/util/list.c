@@ -42,6 +42,25 @@ bool List_Push(List list, void *elem) {
 	return true;
 }
 
+bool List_Insert(List list, void *anchor, void *elem) {
+	Node *new = malloc(sizeof(*new));
+	if (!new) return false;
+
+	new->val = elem;
+
+	for (Node *n = list->head; n; n = n->next) {
+		if (n->val == anchor) {
+			new->next = n->next;
+			n->next = new;
+			return true;
+		}
+	}
+
+	// anchor wasn't in list
+	free(new);
+	return false;
+}
+
 size_t List_Length(List list) {
 	size_t len = 0;
 	for (Node *n = list->head; n; n = n->next) len++;
