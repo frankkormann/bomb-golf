@@ -170,6 +170,7 @@ static void sceneUpdate() {
 }
 
 static void sceneDraw() {
+	//TODO Draw obstacles also
 	BG_UpdateGraphics(levelPreview);
 
 	C3D_RenderTarget *top = RenderTarget_GetTop();

@@ -278,6 +278,7 @@ static void plotTrajectoryPoint(float initX, float initY, float velX, float velY
 }
 
 static void sceneDraw() {
+	//TODO Consider drawing obstacles also
 	Terrain_UpdateGraphics();
 
 
