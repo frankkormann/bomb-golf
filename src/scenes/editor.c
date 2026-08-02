@@ -61,6 +61,9 @@ static char *name;
 static Text nameText, parText;
 static Dispatcher touchDispatcher;
 
+static Text infoText;
+static int infoTextPage;
+
 Scene_Params Editor_MakeParams(unsigned int level) {
 	return (Scene_Params) { .editor = {
 		.level = level
@@ -78,6 +81,8 @@ static void freeObstacle(void *elem);
 static bool addObstacle(LevelIO_Obst data, Obstacle_Data **newObst);
 static bool getObstacles(LevelIO_Obst **obsts, size_t *numObsts);
 
+static void pageInfoText();
+
 static bool sceneInit(Scene_Params params) {
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!bg) goto f_bg;
@@ -87,6 +92,11 @@ static bool sceneInit(Scene_Params params) {
 
 	parText = Text_Create(9);
 	if (!parText) goto f_parText;
+
+	infoText = Text_Create(128);
+	if (!infoText) goto f_infoText;
+	infoTextPage = -1;
+	pageInfoText();
 
 	overlayTiles = calloc(LEVEL_MAX_WIDTH_TILES, sizeof(*overlayTiles));
 	if (!overlayTiles) goto f_overlayTiles;
@@ -179,6 +189,7 @@ static bool sceneInit(Scene_Params params) {
 
 	Music_Start(MUSIC_EDITOR);
 
+	infoTextPage = 0;
 	scroll = 0;
 	level = params.editor.level;
 	curObst = NULL;
@@ -202,6 +213,8 @@ f_tiles:
 f_obstacleList:
 	free(overlayTiles);
 f_overlayTiles:
+	Text_Free(infoText);
+f_infoText:
 	Text_Free(parText);
 f_parText:
 	Text_Free(nameText);
@@ -221,6 +234,7 @@ static void sceneExit() {
 	free(name);
 	Text_Free(nameText);
 	Text_Free(parText);
+	Text_Free(infoText);
 	Dispatcher_Free(touchDispatcher);
 	TileSelector_Exit();
 	EditorMenu_Exit();
@@ -561,6 +575,74 @@ static bool getObstacles(LevelIO_Obst **obsts, size_t *numObsts) {
 	return true;
 }
 
+static void pageInfoText() {
+	infoTextPage = (infoTextPage + 1) % 4;
+	switch (infoTextPage) {
+		case 0:
+			Text_SetContent(infoText, "\n\n\n%c : Show button help",
+					TEXT_KEY_X);
+			break;
+		case 1:
+			Text_SetContent(infoText, "   : Place individual tiles\n"
+					"   : Fill area with tiles\n"
+					"   : Move ball starting location\n"
+					"%c : Next page", TEXT_KEY_X);
+			break;
+		case 2:
+			Text_SetContent(infoText, "   : Move hole location\n"
+					"   : Place new moving obstacle\n"
+					"   : Delete obstacle point\n"
+					"%c : Next page", TEXT_KEY_X);
+			break;
+		case 3:
+			Text_SetContent(infoText, "   : Edit obstacle properties\n"
+					"   : Move obstacle point\n"
+					"   : Duplicate obstacle point\n"
+					"%c : Next page", TEXT_KEY_X);
+			break;
+	}
+}
+
+static void drawInfoText(float x, float y, float depth) {
+	Text_Draw(infoText, x, y, 0, COLOR_DGRAY, 1, TEXT_LEFT);
+	y += 3;
+	x -= 2;
+	switch (infoTextPage) {
+		case 0:
+			break;
+		case 1:
+			SpriteSheet_Draw(SPRITE_PENCIL_BUTTON, x, y, depth, 0,
+					false, false);
+			y += TEXT_LINE_HEIGHT;
+			SpriteSheet_Draw(SPRITE_RECTANGLE_BUTTON, x, y, depth, 0,
+					false, false);
+			y += TEXT_LINE_HEIGHT;
+			SpriteSheet_Draw(SPRITE_BALL_BUTTON, x, y, depth, 0,
+					false, false);
+			break;
+		case 2:
+			SpriteSheet_Draw(SPRITE_HOLE_BUTTON, x, y, depth, 0,
+					false, false);
+			y += TEXT_LINE_HEIGHT;
+			SpriteSheet_Draw(SPRITE_BIRD_BUTTON, x, y, depth, 0,
+					false, false);
+			y += TEXT_LINE_HEIGHT;
+			SpriteSheet_Draw(SPRITE_X_BUTTON, x, y, depth, 0,
+					false, false);
+			break;
+		case 3:
+			SpriteSheet_Draw(SPRITE_WRENCH_BUTTON, x, y, depth, 0,
+					false, false);
+			y += TEXT_LINE_HEIGHT;
+			SpriteSheet_Draw(SPRITE_HAND_BUTTON, x, y, depth, 0,
+					false, false);
+			y += TEXT_LINE_HEIGHT;
+			SpriteSheet_Draw(SPRITE_DUPE_BUTTON, x, y, depth, 0,
+					false, false);
+			break;
+	}
+}
+
 static void sceneUpdate() {
 	if (BG_IsUpdating(bg)) return;
 
@@ -575,7 +657,9 @@ static void sceneUpdate() {
 		scroll += SCROLL_UNIT;
 	scroll = clamp(scroll, 0, LEVEL_MAX_WIDTH - 320);
 
-	if (!TouchInput_InProgress()) {
+	if (kDown & KEY_X) pageInfoText();
+
+	if (TouchInput_JustFinished()) {
 		curObst = NULL;
 		curObstPoint = 0;
 	}
@@ -634,6 +718,9 @@ static void sceneDraw() {
 	BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
 			LEVEL_PREVIEW_HEIGHT, &bgX, &bgY, &bgWidth, &bgHeight);
 	Border_Draw(bgX, bgY, 0, bgWidth, bgHeight);
+	drawInfoText(TEXT_MARGIN,
+			LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + TEXT_MARGIN,
+			1);
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
