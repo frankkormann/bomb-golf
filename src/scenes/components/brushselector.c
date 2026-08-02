@@ -229,6 +229,10 @@ BrushSelector_Brush BrushSelector_GetBrush() {
 	return brush;
 }
 
+void BrushSelector_SetBrush(BrushSelector_Brush argBrush) {
+	brush = argBrush;
+}
+
 static void drawRectOutline(float x, float y, float depth, float width, float height,
 		u32 color, int outlineWidth) {
 	C2D_DrawRectSolid(x, y, depth, width, outlineWidth, color);

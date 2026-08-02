@@ -52,9 +52,11 @@ bool BrushSelector_RegisterForTouchEvents(Dispatcher touchDispatcher, int priori
 void BrushSelector_RemoveFromTouchDispatcher(Dispatcher touchDispatcher);
 
 /*
- * Returns the currently selectiled brush type.
+ * Returns the currently selected brush type.
  */
 BrushSelector_Brush BrushSelector_GetBrush();
+
+void BrushSelector_SetBrush(BrushSelector_Brush brush);
 
 void BrushSelector_Draw(float depth);
 
