@@ -599,14 +599,20 @@ static void drawObstacle(void *elem) {
 	Obstacle_Data *obst = (Obstacle_Data*)elem;
 	for (int i = 0; i < obst->numPoints; i++) {
 		int nextI = (i + 1) % obst->numPoints;
-		bool flipHoriz = obst->xs[i] > obst->xs[nextI];
+
+		bool flipHoriz = obst->xs[i] > obst->xs[nextI]
+				|| (obst->xs[i] == obst->xs[nextI]
+					&& obst->ys[i] > obst->ys[nextI]);
 		bool flipVert = obst->xs[i] == obst->xs[nextI]
-			&& obst->ys[i] > obst->ys[nextI];
+				&& obst->ys[i] != obst->ys[nextI];
+		bool rotate = obst->xs[i] == obst->xs[nextI]
+				&& obst->ys[i] != obst->ys[nextI];
+
 		C2D_DrawLine(obst->xs[i], obst->ys[i], COLOR_ORANGE,
 				obst->xs[nextI], obst->ys[nextI], COLOR_ORANGE,
 				1, -1);
 		SpriteSheet_DrawObstacle(obst->sprite1, obst->xs[i], obst->ys[i],
-				-0.9, 0, flipHoriz, flipVert);
+				-0.9, rotate ? M_PI/2 : 0, flipHoriz, flipVert);
 	}
 	SpriteSheet_Draw(SPRITE_SMALL_ONE, obst->xs[0], obst->ys[0], -0.8, 0, false,
 			false);

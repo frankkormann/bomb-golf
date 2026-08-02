@@ -14,6 +14,7 @@ typedef struct {
 	SpriteSheet_ObstSprite spr2;
 	bool flipHoriz;
 	bool flipVert;
+	bool rotate;
 	int *xs;
 	int *ys;
 	int numPoints;
@@ -45,6 +46,35 @@ void Obstacle_Exit() {
 	List_Free(obstacleList);
 }
 
+static void setFlipAndRotation(Obstacle *obst) {
+	int curX = obst->xs[obst->curPoint];
+	int curY = obst->ys[obst->curPoint];
+	int nextX = obst->xs[(obst->curPoint + 1) % obst->numPoints];
+	int nextY = obst->ys[(obst->curPoint + 1) % obst->numPoints];
+
+	if (nextX > curX) {
+		obst->flipHoriz = false;
+		obst->flipVert  = false;
+		obst->rotate    = false;
+	} else if (nextX < curX) {
+		obst->flipHoriz = true;
+		obst->flipVert  = false;
+		obst->rotate    = false;
+	} else if (nextY > curY) {
+		obst->flipHoriz = false;
+		obst->flipVert  = true;
+		obst->rotate    = true;
+	} else if (nextY < curY) {
+		obst->flipHoriz = true;
+		obst->flipVert  = true;
+		obst->rotate    = true;
+	} else {
+		obst->flipHoriz = false;
+		obst->flipVert  = false;
+		obst->rotate    = false;
+	}
+}
+
 bool Obstacle_Add(Obstacle_Data data) {
 	Obstacle *obst = malloc(sizeof(*obst));
 	if (!obst) goto f_obst;
@@ -73,6 +103,8 @@ bool Obstacle_Add(Obstacle_Data data) {
 	obst->speed = data.speed;
 	obst->pathCounter = 0;
 	obst->animCounter = 0;  //TODO Consider randomizing this
+
+	setFlipAndRotation(obst);
 
 	if (!List_Push(obstacleList, obst)) goto f_List_Push;
 
@@ -109,6 +141,7 @@ static void getObstaclePos(Obstacle *obst, float *x, float *y) {
 	}
 }
 
+//FIXME Improve hitboxes
 static bool obstacleIntersects(Obstacle *obst, int x, int y) {
 	float ox, oy;
 	getObstaclePos(obst, &ox, &oy);
@@ -189,17 +222,13 @@ void Obstacle_Update() {
 		int curY = obst->ys[obst->curPoint];
 		int nextX = obst->xs[(obst->curPoint + 1) % obst->numPoints];
 		int nextY = obst->ys[(obst->curPoint + 1) % obst->numPoints];
-		int nextNextX = obst->xs[(obst->curPoint + 2) % obst->numPoints];
-		int nextNextY = obst->ys[(obst->curPoint + 2) % obst->numPoints];
 
 		if ((nextX > curX && x >= nextX) || (nextX < curX && x <= nextX)
 				|| (nextY > curY && y >= nextY)
 				|| (nextY < curY && y <= nextY)) {
 			obst->pathCounter = 0;
 			obst->curPoint = (obst->curPoint + 1) % obst->numPoints;
-
-			obst->flipHoriz = nextNextX < nextX;
-			obst->flipVert = nextNextX == nextX && nextNextY < nextY;
+			setFlipAndRotation(obst);
 		}
 	}
 	List_ForEach(obstacleList, update);
@@ -217,7 +246,8 @@ void Obstacle_Draw(float argDepth) {
 				(obst->animCounter / 30) % 2 == 0
 					? obst->spr1 : obst->spr2,
 				x, y, depth,
-				0, obst->flipHoriz, obst->flipVert
+				obst->rotate ? M_PI/2 : 0,
+				obst->flipHoriz, obst->flipVert
 			);
 	}
 	List_ForEach(obstacleList, draw);
