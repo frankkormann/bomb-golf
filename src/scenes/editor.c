@@ -608,6 +608,8 @@ static void drawObstacle(void *elem) {
 		SpriteSheet_DrawObstacle(obst->sprite1, obst->xs[i], obst->ys[i],
 				-0.9, 0, flipHoriz, flipVert);
 	}
+	SpriteSheet_Draw(SPRITE_SMALL_ONE, obst->xs[0], obst->ys[0], -0.8, 0, false,
+			false);
 }
 
 static void sceneDraw() {
