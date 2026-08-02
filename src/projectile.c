@@ -7,6 +7,7 @@
 #include "rendering/spritesheet.h"
 #include "environment/environment.h"
 #include "environment/terrain.h"
+#include "environment/obstacle.h"
 #include "util/macros.h"
 #include "levelio.h"
 
@@ -235,9 +236,9 @@ void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType) {
 
 	switch (hitType) {
 		case TERRAIN_GROUND:
+			Obstacle_DestroyCircle(data.x, data.y, proj->radius + 1);
 		case TERRAIN_EXPLOSIVE:
-		// Cover for an imprecise hit position
-		case TERRAIN_NOTHING:
+		case TERRAIN_NOTHING:  // Cover for an imprecise hit position
 			data.velX *= BOUNCE_VELOCITY_RETENTION_X;
 			data.velY *= BOUNCE_VELOCITY_RETENTION_Y;
 			break;
