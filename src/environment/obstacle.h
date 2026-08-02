@@ -12,7 +12,7 @@
 typedef struct {
 	/*
 	 * Cycles through these two sprites while moving. Both sprites should
-	 * be of the same size.
+	 * be of the same size. Hitbox is deduced from sprite1.
 	 */
 	SpriteSheet_ObstSprite sprite1;
 	SpriteSheet_ObstSprite sprite2;

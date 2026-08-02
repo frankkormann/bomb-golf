@@ -10,6 +10,13 @@
 #include "../util/macros.h"
 
 typedef struct {
+	int xOff;
+	int yOff;
+	int width;
+	int height;
+} Bounds;
+
+typedef struct {
 	SpriteSheet_ObstSprite spr1;
 	SpriteSheet_ObstSprite spr2;
 	bool flipHoriz;
@@ -19,12 +26,16 @@ typedef struct {
 	int *ys;
 	int numPoints;
 	int curPoint;
-	int width;
-	int height;
+	Bounds hitbox;
 	float speed;
 	int pathCounter;
 	int animCounter;
 } Obstacle;
+
+static Bounds obstacleBounds[NUM_OBSTS/2] = {
+		{ 0, 3, 16, 7 },
+		{ 0, 4, 24, 8 }
+	};
 
 static List obstacleList;
 
@@ -85,10 +96,6 @@ bool Obstacle_Add(Obstacle_Data data) {
 	obst->ys = malloc(sizeof(*obst->ys) * data.numPoints);
 	if (!obst->ys) goto f_ys;
 
-	C2D_Image sprImg = SpriteSheet_GetObstacleImage(data.sprite1);
-	obst->width = sprImg.subtex->width;
-	obst->height = sprImg.subtex->height;
-
 	obst->spr1 = data.sprite1;
 	obst->spr2 = data.sprite2;
 	obst->flipHoriz = data.numPoints > 1 && data.xs[0] > data.xs[1];
@@ -100,6 +107,7 @@ bool Obstacle_Add(Obstacle_Data data) {
 	}
 	obst->numPoints = data.numPoints;
 	obst->curPoint = 0;
+	obst->hitbox = obstacleBounds[obst->spr1/2];
 	obst->speed = data.speed;
 	obst->pathCounter = 0;
 	obst->animCounter = 0;  //TODO Consider randomizing this
@@ -120,7 +128,7 @@ f_obst:
 	return false;
 }
 
-static void getObstaclePos(Obstacle *obst, float *x, float *y) {
+static void getObstaclePos(Obstacle *obst, float *centerX, float *centerY) {
 	// x(t) = x_0 - t(v(x_0 - x_1) / sqrt((x_0 - x_1)^2 + (y_0 - y_1)^2))
 	// y(t) = y_0 - t(v(y_0 - y_1) / sqrt((x_0 - x_1)^2 + (y_0 - y_1)^2))
 
@@ -133,22 +141,35 @@ static void getObstaclePos(Obstacle *obst, float *x, float *y) {
 	float radical = sqrt(dx*dx + dy*dy);
 
 	if (radical == 0) {
-		*x = curX;
-		*y = curY;
+		*centerX = curX;
+		*centerY = curY;
 	} else {
-		*x = curX - (obst->pathCounter * obst->speed * dx) / radical;
-		*y = curY - (obst->pathCounter * obst->speed * dy) / radical;
+		*centerX = curX - (obst->pathCounter * obst->speed * dx) / radical;
+		*centerY = curY - (obst->pathCounter * obst->speed * dy) / radical;
 	}
 }
 
-//FIXME Improve hitboxes
+static void getObstacleHitbox(Obstacle *obst, float *topLeftX, float *topLeftY,
+		float *width, float *height) {
+	C2D_Image sprImg = SpriteSheet_GetObstacleImage(obst->spr1);
+	getObstaclePos(obst, topLeftX, topLeftY);
+	if (obst->rotate) {
+		*topLeftX = *topLeftX - sprImg.subtex->height/2 + obst->hitbox.yOff;
+		*topLeftY = *topLeftY - sprImg.subtex->width/2 + obst->hitbox.xOff;
+		*width = obst->hitbox.height;
+		*height = obst->hitbox.width;
+	} else {
+		*topLeftX = *topLeftX - sprImg.subtex->width/2 + obst->hitbox.xOff;
+		*topLeftY = *topLeftY - sprImg.subtex->height/2 + obst->hitbox.yOff;
+		*width = obst->hitbox.width;
+		*height = obst->hitbox.height;
+	}
+}
+
 static bool obstacleIntersects(Obstacle *obst, int x, int y) {
-	float ox, oy;
-	getObstaclePos(obst, &ox, &oy);
-	return x >= ox - obst->width/2
-			&& x <= ox + obst->width/2
-			&& y >= oy - obst->height/2
-			&& y <= oy + obst->height/2;
+	float ox, oy, width, height;
+	getObstacleHitbox(obst, &ox, &oy, &width, &height);
+	return x >= ox && x < ox + width && y >= oy && y < oy + height;
 }
 
 // Frees an obstacle and plays smoke animation
@@ -180,11 +201,11 @@ void Obstacle_DestroyCircle(int argX, int argY, int argRadius) {
 	x = argX, y = argY, radius = argRadius;
 	bool intersects(void *elem) {
 		Obstacle *obst = (Obstacle*)elem;
-		float ox, oy;
-		getObstaclePos(obst, &ox, &oy);
+		float ox, oy, width, height;
+		getObstacleHitbox(obst, &ox, &oy, &width, &height);
 
-		float closestX = clamp(x, ox, ox + obst->width);
-		float closestY = clamp(y, oy, oy + obst->height);
+		float closestX = clamp(x, ox, ox + width);
+		float closestY = clamp(y, oy, oy + height);
 		float distX = x - closestX;
 		float distY = y - closestY;
 
