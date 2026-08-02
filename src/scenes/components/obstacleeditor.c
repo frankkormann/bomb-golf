@@ -1,6 +1,5 @@
 #include <stdbool.h>
 #include <malloc.h>
-#include <alloca.h>
 #include <citro2d.h>
 #include "obstacleeditor.h"
 #include "text.h"
