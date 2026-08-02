@@ -278,7 +278,6 @@ static void plotTrajectoryPoint(float initX, float initY, float velX, float velY
 }
 
 static void sceneDraw() {
-	//TODO Consider drawing obstacles also
 	Terrain_UpdateGraphics();
 
 
@@ -303,6 +302,12 @@ static void sceneDraw() {
 	C2D_DrawRectSolid(terrainX + (projX * terrainWidth) / fieldWidth,
 			terrainY + (projY * terrainHeight) / LEVEL_HEIGHT,
 			1, 2, 2, COLOR_WHITE);
+
+	C2D_ViewTranslate(terrainX, terrainY);
+	C2D_ViewScale((float)terrainWidth / fieldWidth,
+			(float)terrainHeight / LEVEL_HEIGHT);
+	Obstacle_Draw(1);
+	C2D_ViewReset();
 
 
 	C3D_RenderTarget *bottom = RenderTarget_GetBottom();

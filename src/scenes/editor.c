@@ -679,7 +679,23 @@ static void drawRectOutline(int x, int y, int width, int height, u32 color, int 
 }
 
 // Signature designed for List operations
-static void drawObstacle(void *elem) {
+static void drawObstacleTop(void *elem) {
+	Obstacle_Data *obst = (Obstacle_Data*)elem;
+
+	C3D_Mtx prevMtx;
+	C2D_ViewSave(&prevMtx);
+	C2D_ViewTranslate(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y);
+	C2D_ViewScale((float)LEVEL_PREVIEW_WIDTH / LEVEL_MAX_WIDTH,
+			(float)LEVEL_PREVIEW_HEIGHT / LEVEL_HEIGHT);
+
+	SpriteSheet_DrawObstacle(obst->sprite1, obst->xs[0], obst->ys[0], 0.5, 0,
+			false, false);
+
+	C2D_ViewRestore(&prevMtx);
+}
+
+// Signature designed for List operations
+static void drawObstacleBottom(void *elem) {
 	Obstacle_Data *obst = (Obstacle_Data*)elem;
 	for (int i = 0; i < obst->numPoints; i++) {
 		int nextI = (i + 1) % obst->numPoints;
@@ -718,6 +734,7 @@ static void sceneDraw() {
 	BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
 			LEVEL_PREVIEW_HEIGHT, &bgX, &bgY, &bgWidth, &bgHeight);
 	Border_Draw(bgX, bgY, 0, bgWidth, bgHeight);
+	List_ForEach(obstacleList, drawObstacleTop);
 	drawInfoText(TEXT_MARGIN,
 			LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + TEXT_MARGIN,
 			1);
@@ -732,7 +749,7 @@ static void sceneDraw() {
 	BG_Draw(bg, 0, 0, -1, 1, 1);
 	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
 	SpriteSheet_DrawCentered(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
-	List_ForEach(obstacleList, drawObstacle);
+	List_ForEach(obstacleList, drawObstacleBottom);
 
 	C2D_ViewReset();
 

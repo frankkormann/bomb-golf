@@ -38,6 +38,8 @@ static LevelCard levelCards[NUM_LEVEL_ROWS][NUM_LEVEL_COLUMNS];
 
 static Text nameText, parText, infoText;
 static Background levelPreview;
+static LevelIO_Obst *obstacles;
+static size_t numObstacles;
 static bool levelIsSelected;
 
 Scene_Params LevelSelector_MakeParams(int level) {
@@ -51,6 +53,12 @@ static void displayLevel(int levelNum) {
 		Text_SetContent(infoText, "Tap a level number to preview");
 		levelIsSelected = false;
 	} else {
+		if (obstacles) {
+			// In case we had it from a previous level selection
+			free(obstacles);
+			obstacles = NULL;
+		}
+
 		char path[LEVEL_PATH_MAX];
 		LevelIO_MakePath(levelNum, false, path);
 		Tile (*tiles)[LEVEL_HEIGHT_TILES];
@@ -60,7 +68,8 @@ static void displayLevel(int levelNum) {
 		char *name;
 
 		if (!LevelIO_Read(path, NULL, NULL, &tiles, &overlayTiles,
-				&numOverlayTiles, NULL, NULL, &width, &par, &name)) {
+				&numOverlayTiles, &obstacles, &numObstacles, &width,
+				&par, &name)) {
 			// Spaces to maintain center alignment
 			Text_SetContent(infoText, "     Level does not exist");
 			levelIsSelected = false;
@@ -156,6 +165,10 @@ static void sceneExit() {
 	Text_Free(parText);
 	Text_Free(infoText);
 	BG_Free(levelPreview);
+	if (obstacles) {
+		free(obstacles);
+		obstacles = NULL;
+	}
 }
 
 static void sceneUpdate() {
@@ -169,8 +182,20 @@ static void sceneUpdate() {
 	Dispatcher_DispatchEvent(touchDispatcher);
 }
 
+static void drawObstacle(LevelIO_Obst obst, float previewX, float previewY,
+		float previewWidth, float previewHeight, float depth) {
+	C3D_Mtx prevMtx;
+	C2D_ViewSave(&prevMtx);
+	C2D_ViewTranslate(previewX, previewY);
+	C2D_ViewScale(previewWidth / LEVEL_MAX_WIDTH, previewHeight / LEVEL_HEIGHT);
+
+	SpriteSheet_DrawObstacle(obst.sprite1, obst.xs[0], obst.ys[0], depth, 0,
+			false, false);
+
+	C2D_ViewRestore(&prevMtx);
+}
+
 static void sceneDraw() {
-	//TODO Draw obstacles also
 	BG_UpdateGraphics(levelPreview);
 
 	C3D_RenderTarget *top = RenderTarget_GetTop();
@@ -182,11 +207,17 @@ static void sceneDraw() {
 				TEXT_LEFT);
 		Text_Draw(parText, 390, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1,
 				TEXT_RIGHT);
+
 		int previewX, previewY, previewWidth, previewHeight;
 		BG_DrawFit(levelPreview, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
 				LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT,
 				&previewX, &previewY, &previewWidth, &previewHeight);
 		Border_Draw(previewX, previewY, 0, previewWidth, previewHeight);
+
+		for (size_t i = 0; i < numObstacles; i++) {
+			drawObstacle(obstacles[i], previewX, previewY, previewWidth,
+					previewHeight, 0.5);
+		}
 	} else {
 		Text_Draw(infoText, 105, 60, 0, COLOR_DGRAY, 1, TEXT_LEFT);
 	}
