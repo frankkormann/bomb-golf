@@ -40,19 +40,19 @@ C2D_Image SpriteSheet_GetObstacleImage(SpriteSheet_ObstSprite obst) {
 void drawCenter(C2D_Image img, float x, float y, float depth, float angle,
 		bool flipHoriz, bool flipVert) {
 	C2D_DrawImage(img, &(C2D_DrawParams) {
-		.pos = {
-			x,
-			y,
-			img.subtex->width * (flipHoriz ? -1 : 1),
-			img.subtex->height * (flipVert ? -1 : 1)
-		},
-		.center = {
-			img.subtex->width * 0.5,
-			img.subtex->height * 0.5
-		},
-		.depth = depth,
-		.angle = angle
-	}, NULL);
+			.pos = {
+				x,
+				y,
+				img.subtex->width * (flipHoriz ? -1 : 1),
+				img.subtex->height * (flipVert ? -1 : 1)
+			},
+			.center = {
+				img.subtex->width * 0.5,
+				img.subtex->height * 0.5
+			},
+			.depth = depth,
+			.angle = angle
+		}, NULL);
 }
 
 void drawTopLeft(C2D_Image img, float x, float y, float depth, float angle,
@@ -61,19 +61,19 @@ void drawTopLeft(C2D_Image img, float x, float y, float depth, float angle,
 	// that its top-left corner is still (x, y). This way rotation works as
 	// expected (rotating about the center).
 	C2D_DrawImage(img, &(C2D_DrawParams) {
-		.pos = {
-			x + img.subtex->width * 0.5,
-			y + img.subtex->height * 0.5,
-			img.subtex->width * (flipHoriz ? -1 : 1),
-			img.subtex->height * (flipVert ? -1 : 1)
-		},
-		.center = {
-			img.subtex->width * 0.5,
-			img.subtex->height * 0.5
-		},
-		.depth = depth,
-		.angle = angle
-	}, NULL);
+			.pos = {
+				x + img.subtex->width * 0.5,
+				y + img.subtex->height * 0.5,
+				img.subtex->width * (flipHoriz ? -1 : 1),
+				img.subtex->height * (flipVert ? -1 : 1)
+			},
+			.center = {
+				img.subtex->width * 0.5,
+				img.subtex->height * 0.5
+			},
+			.depth = depth,
+			.angle = angle
+		}, NULL);
 }
 
 void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
@@ -101,4 +101,3 @@ void SpriteSheet_DrawObstacle(SpriteSheet_ObstSprite obst, float x, float y,
 	C2D_Image img = C2D_SpriteSheetGetImage(obstSheet, obst);
 	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert);
 }
-
