@@ -1,5 +1,5 @@
 /*
- * Menu that allows an Obstacle_Data object to have its properties changed.
+ * Menu that allows the creation and alteration of Obstacle_Data objects.
  */
 
 #ifndef OBSTACLEEDITOR_H
@@ -17,12 +17,9 @@ bool ObstacleEditor_Init();
 void ObstacleEditor_Exit();
 
 /*
- * Opens the editor to edit obst in-place. Assumes obst->xs and obst->ys are
- * malloc'd.
- *
- * The editor will dismiss itself when finished.
+ * The editor will dismiss itself when done. toEdit is altered in-place.
  */
-void ObstacleEditor_Show(Obstacle_Data *obst);
+void ObstacleEditor_Show(Obstacle_Data *toEdit);
 
 /*
  * Registers the editor to receive touch input events from touchDispatcher.

@@ -1,4 +1,6 @@
 #include <stdbool.h>
+#include <malloc.h>
+#include <alloca.h>
 #include <citro2d.h>
 #include "obstacleeditor.h"
 #include "text.h"
@@ -9,13 +11,14 @@
 #include "../../environment/obstacle.h"
 #include "../../util/dispatcher.h"
 #include "../../util/macros.h"
+#include "../../util/touchinput.h"
 
 #define BOX_X (SPRITE_LEFT_X - 10)
 #define BOX_Y (SPRITE_RIGHT_Y - 10)
 #define BOX_WIDTH 120
 #define BOX_HEIGHT (EXIT_Y - BOX_Y + 40)
 #define SPRITE_X (160 - SPRITE_WIDTH/2)
-#define SPRITE_Y 45
+#define SPRITE_Y 60
 #define SPRITE_WIDTH 60
 #define SPRITE_HEIGHT 40
 #define SPRITE_LEFT_X (SPRITE_X - 20)
@@ -28,44 +31,27 @@
 #define SPEED_UP_Y (SPEED_TEXT_Y - 5)
 #define SPEED_DOWN_X SPRITE_LEFT_X
 #define SPEED_DOWN_Y (SPEED_TEXT_Y - 5)
+/*
 #define PATH_X (160 - 50)
 #define PATH_Y (SPEED_UP_Y + 35)
+*/
 #define EXIT_X (160 - 50)
-#define EXIT_Y (PATH_Y + 35)
+#define EXIT_Y (SPEED_UP_Y + 35)
 
 static Button exitButton, speedUpButton, speedDownButton, spriteUpButton,
-		spriteDownButton, pathButton;
-static Text exitText, upText, downText, leftText, rightText, pathText, speedText;
+		spriteDownButton /*, pathButton */;
+static Text exitText, upText, downText, leftText, rightText, /* pathText, */ speedText;
 
 static bool isShowing;
-static Obstacle_Data *obst;
+//static List obstacleList;
+static Obstacle_Data *curObst;
 
-static void hideEditor() {
-	isShowing = !isShowing;
-	Button_Disable(pathButton);
-	Button_Disable(spriteDownButton);
-	Button_Disable(spriteUpButton);
-	Button_Disable(speedDownButton);
-	Button_Disable(speedUpButton);
-	Button_Disable(exitButton);
-}
-
-static void changeSprite(bool goUp) {
-	obst->sprite1 += goUp ? 2 : -2;
-	obst->sprite1 = (obst->sprite1 + NUM_OBSTS) % NUM_OBSTS;
-	obst->sprite2 = obst->sprite1 + 1;
-}
-
-// Change in units of 1/4 so that change can be an int for callback signature
-static void changeSpeed(int change) {
-	obst->speed += (float)change/4;
-	obst->speed = clamp(obst->speed, 0, 10);
-	Text_SetContent(speedText, "SPD %.2f", obst->speed);
-}
-
-static void editPath() {
-	//FIXME
-}
+// Declarations needed for buttons, dispatcher
+static void hideEditor();
+static void changeSprite(bool goUp);
+static void changeSpeed(int change);
+//static void editPath();
+static bool handleTouchInput();
 
 bool ObstacleEditor_Init() {
 	exitButton = Button_Create(EXIT_X, EXIT_Y, SPRITE_MEDIUM_BUTTON, -1, NULL,
@@ -97,10 +83,12 @@ bool ObstacleEditor_Init() {
 	if (!spriteDownButton) goto f_spriteDownButton;
 	Button_Disable(spriteDownButton);
 
+/*
 	pathButton = Button_Create(PATH_X, PATH_Y, SPRITE_MEDIUM_BUTTON, -1, NULL,
 			editPath);
 	if (!pathButton) goto f_pathButton;
 	Button_Disable(pathButton);
+*/
 
 	exitText = Text_Create(8);
 	if (!exitText) goto f_exitText;
@@ -122,9 +110,11 @@ bool ObstacleEditor_Init() {
 	if (!rightText) goto f_rightText;
 	Text_SetContent(rightText, ">");
 
+/*
 	pathText = Text_Create(10);
 	if (!pathText) goto f_pathText;
 	Text_SetContent(pathText, "Edit Path");
+*/
 
 	speedText = Text_Create(9);
 	if (!speedText) goto f_speedText;
@@ -134,8 +124,10 @@ bool ObstacleEditor_Init() {
 	return true;
 
 f_speedText:
-	Text_Free(speedText);
+/*
+	Text_Free(pathText);
 f_pathText:
+*/
 	Text_Free(rightText);
 f_rightText:
 	Text_Free(leftText);
@@ -146,8 +138,10 @@ f_downText:
 f_upText:
 	Text_Free(exitText);
 f_exitText:
+/*
 	Button_Free(pathButton);
 f_pathButton:
+*/
 	Button_Free(spriteDownButton);
 f_spriteDownButton:
 	Button_Free(spriteUpButton);
@@ -162,13 +156,13 @@ f_exitButton:
 }
 
 void ObstacleEditor_Exit() {
-	Button_Free(pathButton);
+//	Button_Free(pathButton);
 	Button_Free(spriteDownButton);
 	Button_Free(spriteUpButton);
 	Button_Free(speedDownButton);
 	Button_Free(speedUpButton);
 	Button_Free(exitButton);
-	Text_Free(pathText);
+//	Text_Free(pathText);
 	Text_Free(downText);
 	Text_Free(upText);
 	Text_Free(leftText);
@@ -177,11 +171,13 @@ void ObstacleEditor_Exit() {
 	Text_Free(speedText);
 }
 
-void ObstacleEditor_Show(Obstacle_Data *argObst) {
+void ObstacleEditor_Show(Obstacle_Data *toEdit) {
+	if (isShowing) return;
+
 	isShowing = true;
-	obst = argObst;
+	curObst = toEdit;
 	changeSpeed(0);  // Get initial text in speedText
-	Button_Enable(pathButton);
+//	Button_Enable(pathButton);
 	Button_Enable(spriteDownButton);
 	Button_Enable(spriteUpButton);
 	Button_Enable(speedDownButton);
@@ -189,10 +185,41 @@ void ObstacleEditor_Show(Obstacle_Data *argObst) {
 	Button_Enable(exitButton);
 }
 
+static bool handleTouchInput() {
+	// If this is a popup, consume all touch events that weren't handled
+	// by a button
+	return (TouchInput_InProgress() || TouchInput_JustFinished()) && isShowing;
+}
+
+static void hideEditor() {
+	isShowing = !isShowing;
+//	Button_Disable(pathButton);
+	Button_Disable(spriteDownButton);
+	Button_Disable(spriteUpButton);
+	Button_Disable(speedDownButton);
+	Button_Disable(speedUpButton);
+	Button_Disable(exitButton);
+}
+
+static void changeSprite(bool goUp) {
+	curObst->sprite1 += goUp ? 2 : -2;
+	curObst->sprite1 = (curObst->sprite1 + NUM_OBSTS) % NUM_OBSTS;
+	curObst->sprite2 = curObst->sprite1 + 1;
+}
+
+// Change in units of 1/4 so that change can be an int for callback signature
+static void changeSpeed(int change) {
+	curObst->speed += (float)change/4;
+	curObst->speed = clamp(curObst->speed, 0, 10);
+	Text_SetContent(speedText, "SPD %.2f", curObst->speed);
+}
+
 bool ObstacleEditor_RegisterForTouchEvents(Dispatcher touchDispatcher,
 		int priority) {
+/*
 	if (!Button_RegisterForTouchEvents(pathButton, touchDispatcher, priority))
 		goto f_pathButton;
+*/
 	if (!Button_RegisterForTouchEvents(spriteDownButton, touchDispatcher,
 			priority))
 		goto f_spriteDownButton;
@@ -206,9 +233,14 @@ bool ObstacleEditor_RegisterForTouchEvents(Dispatcher touchDispatcher,
 		goto f_speedUpButton;
 	if (!Button_RegisterForTouchEvents(exitButton, touchDispatcher, priority))
 		goto f_exitButton;
+	if (!Dispatcher_AddHandler(touchDispatcher, (Dispatcher_Handler) {
+			.priority = priority, NULL, handleTouchInput }))
+		goto f_handleTouchInput;
 
 	return true;
 
+f_handleTouchInput:
+	Button_RemoveFromTouchDispatcher(exitButton, touchDispatcher);
 f_exitButton:
 	Button_RemoveFromTouchDispatcher(speedUpButton, touchDispatcher);
 f_speedUpButton:
@@ -218,8 +250,10 @@ f_speedDownButton:
 f_spriteUpButton:
 	Button_RemoveFromTouchDispatcher(spriteDownButton, touchDispatcher);
 f_spriteDownButton:
+/*
 	Button_RemoveFromTouchDispatcher(pathButton, touchDispatcher);
 f_pathButton:
+*/
 	return false;
 }
 
@@ -229,7 +263,9 @@ void ObstacleEditor_RemoveFromTouchDispatcher(Dispatcher touchDispatcher) {
 	Button_RemoveFromTouchDispatcher(speedDownButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(spriteUpButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(spriteDownButton, touchDispatcher);
-	Button_RemoveFromTouchDispatcher(pathButton, touchDispatcher);
+//	Button_RemoveFromTouchDispatcher(pathButton, touchDispatcher);
+	Dispatcher_RemoveHandler(touchDispatcher, (Dispatcher_Handler) {
+			.priority = 0, NULL, handleTouchInput });
 }
 
 void ObstacleEditor_Draw(float depth) {
@@ -240,7 +276,7 @@ void ObstacleEditor_Draw(float depth) {
 	Border_Draw(BOX_X, BOX_Y, below, BOX_WIDTH, BOX_HEIGHT);
 	C2D_DrawRectSolid(BOX_X, BOX_Y, below, BOX_WIDTH, BOX_HEIGHT, COLOR_LGRAY);
 
-	SpriteSheet_DrawObstacle(obst->sprite1, SPRITE_X + SPRITE_WIDTH/2,
+	SpriteSheet_DrawObstacle(curObst->sprite1, SPRITE_X + SPRITE_WIDTH/2,
 			SPRITE_Y + SPRITE_HEIGHT/2, depth, 0, false, false);
 
 	Button_Draw(exitButton, depth);
@@ -248,7 +284,7 @@ void ObstacleEditor_Draw(float depth) {
 	Button_Draw(speedDownButton, depth);
 	Button_Draw(spriteUpButton, depth);
 	Button_Draw(spriteDownButton, depth);
-	Button_Draw(pathButton, depth);
+//	Button_Draw(pathButton, depth);
 
 	Text_Draw(speedText, SPEED_TEXT_X, SPEED_TEXT_Y, depth, COLOR_DGRAY, 1,
 			TEXT_CENTERED);
@@ -262,6 +298,8 @@ void ObstacleEditor_Draw(float depth) {
 			1, TEXT_LEFT);
 	Text_Draw(downText, SPEED_DOWN_X + 7, SPEED_DOWN_Y + 5, depth, COLOR_LGRAY,
 			1, TEXT_LEFT);
+/*
 	Text_Draw(pathText, PATH_X + 10, PATH_Y + 5, depth, COLOR_LGRAY, 1,
 			TEXT_LEFT);
+*/
 }

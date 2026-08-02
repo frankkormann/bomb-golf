@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <malloc.h>
+#include <alloca.h>
 #include <3ds.h>
 #include <citro2d.h>
 #include "../scene.h"
@@ -15,13 +16,17 @@
 #include "components/editormenu.h"
 #include "components/brushselector.h"
 #include "components/popup.h"
+#include "components/obstacleeditor.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
+#include "../environment/obstacle.h"
 #include "../audio/music.h"
 #include "../projectiles/bomb.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
+#include "../util/list.h"
+#include "../tile.h"
 #include "../levelio.h"
 
 #define HOLE_WIDTH (TILE_SIZE * 2)
@@ -42,6 +47,10 @@ static float scroll;
 
 static Tile (*tiles)[LEVEL_HEIGHT_TILES];
 static Tile_WithPos (*overlayTiles)[LEVEL_HEIGHT_TILES];
+
+static List obstacleList;
+static Obstacle_Data *curObst;
+static int curObstPoint;
 
 static int holeX, holeY;
 static int projX, projY;
@@ -64,6 +73,11 @@ static void editName();
 static void showExitPopup();
 static void changePar(int change);
 
+// Declarations for Obstacle_Data manipulation
+static void freeObstacle(void *elem);
+static bool addObstacle(LevelIO_Obst data, Obstacle_Data **newObst);
+static bool getObstacles(LevelIO_Obst **obsts, size_t *numObsts);
+
 static bool sceneInit(Scene_Params params) {
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!bg) goto f_bg;
@@ -77,6 +91,9 @@ static bool sceneInit(Scene_Params params) {
 	overlayTiles = calloc(LEVEL_MAX_WIDTH_TILES, sizeof(*overlayTiles));
 	if (!overlayTiles) goto f_overlayTiles;
 
+	obstacleList = List_Create();
+	if (!obstacleList) goto f_obstacleList;
+
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(params.editor.level, false, path);
 	LevelIO_Hole hole;
@@ -84,8 +101,11 @@ static bool sceneInit(Scene_Params params) {
 	int width;
 	Tile_WithPos *denseOverlayTiles;
 	size_t numOverlayTiles;
+	LevelIO_Obst *obstacles;
+	size_t numObsts;
 	if (LevelIO_Read(path, &hole, &proj, &tiles, &denseOverlayTiles,
-			&numOverlayTiles, NULL, NULL, &width, &par, &name)) {
+			&numOverlayTiles, &obstacles, &numObsts, &width, &par,
+			&name)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!newTiles) goto f_newTiles;
@@ -117,6 +137,11 @@ static bool sceneInit(Scene_Params params) {
 			BG_DrawTile(bg, overlayTile, x, y, false);
 		}
 		free(denseOverlayTiles);
+
+		for (size_t i = 0; i < numObsts; i++) {
+			addObstacle(obstacles[i], NULL);
+		}
+		free(obstacles);
 	} else {
 		tiles = malloc(sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!tiles) goto f_tiles;
@@ -144,18 +169,25 @@ static bool sceneInit(Scene_Params params) {
 	TileSelector_RegisterForTouchEvents(touchDispatcher, 2);
 
 	if (!EditorMenu_Init(editName, showExitPopup, changePar)) goto f_EditorMenu;
-	EditorMenu_RegisterForTouchEvents(touchDispatcher, 3);
+	EditorMenu_RegisterForTouchEvents(touchDispatcher, 1);
 
 	if (!BrushSelector_Init(BRUSH_PENCIL)) goto f_BrushSelector;
 	BrushSelector_RegisterForTouchEvents(touchDispatcher, 1);
+
+	if (!ObstacleEditor_Init()) goto f_ObstacleEditor;
+	ObstacleEditor_RegisterForTouchEvents(touchDispatcher, 3);
 
 	Music_Start(MUSIC_EDITOR);
 
 	scroll = 0;
 	level = params.editor.level;
+	curObst = NULL;
+	curObstPoint = 0;
 
 	return true;
 
+f_ObstacleEditor:
+	BrushSelector_Exit();
 f_BrushSelector:
 	EditorMenu_Exit();
 f_EditorMenu:
@@ -166,6 +198,8 @@ f_TileSelector:
 f_newTiles:
 	free(tiles);
 f_tiles:
+	List_Free(obstacleList);
+f_obstacleList:
 	free(overlayTiles);
 f_overlayTiles:
 	Text_Free(parText);
@@ -182,6 +216,8 @@ static void sceneExit() {
 	BG_Free(bg);
 	free(tiles);
 	free(overlayTiles);
+	List_ForEach(obstacleList, freeObstacle);
+	List_Free(obstacleList);
 	free(name);
 	Text_Free(nameText);
 	Text_Free(parText);
@@ -189,6 +225,7 @@ static void sceneExit() {
 	TileSelector_Exit();
 	EditorMenu_Exit();
 	BrushSelector_Exit();
+	ObstacleEditor_Exit();
 	Music_Stop();
 }
 
@@ -214,7 +251,7 @@ static bool exportLevel() {
 	}
 
 	Tile_WithPos *denseOverlayTiles = malloc(sizeof(*denseOverlayTiles)
-	                                         * numOverlayTiles);
+			* numOverlayTiles);
 	if (!denseOverlayTiles) goto f_denseOverlayTiles;
 	size_t i = 0;
 	for (int y = 0; y < LEVEL_HEIGHT_TILES; y++) {
@@ -226,28 +263,21 @@ static bool exportLevel() {
 		}
 	}
 
-	//FIXME
-	LevelIO_Obst obstacles[] = {
-		{ SPRITE_OBST_BIRD1, SPRITE_OBST_BIRD2,
-			(int[]) { 50, 100, 60 },
-			(int[]) { 20, 30,  40 },
-			3, 0.5
-		},
-		{ SPRITE_OBST_EAGLE1, SPRITE_OBST_EAGLE2,
-			(int[]) { 200, 250, 300, 200 },
-			(int[]) { 100, 100, 50,  50  },
-			4, 1
-		}
-	};
+	LevelIO_Obst *obstacles;
+	size_t numObsts;
+	if (!getObstacles(&obstacles, &numObsts)) goto f_obstacles;
 
 	bool success = LevelIO_Write(path, hole, proj, tiles,
 			denseOverlayTiles, numOverlayTiles,
-			obstacles, 2,
+			obstacles, numObsts,
 			(tilesMaxX + 1) * TILE_SIZE, par, name);
 
 	free(denseOverlayTiles);
+	free(obstacles);
 	return success;
 
+f_obstacles:
+	free(denseOverlayTiles);
 f_denseOverlayTiles:
 	return false;
 }
@@ -255,7 +285,7 @@ f_denseOverlayTiles:
 static void changeTile(int tileX, int tileY, Tile newTile) {
 	if (Tile_IsOverlay(newTile)) {
 		overlayTiles[tileX][tileY] = Tile_AddPos(newTile, tileX * TILE_SIZE,
-		                                         tileY * TILE_SIZE);
+				tileY * TILE_SIZE);
 		BG_DrawTile(bg, tiles[tileX][tileY], tileX * TILE_SIZE,
 				tileY * TILE_SIZE, true);
 		BG_DrawTile(bg, newTile, tileX * TILE_SIZE, tileY * TILE_SIZE,
@@ -265,6 +295,70 @@ static void changeTile(int tileX, int tileY, Tile newTile) {
 		overlayTiles[tileX][tileY] = 0;
 		BG_DrawTile(bg, newTile, tileX * TILE_SIZE, tileY * TILE_SIZE, true);
 	}
+}
+
+// Sets curObst and curObstPoint with the obstacle over argTileX, argTileY
+static void findObstacle(int argTileX, int argTileY) {
+	// Make these static so 3DS doesn't crash when they're used in check
+	static int tileX, tileY;
+	tileX = argTileX, tileY = argTileY;
+
+	void check(void *elem) {
+		Obstacle_Data *obst = (Obstacle_Data*)elem;
+		for (int i = 0; i < obst->numPoints; i++) {
+			if (obst->xs[i] / TILE_SIZE == tileX
+					&& obst->ys[i] / TILE_SIZE == tileY) {
+				curObst = obst;
+				curObstPoint = i;
+				return;
+			}
+		}
+	}
+
+	curObst = NULL;
+	curObstPoint = 0;
+	List_ForEach(obstacleList, check);
+}
+
+static void removePoint(Obstacle_Data *data, int point) {
+	// Make this static so 3DS doesn't crash when it's used in test
+	static Obstacle_Data *toRemove;
+	bool test(void *elem) {
+		return elem == toRemove;
+	}
+
+	for (int i = point; i < data->numPoints - 1; i++) {
+		data->xs[i] = data->xs[i+1];
+		data->ys[i] = data->ys[i+1];
+	}
+	data->numPoints--;
+	if (data->numPoints == 0) {
+		toRemove = data;
+		List_Filter(obstacleList, test, freeObstacle);
+	} else {
+		int *newXs = realloc(data->xs, sizeof(*data->xs) * data->numPoints);
+		if (newXs) data->xs = newXs;
+		int *newYs = realloc(data->ys, sizeof(*data->ys) * data->numPoints);
+		if (newYs) data->ys = newYs;
+	} 
+}
+
+static void addPoint(Obstacle_Data *data, int before, int x, int y) {
+	data->numPoints++;
+
+	int *newXs = realloc(data->xs, sizeof(*data->xs) * data->numPoints);
+	if (!newXs) return;
+	data->xs = newXs;
+	int *newYs = realloc(data->ys, sizeof(*data->ys) * data->numPoints);
+	if (!newYs) return;
+	data->ys = newYs;
+
+	for (int i = data->numPoints - 1; i > before; i--) {
+		data->xs[i] = data->xs[i-1];
+		data->ys[i] = data->ys[i-1];
+	}
+	data->xs[before] = x;
+	data->ys[before] = y;
 }
 
 static bool handleTouchInput() {
@@ -303,6 +397,48 @@ static bool handleTouchInput() {
 			holeX = tileX * TILE_SIZE;
 			holeY = tileY * TILE_SIZE;
 			break;
+		case BRUSH_OBSTACLE_ADD:
+			Obstacle_Data *new;
+			addObstacle(
+					(LevelIO_Obst) {
+						0, 1,
+						(int[]) { tileX * TILE_SIZE
+							+ TILE_SIZE/2 },
+						(int[]) { tileY * TILE_SIZE
+							+ TILE_SIZE/2 },
+						1, 1
+					},
+					&new
+				);
+			ObstacleEditor_Show(new);
+			break;
+		case BRUSH_OBSTACLE_DEL:
+			findObstacle(tileX, tileY);
+			if (curObst) removePoint(curObst, curObstPoint);
+			break;
+		case BRUSH_OBSTACLE_EDIT:
+			findObstacle(tileX, tileY);
+			if (curObst) ObstacleEditor_Show(curObst);
+			break;
+		case BRUSH_OBSTACLE_MOVE:
+			if (!curObst) findObstacle(tileX, tileY);
+			if (curObst) {
+				curObst->xs[curObstPoint] = tileX * TILE_SIZE
+						+ TILE_SIZE/2;
+				curObst->ys[curObstPoint] = tileY * TILE_SIZE
+						+ TILE_SIZE/2;
+			}
+			break;
+		case BRUSH_OBSTACLE_DUPE:
+			findObstacle(tileX, tileY);
+			if (curObst) {
+				addPoint(curObst, curObstPoint,
+						tileX * TILE_SIZE + TILE_SIZE/2,
+						tileY * TILE_SIZE + TILE_SIZE/2);
+				BrushSelector_SetBrush(BRUSH_OBSTACLE_MOVE);
+			}
+			break;
+		case NUM_BRUSHES: break;  // Satisfy the compiler
 	}
 
 	return true;
@@ -356,6 +492,75 @@ static void changePar(int change) {
 	par += change;
 }
 
+static bool addObstacle(LevelIO_Obst data, Obstacle_Data **newObst) {
+	if (!newObst) newObst = alloca(sizeof(*newObst));
+
+	*newObst = malloc(sizeof(**newObst));
+	if (!(*newObst)) goto f_newObst;
+
+	(*newObst)->xs = malloc(sizeof(*(*newObst)->xs) * data.numPoints);
+	if (!(*newObst)->xs) goto f_xs;
+
+	(*newObst)->ys = malloc(sizeof(*(*newObst)->ys) * data.numPoints);
+	if (!(*newObst)->ys) goto f_ys;
+
+	(*newObst)->sprite1 = data.sprite1;
+	(*newObst)->sprite2 = data.sprite2;
+	for (int i = 0; i < data.numPoints; i++) {
+		(*newObst)->xs[i] = data.xs[i];
+		(*newObst)->ys[i] = data.ys[i];
+	}
+	(*newObst)->numPoints = data.numPoints;
+	(*newObst)->speed = data.speed;
+
+	if (!List_Push(obstacleList, *newObst)) goto f_List_Push;
+
+	return true;
+
+f_List_Push:
+	free((*newObst)->ys);
+f_ys:
+	free((*newObst)->xs);
+f_xs:
+	free(*newObst);
+f_newObst:
+	return false;
+}
+
+// Signature designed for List operations
+static void freeObstacle(void *elem) {
+	Obstacle_Data *obst = (Obstacle_Data*)elem;
+	free(obst->xs);
+	free(obst->ys);
+	free(obst);
+}
+
+static bool getObstacles(LevelIO_Obst **obsts, size_t *numObsts) {
+	// Make these static so 3DS doesn't crash when they're used by putObst
+	static size_t i;
+	static LevelIO_Obst **obstsCopy;
+
+	void putObst(void *elem) {
+		Obstacle_Data *obst = (Obstacle_Data*)elem;
+		(*obstsCopy)[i].sprite1 = obst->sprite1;
+		(*obstsCopy)[i].sprite2 = obst->sprite2;
+		(*obstsCopy)[i].xs = obst->xs;
+		(*obstsCopy)[i].ys = obst->ys;
+		(*obstsCopy)[i].numPoints = obst->numPoints;
+		(*obstsCopy)[i].speed = obst->speed;
+		i++;
+	}
+
+	*numObsts = List_Length(obstacleList);
+	*obsts = malloc(sizeof(**obsts) * *numObsts);
+	if (!(*obsts)) return false;
+
+	i = 0;
+	obstsCopy = obsts;
+	List_ForEach(obstacleList, putObst);
+	return true;
+}
+
 static void sceneUpdate() {
 	if (BG_IsUpdating(bg)) return;
 
@@ -370,6 +575,11 @@ static void sceneUpdate() {
 		scroll += SCROLL_UNIT;
 	scroll = clamp(scroll, 0, LEVEL_MAX_WIDTH - 320);
 
+	if (!TouchInput_InProgress()) {
+		curObst = NULL;
+		curObstPoint = 0;
+	}
+
 	Dispatcher_DispatchEvent(touchDispatcher);
 
 	Text_SetContent(parText, "Par %i", par);
@@ -382,6 +592,22 @@ static void drawRectOutline(int x, int y, int width, int height, u32 color, int 
 			color);
 	C2D_DrawRectSolid(x + width - outlineWidth, y, 0, outlineWidth, height,
 			color);
+}
+
+// Signature designed for List operations
+static void drawObstacle(void *elem) {
+	Obstacle_Data *obst = (Obstacle_Data*)elem;
+	for (int i = 0; i < obst->numPoints; i++) {
+		int nextI = (i + 1) % obst->numPoints;
+		bool flipHoriz = obst->xs[i] > obst->xs[nextI];
+		bool flipVert = obst->xs[i] == obst->xs[nextI]
+			&& obst->ys[i] > obst->ys[nextI];
+		C2D_DrawLine(obst->xs[i], obst->ys[i], COLOR_ORANGE,
+				obst->xs[nextI], obst->ys[nextI], COLOR_ORANGE,
+				1, -1);
+		SpriteSheet_DrawObstacle(obst->sprite1, obst->xs[i], obst->ys[i],
+				-0.9, 0, flipHoriz, flipVert);
+	}
 }
 
 static void sceneDraw() {
@@ -411,12 +637,14 @@ static void sceneDraw() {
 	BG_Draw(bg, 0, 0, -1, 1, 1);
 	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
 	SpriteSheet_DrawCentered(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
+	List_ForEach(obstacleList, drawObstacle);
 
 	C2D_ViewReset();
 
-	TileSelector_Draw(0.5);
 	BrushSelector_Draw(0.4);
-	EditorMenu_Draw(1);
+	EditorMenu_Draw(0.4);
+	TileSelector_Draw(0.5);
+	ObstacleEditor_Draw(1);
 }
 
 Scene sceneEditor = &(struct scene) {
