@@ -7,10 +7,12 @@
 static Scene sceneCurrent;
 static Scene sceneNext;
 static Scene_Params nextParams;
+static float speed;
 
 bool Scene_Start(Scene first, Scene_Params params) {
 	bool success = first->init(params);
 	sceneCurrent = success ? first : NULL;
+	speed = 1;
 	return success;
 }
 
@@ -25,8 +27,8 @@ void Scene_Update() {
 	}
 	if (sceneCurrent) {
 		if (!Popup_IsOpen()) {
-			sceneCurrent->update();
-			Animation_Update();
+			sceneCurrent->update(speed);
+			Animation_Update(speed);
 		} else {
 			Popup_Update();
 		}
@@ -49,4 +51,8 @@ void Scene_Exit() {
 void Scene_SetNext(Scene next, Scene_Params params) {
 	sceneNext = next;
 	nextParams = params;
+}
+
+void Scene_SetSpeed(float argSpeed) {
+	speed = argSpeed;
 }

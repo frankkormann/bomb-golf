@@ -196,7 +196,7 @@ static void explodeTile(int x, int y) {
 	Env_ClearCircle(midX, midY, radius);
 }
 
-void Terrain_Update() {
+void Terrain_Update(float _) {
 	while (!Queue_IsEmpty(tilesToExplode)) {
 		int pos = (int)Queue_Pop(tilesToExplode);
 		explodeTile(pos % width, pos / width);

@@ -267,7 +267,7 @@ static void sceneExit() {
 	Music_Stop();
 }
 
-static void sceneUpdate() {
+static void sceneUpdate(float _) {
 	Dispatcher_DispatchEvent(touchDispatcher);
 	Dispatcher_DispatchEvent(keyDispatcher);
 

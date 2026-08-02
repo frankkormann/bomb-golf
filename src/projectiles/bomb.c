@@ -10,6 +10,7 @@
 #include "../rendering/animation.h"
 #include "../rendering/animations/explosion.h"
 #include "../audio/soundeffect.h"
+#include "../scene.h"
 #include "../scenes/course.h"
 #include "../environment/environment.h"
 #include "../environment/terrain.h"
@@ -44,18 +45,6 @@ static void launch(float velX, float velY) {
 	ballState = FLYING_SHOULD_EXPLODE;
 }
 
-static void beginSlowTime() {
-	ProjectileI_Data *data = ProjectileI_AccessData();
-	data->velX *= TIME_SLOW_FACTOR;
-	data->velY *= TIME_SLOW_FACTOR;
-}
-
-static void endSlowTime() {
-	ProjectileI_Data *data = ProjectileI_AccessData();
-	data->velX /= TIME_SLOW_FACTOR;
-	data->velY /= TIME_SLOW_FACTOR;
-}
-
 /*
  * Sets the velocity to point towards (explosionX, explosionY) and sets its
  * magnitude to max(magnitude + EXPLOSION_BOOST, MIN_SPEED_AFTER_EXPLOSION)
@@ -87,14 +76,14 @@ static void doExplosion() {
 				EXPLOSION_RADIUS + 1),
 			NULL);
 	SoundEffect_Play(SFX_EXPLOSION, true);
-	if (ballState == FLYING_TIME_SLOWED) endSlowTime();
+	if (ballState == FLYING_TIME_SLOWED) Scene_SetSpeed(1);
 	ballState = FLYING_EXPLODED;
 }
 
-static bool move(float *hitX, float *hitY, Terrain_Type *hitType) {
+static bool move(float timestep, float *hitX, float *hitY, Terrain_Type *hitType) {
 	ProjectileI_Data *data = ProjectileI_AccessData();
 	if (TouchInput_JustStarted() && ballState == FLYING_SHOULD_EXPLODE) {
-		beginSlowTime();
+		Scene_SetSpeed(TIME_SLOW_FACTOR);
 		ballState = FLYING_TIME_SLOWED;
 	}
 
@@ -107,7 +96,7 @@ static bool move(float *hitX, float *hitY, Terrain_Type *hitType) {
 
 	float prevVelX = data->velX;
 	float prevVelY = data->velY;
-	bool hitSomething = ProjDefault_Move(hitX, hitY, hitType);
+	bool hitSomething = ProjDefault_Move(timestep, hitX, hitY, hitType);
 	if (ballState == FLYING_TIME_SLOWED) {
 		// Correct the magnitude any acceleration the ball received
 		// Use TIME_SLOW_FACTOR squared because this is acceleration
@@ -119,7 +108,7 @@ static bool move(float *hitX, float *hitY, Terrain_Type *hitType) {
 		
 		timeSlowFrames++;
 		if (timeSlowFrames > TIME_SLOW_MAX_FRAMES) {
-			endSlowTime();
+			Scene_SetSpeed(1);
 			ballState = FLYING_SHOULD_EXPLODE;
 		}
 	}

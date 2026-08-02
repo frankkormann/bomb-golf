@@ -643,7 +643,7 @@ static void drawInfoText(float x, float y, float depth) {
 	}
 }
 
-static void sceneUpdate() {
+static void sceneUpdate(float _) {
 	if (BG_IsUpdating(bg)) return;
 
 	u32 kDown = hidKeysDown();

@@ -41,7 +41,7 @@ f_textBuf:
 	return false;
 }
 
-static void sceneUpdate() {
+static void sceneUpdate(float _) {
 	u32 kDown = hidKeysDown();
 	if (kDown & KEY_A) {
 		Scene_SetNext(sceneTitle, Title_MakeParams());

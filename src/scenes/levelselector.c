@@ -171,7 +171,7 @@ static void sceneExit() {
 	}
 }
 
-static void sceneUpdate() {
+static void sceneUpdate(float _) {
 	u32 kDown = hidKeysDown();
 
 	if (kDown & KEY_B) {

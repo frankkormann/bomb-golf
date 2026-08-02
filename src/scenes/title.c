@@ -34,7 +34,7 @@ static void openEditor() {
 	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(-1));
 }
 
-static bool sceneInit(Scene_Params ignored) {
+static bool sceneInit() {
 	startText = Text_Create(8);
 	if (!startText) goto f_startText;
 	Text_SetContent(startText, "Start");
@@ -87,7 +87,7 @@ static void sceneExit() {
 	Dispatcher_Free(keyDispatcher);
 }
 
-static void sceneUpdate() {
+static void sceneUpdate(float _) {
 	Dispatcher_DispatchEvent(touchDispatcher);
 	Dispatcher_DispatchEvent(keyDispatcher);
 }

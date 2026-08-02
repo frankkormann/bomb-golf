@@ -1,3 +1,4 @@
+//FIXME Apply slow-time effect to obstacles
 #include <malloc.h>
 #include <stdbool.h>
 #include <math.h>
@@ -28,8 +29,8 @@ typedef struct {
 	int curPoint;
 	Bounds hitbox;
 	float speed;
-	int pathCounter;
-	int animCounter;
+	float pathCounter;
+	float animCounter;
 } Obstacle;
 
 static Bounds obstacleBounds[NUM_OBSTS/2] = {
@@ -230,11 +231,14 @@ bool Obstacle_IsAt(int argX, int argY) {
 	return List_Check(obstacleList, intersects);
 }
 
-void Obstacle_Update() {
+void Obstacle_Update(float argTimestep) {
+	// Make this static so 3DS doesn't crash when it's used in update
+	static float timestep;
+	timestep = argTimestep;
 	void update(void *elem) {
 		Obstacle *obst = (Obstacle*)elem;
-		obst->pathCounter++;
-		obst->animCounter++;
+		obst->pathCounter += timestep;
+		obst->animCounter += timestep;
 
 		float x, y;
 		getObstaclePos(obst, &x, &y);
@@ -264,7 +268,7 @@ void Obstacle_Draw(float argDepth) {
 		float x, y;
 		getObstaclePos(obst, &x, &y);
 		SpriteSheet_DrawObstacle(
-				(obst->animCounter / 30) % 2 == 0
+				((int)obst->animCounter / 30) % 2 == 0
 					? obst->spr1 : obst->spr2,
 				x, y, depth,
 				obst->rotate ? M_PI/2 : 0,

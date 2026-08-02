@@ -33,9 +33,9 @@ void Projectile_Reset();
 void Projectile_Launch(float velX, float velY);
 
 /*
- * Call this once per physics frame.
+ * Call this once per physics frame. At normal speed, timestep should be 1.
  */
-void Projectile_Update();
+void Projectile_Update(float timestep);
 
 /*
  * Call this once per graphics frame.

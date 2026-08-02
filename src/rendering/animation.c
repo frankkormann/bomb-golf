@@ -44,11 +44,14 @@ bool Animation_Start(Animation anim, Animation_Params params,
 	}
 }
 
-void Animation_Update() {
+void Animation_Update(float argTimestep) {
+	// Make this static so 3DS doesn't crash when it's used in update
+	static float timestep;
+	timestep = argTimestep;
 	void update(void *animationObj) {
 		AnimationI_AnimObj *obj = animationObj;
 		Animation anim = obj->anim;
-		anim->update(obj);
+		anim->update(obj, timestep);
 		if (anim->isFinished(obj) && obj->onFinish) {
 			obj->onFinish();
 		}

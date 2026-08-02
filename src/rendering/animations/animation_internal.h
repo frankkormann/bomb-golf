@@ -23,7 +23,7 @@ struct animation {
 	/*
 	 * Updates obj for one frame.
 	 */
-	void (*const update)(AnimationI_AnimObj *obj);
+	void (*const update)(AnimationI_AnimObj *obj, float timestep);
 	/*
 	 * Draws obj.
 	 */

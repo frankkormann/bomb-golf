@@ -31,6 +31,7 @@ union scene_params {
 /*
  * Sets first as the active Scene.
  * Each implementor of Scene provides a function to make their Scene_Params.
+ * Resets speed to 1 (see Scene_SetSpeed).
  *
  * Returns false if the Scene was unable to intialized.
  */
@@ -55,8 +56,17 @@ void Scene_Exit();
  * Exits the active Scene and sets next as the new active Scene.
  * Each implementor of Scene provides a function to make their Scene_Params.
  *
- * Also calls Animation_Clear.
+ * Also calls Animation_Clear and resets speed to 1 (see Scene_SetSpeed).
  */
 void Scene_SetNext(Scene next, Scene_Params params);
+
+/*
+ * Affects how much the active Scene updates for each call to Scene_Update.
+ * The speed acts as a multiplier; 1 is typical, 0.5 is half as fast, 2 is
+ * twice as fast, etc. Each Scene may interpret this number as it wishes.
+ *
+ * This is reset to 1 when a new Scene is entered.
+ */
+void Scene_SetSpeed(float speed);
 
 #endif

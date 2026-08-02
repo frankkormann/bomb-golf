@@ -34,7 +34,7 @@ typedef struct {
 	Point loc;
 	bool isUnderPar;
 	bool exploding;
-	int explosionFrame;
+	float explosionFrame;
 	Point trail[TRAIL_LENGTH];
 	int oldestTrailParticle;
 } FireworkData;
@@ -77,7 +77,7 @@ static u32 getTrailColor(FireworkData *data) {
 	return data->isUnderPar ? COLOR_YELLOW : COLOR_ORANGE;
 }
 
-static void update(AnimationI_AnimObj *obj) {
+static void update(AnimationI_AnimObj *obj, float timestep) {
 	FireworkData *data = (FireworkData*)obj->data;
 
 	data->trail[data->oldestTrailParticle] = data->exploding ?
@@ -85,9 +85,9 @@ static void update(AnimationI_AnimObj *obj) {
 	data->oldestTrailParticle = (data->oldestTrailParticle + 1) % TRAIL_LENGTH;
 
 	if (data->exploding) {
-		data->explosionFrame++;
+		data->explosionFrame += timestep;
 	} else {
-		data->loc.y--;
+		data->loc.y -= timestep;
 		if (data->loc.y < EXPLOSION_Y
 				|| Env_TypeAt(data->loc.x, data->loc.y)
 					!= TERRAIN_NOTHING) {

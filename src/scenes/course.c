@@ -43,6 +43,7 @@ static bool levelInRomfs;
 static bool shouldFreeTerrain;
 static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
+static float timestep;
 
 static int strokes, par;
 static bool hasFinished;
@@ -163,6 +164,7 @@ static bool sceneInit(Scene_Params params) {
 	Music_Start(MUSIC_LEVEL);
 
 	strokes  = 0;
+	timestep = 1;
 	hasFinished = false;
 	level = params.course.level;
 	levelInRomfs = params.course.inRomfs;
@@ -230,7 +232,7 @@ static void nextLevel() {
 			levelInRomfs, projPath));
 }
 
-static void sceneUpdate() {
+static void sceneUpdate(float speed) {
 	u32 kDown = hidKeysDown();
 //	u32 kHeld = hidKeysHeld();
 
@@ -261,9 +263,9 @@ static void sceneUpdate() {
 	}
 	Tracer_AddPoint(projPath, x, y);
 
-	Terrain_Update();
-	Obstacle_Update();
-	Projectile_Update();
+	Terrain_Update(speed);
+	Obstacle_Update(speed);
+	Projectile_Update(speed);
 
 	Text_SetContent(strokesText, "Strokes %i", strokes );
 }

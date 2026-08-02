@@ -13,7 +13,7 @@
 typedef struct {
 	float x;
 	float y;
-	int frame;
+	float frame;
 	bool flipHoriz;
 	bool flipVert;
 } SmokeData;
@@ -37,8 +37,8 @@ static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
 	return true;
 }
 
-static void update(AnimationI_AnimObj *obj) {
-	((SmokeData*)obj->data)->frame++;
+static void update(AnimationI_AnimObj *obj, float timestep) {
+	((SmokeData*)obj->data)->frame += timestep;
 }
 
 static void draw(AnimationI_AnimObj *obj) {

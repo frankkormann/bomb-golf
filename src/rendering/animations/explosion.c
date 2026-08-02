@@ -15,7 +15,7 @@ typedef struct {
 	float x;
 	float y;
 	float radius;
-	int counter;
+	float counter;
 } ExplosionData;
 
 Animation_Params Explosion_MakeParams(float x, float y, float radius) {
@@ -35,8 +35,8 @@ static bool create(Animation_Params params, AnimationI_AnimObj *obj) {
 	return true;
 }
 
-static void update(AnimationI_AnimObj *obj) {
-	((ExplosionData*)obj->data)->counter++;
+static void update(AnimationI_AnimObj *obj, float timestep) {
+	((ExplosionData*)obj->data)->counter += timestep;
 }
 
 static void draw(AnimationI_AnimObj *obj) {

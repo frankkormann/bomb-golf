@@ -63,9 +63,10 @@ void Obstacle_Clear();
 bool Obstacle_IsAt(int x, int y);
 
 /*
- * Moves all obstacles and updates their animations.
+ * Moves all obstacles and updates their animations. Call this once per physics
+ * frame. At normal speed, timestep should be 1.
  */
-void Obstacle_Update();
+void Obstacle_Update(float timestep);
 
 /*
  * Draws all obstacles at their locations in the environment.

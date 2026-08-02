@@ -57,11 +57,11 @@ void Projectile_Launch(float velX, float velY) {
 	proj->launch(velX, velY);
 }
 
-void Projectile_Update() {
+void Projectile_Update(float timestep) {
 	oldIsMoving = Projectile_IsMoving();
 	float hitX, hitY;
 	Terrain_Type hitType;
-	if (proj->move(&hitX, &hitY, &hitType)) {
+	if (proj->move(timestep, &hitX, &hitY, &hitType)) {
 		proj->onHitGround(hitX, hitY, hitType);
 	}
 
@@ -182,14 +182,26 @@ static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 	}
 }
 
-bool ProjDefault_Move(float *hitX, float *hitY, Terrain_Type *hitType) {
-	data.velY += PROJECTILE_GRAVITY;
+bool ProjDefault_Move(float timestep, float *hitX, float *hitY,
+		Terrain_Type *hitType) {
+	// Use timestep squared because this is acceleration
+	data.velY += PROJECTILE_GRAVITY * timestep * timestep;
 
 	bool hasHitSomething;
 	int finalX, finalY, lastOkX, lastOkY;
-	raycast(roundf(data.x), roundf(data.y), roundf(data.x + data.velX),
-			roundf(data.y + data.velY), &hasHitSomething, &finalX,
-			&finalY, &lastOkX, &lastOkY, hitX, hitY);
+	raycast(
+			roundf(data.x),
+			roundf(data.y),
+			roundf(data.x + data.velX * timestep),
+			roundf(data.y + data.velY * timestep),
+			&hasHitSomething,
+			&finalX,
+			&finalY,
+			&lastOkX,
+			&lastOkY,
+			hitX,
+			hitY
+		);
 
 	if (hasHitSomething) {
 		*hitType = Env_TypeAt(*hitX, *hitY);
@@ -199,8 +211,8 @@ bool ProjDefault_Move(float *hitX, float *hitY, Terrain_Type *hitType) {
 		data.y = lastOkY;
 		return true;
 	} else {
-		data.x += data.velX;
-		data.y += data.velY;
+		data.x += data.velX * timestep;
+		data.y += data.velY * timestep;
 		return false;
 	}
 }
@@ -247,4 +259,4 @@ void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType) {
 	}
 }
 
-void ProjDefault_Draw(float depth) {}
+void ProjDefault_Draw(float _) {}

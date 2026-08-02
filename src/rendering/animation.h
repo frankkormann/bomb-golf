@@ -40,9 +40,9 @@ bool Animation_Start(Animation anim, Animation_Params params,
 		void (*onFinish)(void));
 
 /*
- * Call this once per frame.
+ * Call this once per physics frame. At normal speed, timestep should be 1.
  */
-void Animation_Update();
+void Animation_Update(float timestep);
 
 /*
  * Removes playing all animations. Calls each one's onFinish callback if

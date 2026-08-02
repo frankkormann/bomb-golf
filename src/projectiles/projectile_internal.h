@@ -27,7 +27,8 @@ struct projectile {
 	 * If this returns false, the values of hitX, hitY, and hitType are
 	 * undefined.
 	 */
-	bool (*const move)(float *hitX, float *hitY, Terrain_Type *hitType);
+	bool (*const move)(float timestep, float *hitX, float *hitY,
+			Terrain_Type *hitType);
 	/*
 	 * Returns true if the projectile is considered moving.
 	 */
@@ -61,7 +62,8 @@ ProjectileI_Data* ProjectileI_AccessData();
  */
 void ProjDefault_Reset();
 void ProjDefault_Launch(float velX, float velY);
-bool ProjDefault_Move(float *hitX, float *hitY, Terrain_Type *hitType);
+bool ProjDefault_Move(float timestep, float *hitX, float *hitY,
+		Terrain_Type *hitType);
 bool ProjDefault_IsMoving();
 void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType);
 void ProjDefault_Draw(float depth);  // Does nothing

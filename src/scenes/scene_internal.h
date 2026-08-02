@@ -15,11 +15,12 @@ struct scene {
 	 */
 	bool (*const init)(Scene_Params params);
 	/*
-	 * Function which should be called once per physics frame.
+	 * Function which should be called once per frame to update its state.
 	 */
-	void (*const update)(void);
+	void (*const update)(float speed);
 	/*
-	 * Function which should be called once per graphics frame.
+	 * Function which draws everything to the screen; should not update scene
+	 * state.
 	 */
 	void (*const draw)(void);
 	/*

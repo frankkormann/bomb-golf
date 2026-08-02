@@ -41,9 +41,9 @@ void Terrain_ClearPixel(int x, int y);
 Terrain_Type Terrain_TypeAt(int x, int y);
 
 /*
- * Call this once per physics frame.
+ * Call this once per physics frame. At normal speed, timestep should be 1.
  */
-void Terrain_Update();
+void Terrain_Update(float timestep);
 
 /*
  * Call this once per graphics frame.
