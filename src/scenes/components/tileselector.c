@@ -1,3 +1,5 @@
+//TODO Redesign this because it holds too many tiles currently and overflows
+// the screen
 #include <stdbool.h>
 #include <citro2d.h>
 #include "tileselector.h"
