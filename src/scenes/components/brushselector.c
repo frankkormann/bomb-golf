@@ -27,6 +27,11 @@ static void toggleOpen() {
 		Button_Enable(rectangleButton);
 		Button_Enable(ballButton);
 		Button_Enable(holeButton);
+		Button_Enable(obstAddButton);
+		Button_Enable(obstEditButton);
+		Button_Enable(obstDelButton);
+		Button_Enable(obstMoveButton);
+		Button_Enable(obstDupeButton);
 		Button_Disable(expandButton);
 	} else {
 		Button_Enable(expandButton);
@@ -35,6 +40,11 @@ static void toggleOpen() {
 		Button_Disable(rectangleButton);
 		Button_Disable(ballButton);
 		Button_Disable(holeButton);
+		Button_Disable(obstAddButton);
+		Button_Disable(obstEditButton);
+		Button_Disable(obstDelButton);
+		Button_Disable(obstMoveButton);
+		Button_Disable(obstDupeButton);
 	}
 }
 
