@@ -43,9 +43,11 @@ static Bounds obstacleBounds[NUM_OBSTS/2] = {
 	};
 
 static List obstacleList;
+static int animOffset;
 
 bool Obstacle_Init() {
 	obstacleList = List_Create();
+	animOffset = 0;
 	return obstacleList == NULL;
 }
 
@@ -112,7 +114,8 @@ bool Obstacle_Add(Obstacle_Data data) {
 	obst->hitbox = obstacleBounds[obst->spr1/2];
 	obst->speed = data.speed;
 	obst->pathCounter = 0;
-	obst->animCounter = 0;  //TODO Consider randomizing this
+	obst->animCounter = animOffset;
+	animOffset += FRAMES_PER_ANIM * 5 / 7;
 
 	setFlipAndRotation(obst);
 
