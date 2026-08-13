@@ -82,13 +82,6 @@ bool ObstacleEditor_Init() {
 	if (!spriteDownButton) goto f_spriteDownButton;
 	Button_Disable(spriteDownButton);
 
-/*
-	pathButton = Button_Create(PATH_X, PATH_Y, SPRITE_MEDIUM_BUTTON, -1, NULL,
-			editPath);
-	if (!pathButton) goto f_pathButton;
-	Button_Disable(pathButton);
-*/
-
 	exitText = Text_Create(8);
 	if (!exitText) goto f_exitText;
 	Text_SetContent(exitText, "Done");
@@ -109,12 +102,6 @@ bool ObstacleEditor_Init() {
 	if (!rightText) goto f_rightText;
 	Text_SetContent(rightText, ">");
 
-/*
-	pathText = Text_Create(10);
-	if (!pathText) goto f_pathText;
-	Text_SetContent(pathText, "Edit Path");
-*/
-
 	speedText = Text_Create(9);
 	if (!speedText) goto f_speedText;
 
@@ -123,10 +110,6 @@ bool ObstacleEditor_Init() {
 	return true;
 
 f_speedText:
-/*
-	Text_Free(pathText);
-f_pathText:
-*/
 	Text_Free(rightText);
 f_rightText:
 	Text_Free(leftText);
@@ -137,10 +120,6 @@ f_downText:
 f_upText:
 	Text_Free(exitText);
 f_exitText:
-/*
-	Button_Free(pathButton);
-f_pathButton:
-*/
 	Button_Free(spriteDownButton);
 f_spriteDownButton:
 	Button_Free(spriteUpButton);
@@ -155,13 +134,11 @@ f_exitButton:
 }
 
 void ObstacleEditor_Exit() {
-//	Button_Free(pathButton);
 	Button_Free(spriteDownButton);
 	Button_Free(spriteUpButton);
 	Button_Free(speedDownButton);
 	Button_Free(speedUpButton);
 	Button_Free(exitButton);
-//	Text_Free(pathText);
 	Text_Free(downText);
 	Text_Free(upText);
 	Text_Free(leftText);
@@ -176,7 +153,6 @@ void ObstacleEditor_Show(Obstacle_Data *toEdit) {
 	isShowing = true;
 	curObst = toEdit;
 	changeSpeed(0);  // Get initial text in speedText
-//	Button_Enable(pathButton);
 	Button_Enable(spriteDownButton);
 	Button_Enable(spriteUpButton);
 	Button_Enable(speedDownButton);
@@ -192,7 +168,6 @@ static bool handleTouchInput() {
 
 static void hideEditor() {
 	isShowing = !isShowing;
-//	Button_Disable(pathButton);
 	Button_Disable(spriteDownButton);
 	Button_Disable(spriteUpButton);
 	Button_Disable(speedDownButton);
@@ -215,10 +190,6 @@ static void changeSpeed(int change) {
 
 bool ObstacleEditor_RegisterForTouchEvents(Dispatcher touchDispatcher,
 		int priority) {
-/*
-	if (!Button_RegisterForTouchEvents(pathButton, touchDispatcher, priority))
-		goto f_pathButton;
-*/
 	if (!Button_RegisterForTouchEvents(spriteDownButton, touchDispatcher,
 			priority))
 		goto f_spriteDownButton;
@@ -249,10 +220,6 @@ f_speedDownButton:
 f_spriteUpButton:
 	Button_RemoveFromTouchDispatcher(spriteDownButton, touchDispatcher);
 f_spriteDownButton:
-/*
-	Button_RemoveFromTouchDispatcher(pathButton, touchDispatcher);
-f_pathButton:
-*/
 	return false;
 }
 
@@ -262,7 +229,6 @@ void ObstacleEditor_RemoveFromTouchDispatcher(Dispatcher touchDispatcher) {
 	Button_RemoveFromTouchDispatcher(speedDownButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(spriteUpButton, touchDispatcher);
 	Button_RemoveFromTouchDispatcher(spriteDownButton, touchDispatcher);
-//	Button_RemoveFromTouchDispatcher(pathButton, touchDispatcher);
 	Dispatcher_RemoveHandler(touchDispatcher, (Dispatcher_Handler) {
 			.priority = 0, NULL, handleTouchInput });
 }
@@ -283,7 +249,6 @@ void ObstacleEditor_Draw(float depth) {
 	Button_Draw(speedDownButton, depth);
 	Button_Draw(spriteUpButton, depth);
 	Button_Draw(spriteDownButton, depth);
-//	Button_Draw(pathButton, depth);
 
 	Text_Draw(speedText, SPEED_TEXT_X, SPEED_TEXT_Y, depth, COLOR_DGRAY, 1,
 			TEXT_CENTERED);
@@ -297,8 +262,4 @@ void ObstacleEditor_Draw(float depth) {
 			1, TEXT_LEFT);
 	Text_Draw(downText, SPEED_DOWN_X + 7, SPEED_DOWN_Y + 5, depth, COLOR_LGRAY,
 			1, TEXT_LEFT);
-/*
-	Text_Draw(pathText, PATH_X + 10, PATH_Y + 5, depth, COLOR_LGRAY, 1,
-			TEXT_LEFT);
-*/
 }

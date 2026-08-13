@@ -103,9 +103,6 @@ bool Obstacle_Add(Obstacle_Data data) {
 
 	obst->spr1 = data.sprite1;
 	obst->spr2 = data.sprite2;
-	obst->flipHoriz = data.numPoints > 1 && data.xs[0] > data.xs[1];
-	obst->flipVert = data.numPoints > 1 && data.xs[0] == data.xs[1]
-			&& data.ys[0] > data.ys[1];
 	for (int i = 0; i < data.numPoints; i++) {
 		obst->xs[i] = data.xs[i];
 		obst->ys[i] = data.ys[i];
