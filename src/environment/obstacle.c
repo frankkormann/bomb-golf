@@ -10,6 +10,8 @@
 #include "../util/list.h"
 #include "../util/macros.h"
 
+#define FRAMES_PER_ANIM 20
+
 typedef struct {
 	int xOff;
 	int yOff;
@@ -240,7 +242,7 @@ void Obstacle_Update(float argTimestep) {
 	void update(void *elem) {
 		Obstacle *obst = (Obstacle*)elem;
 		obst->pathCounter += timestep;
-		obst->animCounter += timestep;
+		obst->animCounter += timestep * obst->speed;
 
 		float x, y;
 		getObstaclePos(obst, &x, &y);
@@ -270,7 +272,7 @@ void Obstacle_Draw(float argDepth) {
 		float x, y;
 		getObstaclePos(obst, &x, &y);
 		SpriteSheet_DrawObstacle(
-				((int)obst->animCounter / 30) % 2 == 0
+				((int)obst->animCounter / FRAMES_PER_ANIM) % 2 == 0
 					? obst->spr1 : obst->spr2,
 				x, y, depth,
 				obst->rotate ? M_PI/2 : 0,
