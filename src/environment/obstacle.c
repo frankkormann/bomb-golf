@@ -35,7 +35,9 @@ typedef struct {
 
 static Bounds obstacleBounds[NUM_OBSTS/2] = {
 		{ 0, 3, 16, 7 },
-		{ 0, 4, 24, 8 }
+		{ 0, 4, 24, 8 },
+		{ 1, 4, 22, 5 },
+		{ 1, 1, 22, 5 }
 	};
 
 static List obstacleList;
