@@ -189,8 +189,20 @@ static void drawObstacle(LevelIO_Obst obst, float previewX, float previewY,
 	C2D_ViewTranslate(previewX, previewY);
 	C2D_ViewScale(previewWidth / LEVEL_MAX_WIDTH, previewHeight / LEVEL_HEIGHT);
 
-	SpriteSheet_DrawObstacle(obst.sprite1, obst.xs[0], obst.ys[0], depth, 0,
-			false, false);
+	int firstX = obst.xs[0];
+	int firstY = obst.ys[0];
+	int secondX = obst.numPoints > 1 ? obst.xs[1] : obst.xs[0];
+	int secondY = obst.numPoints > 1 ? obst.ys[1] : obst.ys[0];
+
+	SpriteSheet_DrawObstacle(
+			obst.sprite1,
+			firstX,
+			firstY,
+			0.5,
+			firstX == secondX && firstY != secondY ? M_PI/2 : 0,
+			firstX > secondX || (firstX == secondX && firstY > secondY),
+			firstX == secondX && firstY != secondY
+		);
 
 	C2D_ViewRestore(&prevMtx);
 }

@@ -688,8 +688,20 @@ static void drawObstacleTop(void *elem) {
 	C2D_ViewScale((float)LEVEL_PREVIEW_WIDTH / LEVEL_MAX_WIDTH,
 			(float)LEVEL_PREVIEW_HEIGHT / LEVEL_HEIGHT);
 
-	SpriteSheet_DrawObstacle(obst->sprite1, obst->xs[0], obst->ys[0], 0.5, 0,
-			false, false);
+	int firstX = obst->xs[0];
+	int firstY = obst->ys[0];
+	int secondX = obst->numPoints > 1 ? obst->xs[1] : obst->xs[0];
+	int secondY = obst->numPoints > 1 ? obst->ys[1] : obst->ys[0];
+
+	SpriteSheet_DrawObstacle(
+			obst->sprite1,
+			firstX,
+			firstY,
+			0.5,
+			firstX == secondX && firstY != secondY ? M_PI/2 : 0,
+			firstX > secondX || (firstX == secondX && firstY > secondY),
+			firstX == secondX && firstY != secondY
+		);
 
 	C2D_ViewRestore(&prevMtx);
 }
