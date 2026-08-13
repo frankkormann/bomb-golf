@@ -5,6 +5,7 @@
 #include "tileselector.h"
 #include "button.h"
 #include "background.h"
+#include "brushselector.h"
 #include "../../tile.h"
 #include "../../rendering/colors.h"
 #include "../../util/touchinput.h"
@@ -141,6 +142,8 @@ static bool handleTouchInputHotbar() {
 			HOTBAR_HEIGHT)) {
 		selectedHotbarIndex = (touch.end.px - HOTBAR_X)
 				/ (TILE_SIZE + TILE_GAP);
+		if (BrushSelector_GetBrush() >= BRUSH_BALL_POS)
+			BrushSelector_SetBrush(BRUSH_PENCIL);
 	}
 
 	return true;
