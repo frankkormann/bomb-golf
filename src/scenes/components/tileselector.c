@@ -162,6 +162,8 @@ static bool handleTouchInputPopup() {
 		int tileOrient = (touch.end.py - POPUP_Y) / (TILE_SIZE + TILE_GAP);
 		setHotbarTile(Tile_Make(tileIndex, tileOrient), selectedHotbarIndex);
 		handleShrink(NULL);
+		if (BrushSelector_GetBrush() >= BRUSH_BALL_POS)
+			BrushSelector_SetBrush(BRUSH_PENCIL);
 	}
 
 	return true;
