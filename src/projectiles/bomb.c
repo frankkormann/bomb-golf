@@ -152,9 +152,9 @@ static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
 	ProjDefault_OnHitGround(hitX, hitY, hitType);
 }
 
-static void drawCircle(int x, int y, int radius, u32 color) {
+static void drawCircle(int x, int y, float depth, int radius, u32 color) {
 	void plot(int x, int y) {
-		C2D_DrawRectSolid(x, y, 0, 1, 1, color);
+		C2D_DrawRectSolid(x, y, depth, 1, 1, color);
 	}
 
 	int f = 1 - radius;
@@ -205,7 +205,7 @@ static void drawAimingCircle(float depth) {
 		color = COLOR_TRANSPARENT;
 	}
 
-	drawCircle(data->x, data->y, EXPLOSION_RADIUS, color);
+	drawCircle(data->x, data->y, depth, EXPLOSION_RADIUS, color);
 	C2D_DrawLine(data->x - lineX, data->y - lineY, color, data->x + lineX,
 			data->y + lineY, color, 1, depth);
 }
