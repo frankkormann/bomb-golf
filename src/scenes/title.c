@@ -12,6 +12,7 @@
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/spritesheet.h"
+#include "../rendering/animation.h"
 #include "../util/dispatcher.h"
 
 #define BUTTON_X 60
@@ -110,6 +111,8 @@ static void sceneDraw() {
 	Button_Draw(editorButton, 0);
 	Text_Draw(editorText, BUTTON_X +20, BUTTON_START_Y + BUTTON_GAP + 10, 0,
 			COLOR_LGRAY, 2, TEXT_LEFT);
+
+	Animation_Draw(0.5);
 }
 
 Scene sceneTitle = &(struct scene) {

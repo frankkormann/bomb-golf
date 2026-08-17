@@ -41,17 +41,12 @@ static void update(AnimationI_AnimObj *obj, float timestep) {
 	((SmokeData*)obj->data)->frame += timestep;
 }
 
-static void draw(AnimationI_AnimObj *obj) {
-	C2D_SceneBegin(RenderTarget_GetBottom());
-	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
-
+static void draw(AnimationI_AnimObj *obj, float depth) {
 	SmokeData *data = (SmokeData*)obj->data;
 	SpriteSheet_Sprite sprite = SPRITE_SMOKE1 
 			+ (data->frame / ANIMATION_FRAME_LENGTH);
-	SpriteSheet_DrawCentered(sprite, (int)data->x, (int)data->y, 0.5, 0,
+	SpriteSheet_DrawCentered(sprite, (int)data->x, (int)data->y, depth, 0,
 			data->flipHoriz, data->flipVert);
-
-	C2D_ViewReset();
 }
 
 static bool isFinished(AnimationI_AnimObj *obj) {

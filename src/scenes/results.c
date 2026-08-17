@@ -17,6 +17,7 @@
 #include "../environment/terrain.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
+#include "../rendering/animation.h"
 #include "../audio/music.h"
 #include "../util/dispatcher.h"
 #include "../levelio.h"
@@ -315,6 +316,8 @@ static void sceneDraw() {
 	Button_Draw(quitButton, 0.5);
 	Text_Draw(quitText, BUTTON_X + 20, BUTTON_START_Y + BUTTON_GAP + 10, 1,
 			COLOR_LGRAY, 2, TEXT_LEFT);
+
+	Animation_Draw(0.5);
 }
 
 Scene sceneResults = &(struct scene) {

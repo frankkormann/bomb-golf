@@ -20,6 +20,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
+#include "../rendering/animation.h"
 #include "../environment/obstacle.h"
 #include "../audio/music.h"
 #include "../projectiles/bomb.h"
@@ -760,6 +761,7 @@ static void sceneDraw() {
 
 	BG_Draw(bg, 0, 0, -1, 1, 1);
 	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
+	Animation_Draw(0.5);
 	SpriteSheet_DrawCentered(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
 	List_ForEach(obstacleList, drawObstacleBottom);
 

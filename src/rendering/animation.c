@@ -86,14 +86,15 @@ void Animation_Clear(bool doCallbacks) {
 	List_Filter(activeAnimations, returnTrue, freeAnim);
 }
 
-void Animation_Draw() {
+void Animation_Draw(float argDepth) {
 	// Needs to be declared static for use within draw without a crash
-	static int animsDrawn;
+	static int animsDrawn, depth;
 	animsDrawn = 0;
+	depth = argDepth;
 	void draw(void *animationObj) {
 		if (++animsDrawn > MAX_ANIMS_TO_DRAW_PER_FRAME) return;
 		AnimationI_AnimObj *obj = animationObj;
-		obj->anim->draw(obj);
+		obj->anim->draw(obj, depth);
 	}
 	List_ForEach(activeAnimations, draw);
 }

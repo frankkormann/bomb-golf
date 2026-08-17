@@ -50,6 +50,6 @@ void Animation_Update(float timestep);
  */
 void Animation_Clear(bool doCallbacks);
 
-void Animation_Draw();
+void Animation_Draw(float depth);
 
 #endif

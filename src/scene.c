@@ -38,7 +38,6 @@ void Scene_Update() {
 void Scene_Draw() {
 	if (sceneCurrent) {
 		sceneCurrent->draw();
-		Animation_Draw();
 		if (Popup_IsOpen()) Popup_Draw();
 	}
 }

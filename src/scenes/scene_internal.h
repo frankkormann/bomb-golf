@@ -21,6 +21,8 @@ struct scene {
 	/*
 	 * Function which draws everything to the screen; should not update scene
 	 * state.
+	 *
+	 * Must call Animation_Draw somewhere with appropriate depth.
 	 */
 	void (*const draw)(void);
 	/*

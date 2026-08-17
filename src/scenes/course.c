@@ -336,6 +336,7 @@ static void sceneDraw() {
 	}
 
 	Terrain_Draw(0, 0, 0, fieldWidth, LEVEL_HEIGHT, NULL, NULL, NULL, NULL);
+	Animation_Draw(0.5);
 	Obstacle_Draw(1);
 	Projectile_Draw(1);
 

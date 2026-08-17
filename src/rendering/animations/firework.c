@@ -99,29 +99,25 @@ static void update(AnimationI_AnimObj *obj, float timestep) {
 	}
 }
 
-static void draw(AnimationI_AnimObj *obj) {
-	C2D_SceneBegin(RenderTarget_GetBottom());
-	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
-
+static void draw(AnimationI_AnimObj *obj, float depth) {
 	FireworkData *data = (FireworkData*)obj->data;
 	if (data->exploding) {
 		SpriteSheet_Sprite spr;
 		if (getSpriteForFrame(&spr, data)) {
 			SpriteSheet_DrawCentered(spr, (int)data->loc.x,
-					(int)data->loc.y, 0.5, 0, false, false);
+					(int)data->loc.y, depth, 0, false, false);
 		}
 	} else {
-		C2D_DrawRectSolid(data->loc.x, data->loc.y, 0.5, TRAIL_PARTICLE_SIZE,
-				TRAIL_PARTICLE_SIZE, COLOR_WHITE);
+		C2D_DrawRectSolid(data->loc.x, data->loc.y, depth,
+				TRAIL_PARTICLE_SIZE, TRAIL_PARTICLE_SIZE,
+				COLOR_WHITE);
 	}
 
 	for (size_t i = 0; i < TRAIL_LENGTH; i++) {
-		C2D_DrawRectSolid(data->trail[i].x, data->trail[i].y, 0.5,
+		C2D_DrawRectSolid(data->trail[i].x, data->trail[i].y, depth,
 				TRAIL_PARTICLE_SIZE, TRAIL_PARTICLE_SIZE,
 				getTrailColor(data));
 	}
-
-	C2D_ViewReset();
 }
 
 static bool isFinished(AnimationI_AnimObj *obj) {

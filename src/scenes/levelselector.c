@@ -14,6 +14,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
+#include "../rendering/animation.h"
 #include "../util/dispatcher.h"
 #include "../levelio.h"
 
@@ -244,6 +245,7 @@ static void sceneDraw() {
 			LevelCard_Draw(levelCards[r][c], 0);
 		}
 	}
+	Animation_Draw(0.5);
 }
 
 Scene sceneLevelSelector = &(struct scene) {

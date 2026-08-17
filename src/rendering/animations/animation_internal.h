@@ -27,7 +27,7 @@ struct animation {
 	/*
 	 * Draws obj.
 	 */
-	void (*const draw)(AnimationI_AnimObj *obj);
+	void (*const draw)(AnimationI_AnimObj *obj, float depth);
 	/*
 	 * Returns true if obj has completed its animation.
 	 */
