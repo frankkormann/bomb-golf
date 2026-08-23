@@ -91,4 +91,10 @@ bool LevelIO_Write(
 		int par,
 		const char *name
 	);
+
+/*
+ * Returns false if an error occured. In this case, nothing is swapped.
+ */
+bool LevelIO_Swap(const char *path1, const char *path2);
+
 #endif

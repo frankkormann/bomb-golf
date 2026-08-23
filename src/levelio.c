@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <stdio.h>
 #include <stddef.h>
 #include <string.h>
 #include <3ds.h>
@@ -273,4 +274,20 @@ f_fwrite:
 	fclose(data);
 f_data:
 	return false;
+}
+
+bool LevelIO_Swap(const char *path1, const char *path2) {
+	if (rename(path1, "temp") == -1) {
+		return false;
+	}
+	if (rename(path2, path1) == -1) {
+		rename("temp", path1);
+		return false;
+	}
+	if (rename("temp", path2) == -1) {
+		rename(path1, path2);
+		rename("temp", path1);
+		return false;
+	}
+	return true;
 }
