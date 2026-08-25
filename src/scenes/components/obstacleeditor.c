@@ -30,26 +30,20 @@
 #define SPEED_UP_Y (SPEED_TEXT_Y - 5)
 #define SPEED_DOWN_X SPRITE_LEFT_X
 #define SPEED_DOWN_Y (SPEED_TEXT_Y - 5)
-/*
-#define PATH_X (160 - 50)
-#define PATH_Y (SPEED_UP_Y + 35)
-*/
 #define EXIT_X (160 - 50)
 #define EXIT_Y (SPEED_UP_Y + 35)
 
 static Button exitButton, speedUpButton, speedDownButton, spriteUpButton,
-		spriteDownButton /*, pathButton */;
-static Text exitText, upText, downText, leftText, rightText, /* pathText, */ speedText;
+		spriteDownButton;
+static Text exitText, upText, downText, leftText, rightText, speedText;
 
 static bool isShowing;
-//static List obstacleList;
 static Obstacle_Data *curObst;
 
 // Declarations needed for buttons, dispatcher
 static void hideEditor();
 static void changeSprite(bool goUp);
 static void changeSpeed(int change);
-//static void editPath();
 static bool handleTouchInput();
 
 bool ObstacleEditor_Init() {
