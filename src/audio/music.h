@@ -7,12 +7,15 @@
 
 #include <stdbool.h>
 
+// These values are written directly into level files, so be careful when
+// reassigning or removing them
 typedef enum {
-	MUSIC_LEVEL,
+	MUSIC_LEVEL_1,
+	MUSIC_LEVEL_2,
 	MUSIC_RESULTS,
+	MUSIC_EDITOR,
 //	MUSIC_SUMMARY,  // Future idea
 //	MUSIC_CREDITS,  // Future idea
-	MUSIC_EDITOR,
 
 	NUM_MUSIC_SONGS
 } Music_Song;
