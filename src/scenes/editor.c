@@ -670,9 +670,10 @@ static void sceneUpdate(float _) {
 	Text_SetContent(parText, "Par %i", par);
 }
 
-static void drawRectOutline(int x, int y, int width, int height, u32 color, int 		outlineWidth) {
-	C2D_DrawRectSolid(x, y, 0, width, outlineWidth, color);
-	C2D_DrawRectSolid(x, y, 0, outlineWidth, height, color);
+static void drawRectOutline(int x, int y, float depth, int width, int height,
+		u32 color, int outlineWidth) {
+	C2D_DrawRectSolid(x, y, depth, width, outlineWidth, color);
+	C2D_DrawRectSolid(x, y, depth, outlineWidth, height, color);
 	C2D_DrawRectSolid(x, y + height - outlineWidth, 0, width, outlineWidth,
 			color);
 	C2D_DrawRectSolid(x + width - outlineWidth, y, 0, outlineWidth, height,
@@ -760,10 +761,10 @@ static void sceneDraw() {
 	C2D_ViewTranslate(-scroll, 0);
 
 	BG_Draw(bg, 0, 0, -1, 1, 1);
-	drawRectOutline(holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
-	Animation_Draw(0.5);
-	SpriteSheet_DrawCentered(SPRITE_BALL, projX, projY, 0.5, 0, false, false);
 	List_ForEach(obstacleList, drawObstacleBottom);
+	drawRectOutline(holeX, holeY, -0.5, HOLE_WIDTH, HOLE_HEIGHT, COLOR_DRED, 2);
+	Animation_Draw(-0.5);
+	SpriteSheet_DrawCentered(SPRITE_BALL, projX, projY, -0.5, 0, false, false);
 
 	C2D_ViewReset();
 
