@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include "projectile.h"
 #include "tile.h"
+#include "audio/music.h"
 
 #define LEVEL_PATH_MAX 20
 
@@ -27,7 +28,6 @@ typedef struct {
 typedef struct {
 	int startX;
 	int startY;
-	Projectile type;
 } LevelIO_Proj;
 
 typedef struct {
@@ -55,8 +55,7 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path);
  * **obstacles is allocated with length *numObsts.
  * Each LevelIO_Obst.xs and LevelIO_Obst.ys will also be allocated.
  *
- * Returns false if an error occurred. Nothing will be allocated if false is
- * returned.
+ * Returns false if an error occurred. In this case, nothing will be allocated.
  */
 bool LevelIO_Read(
 		const char *path,
@@ -69,7 +68,8 @@ bool LevelIO_Read(
 		size_t *numObsts,
 		int *width,
 		int *par,
-		char **name
+		char **name,
+		Music_Song *song
 	);
 
 /*
@@ -89,7 +89,8 @@ bool LevelIO_Write(
 		size_t numObsts,
 		int width,
 		int par,
-		const char *name
+		const char *name,
+		Music_Song song
 	);
 
 /*

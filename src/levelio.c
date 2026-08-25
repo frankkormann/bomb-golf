@@ -8,6 +8,7 @@
 #include "savedata.h"
 #include "rendering/spritesheet.h"
 #include "projectiles/bomb.h"
+#include "audio/music.h"
 
 void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 	if (inRomfs) {
@@ -16,18 +17,6 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 		sprintf(path, "%s:/level_%i.bin", SaveData_GetDeviceName(),
 				levelNum);
 	}
-}
-
-// Projectile is really a pointer, so convert from int for serialization
-static Projectile numToProj(int num) {
-	if (num == 0) return projectileBomb;
-	return NULL;
-}
-
-// Projectile is really a pointer, so convert to int for serialization
-static int projToNum(Projectile proj) {
-	if (proj == projectileBomb) return 0;
-	return -1;
 }
 
 /*
@@ -123,13 +112,14 @@ bool LevelIO_Read(
 		size_t *numObsts,
 		int *width,
 		int *par,
-		char **name
+		char **name,
+		Music_Song *song
 	) {
 	FILE *data = fopen(path, "rb");
 	if (!data) goto f_data;
 
 	// We use these values, so make sure there is space allocated for them
-	int readWidth, projNum;
+	int readWidth;
 	size_t nameSize, overlayTilesSize;
 
 	if (!maybeRead(&readWidth, sizeof(readWidth), data)) goto f_maybeRead1;
@@ -153,8 +143,6 @@ bool LevelIO_Read(
 		goto f_maybeRead2;
 	if (!maybeRead(proj  ? &proj->startY : NULL, sizeof(proj->startY), data))
 		goto f_maybeRead2;
-	if (!maybeRead(&projNum,                     sizeof(projNum),      data))
-		goto f_maybeRead2;
 	if (!maybeRead(tiles ? **tiles       : NULL, tilesSize,            data))
 		goto f_maybeRead2;
 	if (!maybeRead(&nameSize,                    sizeof(nameSize),     data))
@@ -177,11 +165,8 @@ bool LevelIO_Read(
 	if (!maybeRead(overlayTiles ? *overlayTiles : NULL, overlayTilesSize, data))
 		goto f_maybeRead4;
 	if (!readObstacles(obstacles, numObsts, data)) goto f_maybeRead4;
+	if (!maybeRead(song, sizeof(*song), data)) goto f_maybeRead4;
 
-	if (proj) {
-		proj->type = numToProj(projNum);
-		if (!proj->type) goto f_projtype;
-	}
 	if (width) *width = readWidth;
 	if (numOverlayTiles) {
 		*numOverlayTiles = overlayTilesSize / sizeof(**overlayTiles);
@@ -190,7 +175,6 @@ bool LevelIO_Read(
 	fclose(data);
 	return true;
 
-f_projtype:
 f_maybeRead4:
 	if (overlayTiles) free(*overlayTiles);
 f_overlayTiles:
@@ -239,13 +223,13 @@ bool LevelIO_Write(
 		size_t numObsts,
 		int width,
 		int par,
-		const char *name
+		const char *name,
+		Music_Song song
 	) {
 	FILE *data = fopen(path, "wb");
 	if (!data) goto f_data;
 
 	size_t tilesSize = sizeof(*tiles) * width / TILE_SIZE;
-	int projNum = projToNum(proj.type);
 
 	size_t nameSize = (strlen(name) + 1) * sizeof(char);
 	size_t overlayTilesSize = numOverlayTiles * sizeof(*overlayTiles);
@@ -258,7 +242,6 @@ bool LevelIO_Write(
 	if (!fwrite(&hole.height,      sizeof(hole.height), 1, data)) goto f_fwrite;
 	if (!fwrite(&proj.startX,      sizeof(proj.startX), 1, data)) goto f_fwrite;
 	if (!fwrite(&proj.startY,      sizeof(proj.startY), 1, data)) goto f_fwrite;
-	if (!fwrite(&projNum,          sizeof(projNum),     1, data)) goto f_fwrite;
 	if (!fwrite(tiles,             tilesSize,           1, data)) goto f_fwrite;
 	if (!fwrite(&nameSize,         sizeof(nameSize),    1, data)) goto f_fwrite;
 	if (!fwrite(name,              nameSize,            1, data)) goto f_fwrite;
@@ -266,6 +249,7 @@ bool LevelIO_Write(
 		goto f_fwrite;
 	if (!fwrite(overlayTiles,      overlayTilesSize,    1, data)) goto f_fwrite;
 	if (!writeObstacles(obstacles, numObsts,               data)) goto f_fwrite;
+	if (!fwrite(&song,             sizeof(song),        1, data)) goto f_fwrite;
 
 	fclose(data);
 	return true;

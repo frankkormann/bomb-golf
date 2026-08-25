@@ -114,9 +114,10 @@ static bool sceneInit(Scene_Params params) {
 	size_t numOverlayTiles;
 	LevelIO_Obst *obstacles;
 	size_t numObsts;
+	//Music_Song song; //TODO
 	if (LevelIO_Read(path, &hole, &proj, &tiles, &denseOverlayTiles,
 			&numOverlayTiles, &obstacles, &numObsts, &width, &par,
-			&name)) {
+			&name, NULL)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!newTiles) goto f_newTiles;
@@ -249,7 +250,7 @@ static bool exportLevel() {
 	LevelIO_MakePath(level, false, path);
 
 	LevelIO_Hole hole = { holeX, holeY, HOLE_WIDTH, HOLE_HEIGHT };
-	LevelIO_Proj proj = { projX, projY, projectileBomb };
+	LevelIO_Proj proj = { projX, projY };
 
 	int tilesMaxX = 0;
 	size_t numOverlayTiles = 0;
@@ -282,10 +283,12 @@ static bool exportLevel() {
 	size_t numObsts;
 	if (!getObstacles(&obstacles, &numObsts)) goto f_obstacles;
 
+	//TODO Music selector
 	bool success = LevelIO_Write(path, hole, proj, tiles,
 			denseOverlayTiles, numOverlayTiles,
 			obstacles, numObsts,
-			(tilesMaxX + 1) * TILE_SIZE, par, name);
+			(tilesMaxX + 1) * TILE_SIZE, par, name, 
+			level % 2 == 0 ? MUSIC_LEVEL_1 : MUSIC_LEVEL_2);
 
 	free(denseOverlayTiles);
 	free(obstacles);

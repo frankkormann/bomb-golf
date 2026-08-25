@@ -105,9 +105,10 @@ static bool sceneInit(Scene_Params params) {
 	LevelIO_Obst *obstacles;
 	size_t numObsts;
 	char *name;
+	Music_Song song;
 	if (!LevelIO_Read(path, &hole, &proj, &tiles, &overlayTiles,
 			&numOverlayTiles, &obstacles, &numObsts, &fieldWidth,
-			&par, &name)) {
+			&par, &name, &song)) {
 		errMsg = "Level file is malformed or doesn't exist";
 		goto f_LevelIORead;
 	}
@@ -157,11 +158,11 @@ static bool sceneInit(Scene_Params params) {
 	holeWidth = hole.width;
 	holeHeight = hole.height;
 
-	Projectile_SetType(proj.type);
+	Projectile_SetType(projectileBomb);
 	Projectile_SetPos(proj.startX, proj.startY);
 	Projectile_Reset();
 
-	Music_Start(MUSIC_LEVEL);
+	Music_Start(song);
 
 	strokes  = 0;
 	timestep = 1;

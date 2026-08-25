@@ -70,7 +70,7 @@ static void displayLevel(int levelNum) {
 
 		if (!LevelIO_Read(path, NULL, NULL, &tiles, &overlayTiles,
 				&numOverlayTiles, &obstacles, &numObstacles, &width,
-				&par, &name)) {
+				&par, &name, NULL)) {
 			// Spaces to maintain center alignment
 			Text_SetContent(infoText, "     Level does not exist");
 			levelIsSelected = false;
