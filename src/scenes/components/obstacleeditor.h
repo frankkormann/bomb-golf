@@ -17,7 +17,7 @@ bool ObstacleEditor_Init();
 void ObstacleEditor_Exit();
 
 /*
- * The editor will dismiss itself when done. toEdit is altered in-place.
+ * Alters toEdit in place.
  */
 void ObstacleEditor_Show(Obstacle_Data *toEdit);
 
