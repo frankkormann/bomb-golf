@@ -16,6 +16,7 @@
  */
 bool EditorMenu_Init(
 		void (*editName)(),
+		void (*editMusic)(),
 		void (*exit)(),
 		void (*changePar)(int change)
 	);

@@ -74,6 +74,7 @@ Scene_Params Editor_MakeParams(unsigned int level) {
 // Declarations needed to register with dispatcher, buttons
 static bool handleTouchInput();
 static void editName();
+static void editMusic();
 static void showExitPopup();
 static void changePar(int change);
 
@@ -180,7 +181,8 @@ static bool sceneInit(Scene_Params params) {
 			.priority = 0, NULL, handleTouchInput });
 	TileSelector_RegisterForTouchEvents(touchDispatcher, 2);
 
-	if (!EditorMenu_Init(editName, showExitPopup, changePar)) goto f_EditorMenu;
+	if (!EditorMenu_Init(editName, editMusic, showExitPopup, changePar))
+			goto f_EditorMenu;
 	EditorMenu_RegisterForTouchEvents(touchDispatcher, 1);
 
 	if (!BrushSelector_Init(BRUSH_PENCIL)) goto f_BrushSelector;
@@ -481,6 +483,10 @@ static void editName() {
 	name = newName;
 	strcpy(name, buf);
 	Text_SetContent(nameText, name);
+}
+
+static void editMusic() {
+	//TODO
 }
 
 static void saveExit() {
