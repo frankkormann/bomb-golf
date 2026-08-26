@@ -12,26 +12,26 @@
 #include "../../util/macros.h"
 #include "../../util/touchinput.h"
 
-#define BOX_X (SPRITE_LEFT_X - 10)
-#define BOX_Y (SPRITE_RIGHT_Y - 10)
-#define BOX_WIDTH 120
-#define BOX_HEIGHT (EXIT_Y - BOX_Y + 40)
-#define SPRITE_X (160 - SPRITE_WIDTH/2)
-#define SPRITE_Y 60
-#define SPRITE_WIDTH 60
-#define SPRITE_HEIGHT 40
-#define SPRITE_LEFT_X (SPRITE_X - 20)
-#define SPRITE_LEFT_Y (SPRITE_Y + SPRITE_HEIGHT/2 - 15)
-#define SPRITE_RIGHT_X (SPRITE_X + SPRITE_WIDTH)
-#define SPRITE_RIGHT_Y (SPRITE_Y + SPRITE_HEIGHT/2 - 15)
-#define SPEED_TEXT_X 160
-#define SPEED_TEXT_Y (SPRITE_Y + SPRITE_HEIGHT + 10)
-#define SPEED_UP_X SPRITE_RIGHT_X
-#define SPEED_UP_Y (SPEED_TEXT_Y - 5)
-#define SPEED_DOWN_X SPRITE_LEFT_X
-#define SPEED_DOWN_Y (SPEED_TEXT_Y - 5)
-#define EXIT_X (160 - 50)
-#define EXIT_Y (SPEED_UP_Y + 35)
+#define BOX_X		(SPRITE_DOWN_X - 10)
+#define BOX_Y		55
+#define BOX_WIDTH	120
+#define BOX_HEIGHT	(EXIT_Y - BOX_Y + 40)
+#define SPRITE_X	(160 - SPRITE_WIDTH/2)
+#define SPRITE_Y	(BOX_Y + 5)
+#define SPRITE_WIDTH	60
+#define SPRITE_HEIGHT	40
+#define SPRITE_DOWN_X	(SPRITE_X - 20)
+#define SPRITE_DOWN_Y	(BOX_Y + 10)
+#define SPRITE_UP_X	(SPRITE_X + SPRITE_WIDTH)
+#define SPRITE_UP_Y	(BOX_Y + 10)
+#define SPEED_TEXT_X	160
+#define SPEED_TEXT_Y	(SPRITE_Y + SPRITE_HEIGHT + 10)
+#define SPEED_UP_X	SPRITE_UP_X
+#define SPEED_UP_Y	(SPEED_TEXT_Y - 5)
+#define SPEED_DOWN_X	SPRITE_DOWN_X
+#define SPEED_DOWN_Y	(SPEED_TEXT_Y - 5)
+#define EXIT_X		(160 - 50)
+#define EXIT_Y		(SPEED_UP_Y + 35)
 
 static Button exitButton, speedUpButton, speedDownButton, spriteUpButton,
 		spriteDownButton;
@@ -40,11 +40,10 @@ static Text exitText, upText, downText, leftText, rightText, speedText;
 static bool isShowing;
 static Obstacle_Data *curObst;
 
-// Declarations needed for buttons, dispatcher
+// Declarations needed for buttons
 static void hideEditor();
 static void changeSprite(bool goUp);
 static void changeSpeed(int change);
-static bool handleTouchInput();
 
 bool ObstacleEditor_Init() {
 	exitButton = Button_Create(EXIT_X, EXIT_Y, SPRITE_MEDIUM_BUTTON, -1, NULL,
@@ -64,13 +63,13 @@ bool ObstacleEditor_Init() {
 	if (!speedDownButton) goto f_speedDownButton;
 	Button_Disable(speedDownButton);
 
-	spriteUpButton = Button_Create(SPRITE_RIGHT_X, SPRITE_RIGHT_Y,
+	spriteUpButton = Button_Create(SPRITE_UP_X, SPRITE_UP_Y,
 			SPRITE_THIN_BUTTON, -1,
 			(void*)true, (void(*)(void*))changeSprite);
 	if (!spriteUpButton) goto f_spriteUpButton;
 	Button_Disable(spriteUpButton);
 
-	spriteDownButton = Button_Create(SPRITE_LEFT_X, SPRITE_LEFT_Y,
+	spriteDownButton = Button_Create(SPRITE_DOWN_X, SPRITE_DOWN_Y,
 			SPRITE_THIN_BUTTON, -1,
 			(void*)false, (void(*)(void*))changeSprite);
 	if (!spriteDownButton) goto f_spriteDownButton;
@@ -154,14 +153,8 @@ void ObstacleEditor_Show(Obstacle_Data *toEdit) {
 	Button_Enable(exitButton);
 }
 
-static bool handleTouchInput() {
-	// If this is a popup, consume all touch events that weren't handled
-	// by a button
-	return (TouchInput_InProgress() || TouchInput_JustFinished()) && isShowing;
-}
-
 static void hideEditor() {
-	isShowing = !isShowing;
+	isShowing = false;
 	Button_Disable(spriteDownButton);
 	Button_Disable(spriteUpButton);
 	Button_Disable(speedDownButton);
@@ -180,6 +173,12 @@ static void changeSpeed(int change) {
 	curObst->speed += (float)change/4;
 	curObst->speed = clamp(curObst->speed, 0, 10);
 	Text_SetContent(speedText, "SPD %.2f", curObst->speed);
+}
+
+static bool handleTouchInput() {
+	// If this is a popup, consume all touch events that weren't handled
+	// by a button
+	return (TouchInput_InProgress() || TouchInput_JustFinished()) && isShowing;
 }
 
 bool ObstacleEditor_RegisterForTouchEvents(Dispatcher touchDispatcher,
@@ -231,6 +230,7 @@ void ObstacleEditor_Draw(float depth) {
 	if (!isShowing) return;
 
 	float below = nextafter(depth, -1);
+	C2D_DrawRectSolid(0, 0, below, 320, 240, COLOR_DGRAY & 0x77FFFFFF);
 
 	Border_Draw(BOX_X, BOX_Y, below, BOX_WIDTH, BOX_HEIGHT);
 	C2D_DrawRectSolid(BOX_X, BOX_Y, below, BOX_WIDTH, BOX_HEIGHT, COLOR_LGRAY);
@@ -248,9 +248,9 @@ void ObstacleEditor_Draw(float depth) {
 			TEXT_CENTERED);
 	Text_Draw(exitText, EXIT_X + 10, EXIT_Y + 5, depth, COLOR_LGRAY, 1,
 			TEXT_LEFT);
-	Text_Draw(rightText, SPRITE_RIGHT_X + 7, SPRITE_RIGHT_Y + 5, depth,
+	Text_Draw(rightText, SPRITE_UP_X + 7, SPRITE_UP_Y + 5, depth,
 			COLOR_LGRAY, 1, TEXT_LEFT);
-	Text_Draw(leftText, SPRITE_LEFT_X + 7, SPRITE_LEFT_Y + 5, depth,
+	Text_Draw(leftText, SPRITE_DOWN_X + 7, SPRITE_DOWN_Y + 5, depth,
 			COLOR_LGRAY, 1, TEXT_LEFT);
 	Text_Draw(upText, SPEED_UP_X + 7, SPEED_UP_Y + 5, depth, COLOR_LGRAY,
 			1, TEXT_LEFT);

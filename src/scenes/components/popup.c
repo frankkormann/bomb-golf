@@ -154,7 +154,7 @@ void Popup_Update() {
 }
 
 void Popup_Draw() {
-	C2D_DrawRectSolid(0, 0, 1, 320, 240, COLOR_DGRAY & 0x77FFFFFF); 
+	C2D_DrawRectSolid(0, 0, 1, 320, 240, COLOR_DGRAY & 0x77FFFFFF);
 	float height = messageHeight + 3*MARGIN_Y + BUTTON_HEIGHT;
 	float y = 120 - height/2;
 	Border_Draw(MARGIN_X, y, 1, 320 - 2*MARGIN_X, height);
