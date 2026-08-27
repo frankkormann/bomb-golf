@@ -29,6 +29,7 @@ typedef struct {
 } SongInfo;
 
 static SongInfo songInfo[NUM_MUSIC_SONGS] = {
+	{ "romfs:music/Silent.opus",                       DECIBELS( 0) },
 	{ "romfs:music/Bit Shift (Loop).opus",             DECIBELS(-5) },
 	{ "romfs:music/Overworld (Trimmed).opus",          DECIBELS( 0) },
 	{ "romfs:music/Itty Bitty 8 Bit (Beginning).opus", DECIBELS( 0) },
@@ -49,19 +50,30 @@ static Thread thread;
 bool Music_Init() {
 	for (Music_Song i = 0; i < NUM_MUSIC_SONGS; i++) {
 		opusFiles[i] = op_open_file(songInfo[i].path, NULL);
-		if (!opusFiles[i]) {
-			for (Music_Song j = 0; j < i; j++) op_free(opusFiles[j]);
-			return false;
-		}
+		if (!opusFiles[i]) goto f_opusFiles;
 		op_set_gain_offset(opusFiles[i], OP_ABSOLUTE_GAIN, songInfo[i].gain);
 	}
+
+	audioBuffer = linearAlloc(sizeof(*audioBuffer) * SAMPLES_PER_WAVEBUF
+			* NUM_WAVEBUFS);
+	if (!audioBuffer) goto f_audioBuffer;
+
 	return true;
+
+f_opusFiles:
+	for (Music_Song i = 0; i < NUM_MUSIC_SONGS; i++) {
+		if (opusFiles[i]) op_free(opusFiles[i]);
+	}
+f_audioBuffer:
+	return false;
 }
 
 void Music_Exit() {
 	for (Music_Song i = 0; i < NUM_MUSIC_SONGS; i++) {
 		op_free(opusFiles[i]);
 	}
+	linearFree(audioBuffer);
+	audioBuffer = NULL;
 }
 
 static void audioCallback() {
@@ -101,6 +113,8 @@ static void audioThread() {
 }
 
 bool Music_Start(Music_Song argSong) {
+	if (playing) Music_Stop();
+
 	if (!eventInitd) {
 		LightEvent_Init(&event, RESET_ONESHOT);
 		eventInitd = true;
@@ -110,11 +124,6 @@ bool Music_Start(Music_Song argSong) {
 	ndspChnSetRate(MUSIC_CHN, SAMPLE_RATE);
 	ndspChnSetFormat(MUSIC_CHN, NDSP_FORMAT_STEREO_PCM16);
 
-	if (!audioBuffer) {
-		audioBuffer = linearAlloc(sizeof(*audioBuffer) * SAMPLES_PER_WAVEBUF
-				* NUM_WAVEBUFS);
-		if (!audioBuffer) goto f_audioBuffer;
-	}
 	memset(waveBufs, 0, sizeof(waveBufs));
 	s16 *buf = audioBuffer;
 	for (size_t i = 0; i < NUM_WAVEBUFS; i++) {
@@ -135,9 +144,6 @@ bool Music_Start(Music_Song argSong) {
 			threadPriority, -1, false);
 
 	return true;
-
-f_audioBuffer:
-	return false;
 }
 
 void Music_Stop() {
@@ -149,9 +155,5 @@ void Music_Stop() {
 	threadJoin(thread, UINT64_MAX);
 
 	threadFree(thread);
-	if (audioBuffer) {
-		linearFree(audioBuffer);
-		audioBuffer = NULL;
-	}
 	ndspChnReset(MUSIC_CHN);
 }

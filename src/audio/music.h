@@ -10,6 +10,7 @@
 // These values are written directly into level files, so be careful when
 // reassigning or removing them
 typedef enum {
+	MUSIC_NONE,
 	MUSIC_LEVEL_1,
 	MUSIC_LEVEL_2,
 	MUSIC_RESULTS,
