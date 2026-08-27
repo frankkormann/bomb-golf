@@ -17,6 +17,7 @@
 #include "components/brushselector.h"
 #include "components/popup.h"
 #include "components/obstacleeditor.h"
+#include "components/songselector.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
@@ -58,6 +59,7 @@ static int projX, projY;
 static int par;
 static int level;
 static char *name;
+static Music_Song song;
 
 static Text nameText, parText;
 static Dispatcher touchDispatcher;
@@ -115,10 +117,9 @@ static bool sceneInit(Scene_Params params) {
 	size_t numOverlayTiles;
 	LevelIO_Obst *obstacles;
 	size_t numObsts;
-	//Music_Song song; //TODO
 	if (LevelIO_Read(path, &hole, &proj, &tiles, &denseOverlayTiles,
 			&numOverlayTiles, &obstacles, &numObsts, &width, &par,
-			&name, NULL)) {
+			&name, &song)) {
 		Tile (*newTiles)[LEVEL_HEIGHT_TILES] = realloc(tiles,
 				sizeof(*tiles) * LEVEL_MAX_WIDTH_TILES);
 		if (!newTiles) goto f_newTiles;
@@ -170,6 +171,7 @@ static bool sceneInit(Scene_Params params) {
 		projY = 190 + (TILE_SIZE / 2);
 		name = malloc(sizeof('\0'));
 		name[0] = '\0';
+		song = MUSIC_LEVEL_1;
 	}
 	Text_SetContent(nameText, name);
 
@@ -191,6 +193,9 @@ static bool sceneInit(Scene_Params params) {
 	if (!ObstacleEditor_Init()) goto f_ObstacleEditor;
 	ObstacleEditor_RegisterForTouchEvents(touchDispatcher, 3);
 
+	if (!SongSelector_Init()) goto f_SongSelector;
+	SongSelector_RegisterForTouchEvents(touchDispatcher, 3);
+
 	Music_Start(MUSIC_EDITOR);
 
 	infoTextPage = 0;
@@ -201,6 +206,8 @@ static bool sceneInit(Scene_Params params) {
 
 	return true;
 
+f_SongSelector:
+	ObstacleEditor_Exit();
 f_ObstacleEditor:
 	BrushSelector_Exit();
 f_BrushSelector:
@@ -244,6 +251,7 @@ static void sceneExit() {
 	EditorMenu_Exit();
 	BrushSelector_Exit();
 	ObstacleEditor_Exit();
+	SongSelector_Exit();
 	Music_Stop();
 }
 
@@ -285,12 +293,10 @@ static bool exportLevel() {
 	size_t numObsts;
 	if (!getObstacles(&obstacles, &numObsts)) goto f_obstacles;
 
-	//TODO Music selector
 	bool success = LevelIO_Write(path, hole, proj, tiles,
 			denseOverlayTiles, numOverlayTiles,
 			obstacles, numObsts,
-			(tilesMaxX + 1) * TILE_SIZE, par, name, 
-			level % 2 == 0 ? MUSIC_LEVEL_1 : MUSIC_LEVEL_2);
+			(tilesMaxX + 1) * TILE_SIZE, par, name, song);
 
 	free(denseOverlayTiles);
 	free(obstacles);
@@ -486,7 +492,7 @@ static void editName() {
 }
 
 static void editMusic() {
-	//TODO
+	SongSelector_Show(&song, MUSIC_EDITOR);
 }
 
 static void saveExit() {
@@ -781,6 +787,7 @@ static void sceneDraw() {
 	EditorMenu_Draw(0.4);
 	TileSelector_Draw(0.5);
 	ObstacleEditor_Draw(1);
+	SongSelector_Draw(1);
 }
 
 Scene sceneEditor = &(struct scene) {
