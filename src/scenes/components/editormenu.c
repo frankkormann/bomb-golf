@@ -9,13 +9,13 @@
 #include "../../util/touchinput.h"
 #include "../../util/dispatcher.h"
 
-#define MENU_X 200
-#define MENU_Y (BORDER_WIDTH + 20)
-#define MENU_WIDTH 120
-#define MENU_HEIGHT (240 - MENU_Y - BORDER_WIDTH - 10)
-#define MENU_BUTTON_GAP 35
-#define MENU_BUTTON_X (MENU_X + 10)
-#define MENU_BUTTON_Y (MENU_Y + 20)
+#define MENU_X		200
+#define MENU_Y		(BORDER_WIDTH + 20)
+#define MENU_WIDTH	120
+#define MENU_HEIGHT	(240 - MENU_Y - BORDER_WIDTH - 10)
+#define MENU_BUTTON_GAP	35
+#define MENU_BUTTON_X	(MENU_X + 10)
+#define MENU_BUTTON_Y	(MENU_Y + 20)
 
 static bool isMenuOpen;
 static Button showButton, hideButton;

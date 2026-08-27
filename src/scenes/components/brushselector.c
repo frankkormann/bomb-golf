@@ -6,10 +6,10 @@
 #include "../../rendering/colors.h"
 #include "../../util/dispatcher.h"
 
-#define BUTTON_START_Y 43
-#define BUTTON_X 1
-#define BUTTON_GAP 13
-#define SECTION_GAP 3
+#define BUTTON_START_Y	43
+#define BUTTON_X	1
+#define BUTTON_GAP	13
+#define SECTION_GAP	3
 
 static bool isOpen;
 static Button expandButton, shrinkButton;

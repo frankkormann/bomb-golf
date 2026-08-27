@@ -13,13 +13,12 @@
 
 #define MAX_BUTTONS 2
 
-#define MARGIN_X 20
-#define MARGIN_Y 10
-
-#define BUTTON_HEIGHT 30
-#define ONE_BUTTON_X 110
-#define TWO_BUTTON_START_X 50
-#define TWO_BUTTON_GAP 110
+#define MARGIN_X		20
+#define MARGIN_Y		10
+#define BUTTON_HEIGHT		30
+#define ONE_BUTTON_X		110
+#define TWO_BUTTON_START_X	50
+#define TWO_BUTTON_GAP		110
 
 // Make sure Popup_IsOpen returns false without intialization
 static bool isOpen = false;

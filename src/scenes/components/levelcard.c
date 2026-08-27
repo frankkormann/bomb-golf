@@ -10,11 +10,11 @@
 #include "../../util/dispatcher.h"
 #include "../../levelio.h"
 
-#define TEXT_X 5
-#define TEXT_Y 2
-#define BUTTON_X 5
-#define EDIT_BUTTON_Y 25
-#define PLAY_BUTTON_Y 45
+#define TEXT_X		5
+#define TEXT_Y		2
+#define BUTTON_X	5
+#define EDIT_BUTTON_Y	25
+#define PLAY_BUTTON_Y	45
 
 struct levelcard {
 	int number;
