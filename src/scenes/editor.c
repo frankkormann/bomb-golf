@@ -31,18 +31,18 @@
 #include "../tile.h"
 #include "../levelio.h"
 
-#define HOLE_WIDTH (TILE_SIZE * 2)
-#define HOLE_HEIGHT (TILE_SIZE * 4)
+#define HOLE_WIDTH		(TILE_SIZE * 2)
+#define HOLE_HEIGHT		(TILE_SIZE * 4)
 
-#define SCROLL_UNIT TILE_SIZE
+#define SCROLL_UNIT		TILE_SIZE
 
-#define TEXT_MARGIN 10
-#define LEVEL_NAME_Y 15
-#define LEVEL_PREVIEW_X 10
-#define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + 35) 
-#define LEVEL_PREVIEW_WIDTH 380
-#define LEVEL_PREVIEW_HEIGHT 90
-#define CONTROLS_TEXT_Y (LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 15)
+#define TEXT_MARGIN		10
+#define LEVEL_NAME_Y		15
+#define LEVEL_PREVIEW_X		10
+#define LEVEL_PREVIEW_Y		(LEVEL_NAME_Y + 35) 
+#define LEVEL_PREVIEW_WIDTH	380
+#define LEVEL_PREVIEW_HEIGHT	90
+#define CONTROLS_TEXT_Y		(LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 15)
 
 static Background bg;
 static float scroll;

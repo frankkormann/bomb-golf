@@ -23,22 +23,22 @@
 #include "../levelio.h"
 #include "../savedata.h"
 
-#define TEXT_MARGIN 10
-#define COMPLETE_TEXT_Y 20
-#define LEVEL_STATS_Y (COMPLETE_TEXT_Y + 2*TEXT_LINE_HEIGHT)
+#define TEXT_MARGIN		10
+#define COMPLETE_TEXT_Y		20
+#define LEVEL_STATS_Y		(COMPLETE_TEXT_Y + 2*TEXT_LINE_HEIGHT)
 
-#define TIMER_REVEAL_PAR                           30
-#define TIMER_REVEAL_STROKES (TIMER_REVEAL_PAR   + 45)
-#define TIMER_REVEAL_SCORE (TIMER_REVEAL_STROKES + 45)
+#define TIMER_REVEAL_PAR	                        30
+#define TIMER_REVEAL_STROKES	(TIMER_REVEAL_PAR     + 45)
+#define TIMER_REVEAL_SCORE	(TIMER_REVEAL_STROKES + 45)
 
-#define LEVEL_PREVIEW_X 10
-#define LEVEL_PREVIEW_Y (LEVEL_STATS_Y + 50)
-#define LEVEL_PREVIEW_WIDTH 380
-#define LEVEL_PREVIEW_HEIGHT (240 - 35 - LEVEL_PREVIEW_Y)
+#define LEVEL_PREVIEW_X		10
+#define LEVEL_PREVIEW_Y		(LEVEL_STATS_Y + 50)
+#define LEVEL_PREVIEW_WIDTH	380
+#define LEVEL_PREVIEW_HEIGHT	(240 - 35 - LEVEL_PREVIEW_Y)
 
-#define BUTTON_X 60
-#define BUTTON_START_Y 45
-#define BUTTON_GAP 90
+#define BUTTON_X		60
+#define BUTTON_START_Y		45
+#define BUTTON_GAP		90
 
 static int level, nextLevel;
 static bool levelInRomfs;

@@ -15,9 +15,9 @@
 #include "../rendering/animation.h"
 #include "../util/dispatcher.h"
 
-#define BUTTON_X 60
-#define BUTTON_START_Y 45
-#define BUTTON_GAP 90
+#define BUTTON_X	60
+#define BUTTON_START_Y	45
+#define BUTTON_GAP	90
 
 static Text   startText,   editorText;
 static Button startButton, editorButton;

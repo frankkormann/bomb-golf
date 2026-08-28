@@ -18,21 +18,21 @@
 #include "../util/dispatcher.h"
 #include "../levelio.h"
 
-#define LEVEL_NAME_X 10
-#define LEVEL_NAME_Y 15
+#define LEVEL_NAME_X		10
+#define LEVEL_NAME_Y		15
 
-#define LEVEL_PREVIEW_X 10
-#define LEVEL_PREVIEW_Y (LEVEL_NAME_Y + 35)
-#define LEVEL_PREVIEW_WIDTH 380
-#define LEVEL_PREVIEW_HEIGHT 90
+#define LEVEL_PREVIEW_X		10
+#define LEVEL_PREVIEW_Y		(LEVEL_NAME_Y + 35)
+#define LEVEL_PREVIEW_WIDTH	380
+#define LEVEL_PREVIEW_HEIGHT	90
 
-#define NUM_LEVEL_ROWS 6
-#define NUM_LEVEL_COLUMNS 3
+#define NUM_LEVEL_ROWS		6
+#define NUM_LEVEL_COLUMNS	3
 
-#define CARD_X_START 12
-#define CARD_Y_START 12
-#define CARD_GAP_X 50
-#define CARD_GAP_Y 73
+#define CARD_X_START		12
+#define CARD_Y_START		12
+#define CARD_GAP_X		50
+#define CARD_GAP_Y		73
 
 static Dispatcher touchDispatcher;
 static LevelCard levelCards[NUM_LEVEL_ROWS][NUM_LEVEL_COLUMNS];

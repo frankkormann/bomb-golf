@@ -26,16 +26,16 @@
 #include "../util/macros.h"
 #include "../levelio.h"
 
-#define LAUNCH_SPEED_MAX 6
-#define TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR 0.05
+#define LAUNCH_SPEED_MAX		6
+#define TOUCH_TO_LAUNCH_VEL_FACTOR 	0.05
 
-#define TEXT_MARGIN 10
-#define LEVEL_NAME_Y 20
-#define PAR_Y 15
-#define LEVEL_PREVIEW_X 10
-#define LEVEL_PREVIEW_Y (PAR_Y + 50)
-#define LEVEL_PREVIEW_WIDTH 380
-#define LEVEL_PREVIEW_HEIGHT (240 - 35 - LEVEL_PREVIEW_Y)
+#define TEXT_MARGIN			10
+#define LEVEL_NAME_Y			20
+#define PAR_Y				15
+#define LEVEL_PREVIEW_X			10
+#define LEVEL_PREVIEW_Y			(PAR_Y + 50)
+#define LEVEL_PREVIEW_WIDTH		380
+#define LEVEL_PREVIEW_HEIGHT		(240 - 35 - LEVEL_PREVIEW_Y)
 
 static int level;
 static bool levelInRomfs;
@@ -203,8 +203,8 @@ static void calculateLaunchVelocity(float *velX, float *velY) {
 	float projX, projY;
 	Projectile_GetPos(&projX, &projY);
 	*velX = (float)(stroke.end.px - projX + Course_GetScreenOffset())
-			* TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR;
-	*velY = (float)(stroke.end.py - projY) * TOUCHSCREEN_TO_LAUNCH_VEL_FACTOR;
+			* TOUCH_TO_LAUNCH_VEL_FACTOR;
+	*velY = (float)(stroke.end.py - projY) * TOUCH_TO_LAUNCH_VEL_FACTOR;
 	float magnitude² = *velX * *velX + *velY * *velY;
 	if (magnitude² > LAUNCH_SPEED_MAX*LAUNCH_SPEED_MAX) {
 		// Set vector length to LAUNCH_SPEED_MAX
