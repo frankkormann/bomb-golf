@@ -1,4 +1,3 @@
-//FIXME Apply slow-time effect to obstacles
 #include <malloc.h>
 #include <stdbool.h>
 #include <math.h>
