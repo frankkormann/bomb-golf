@@ -1,3 +1,4 @@
+//TODO Fix movement bugs
 #include <stdlib.h>
 #include <math.h>
 #include <3ds.h>
