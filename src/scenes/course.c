@@ -24,6 +24,7 @@
 #include "../audio/music.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
+#include "../util/tracker.h"
 #include "../levelio.h"
 
 #define LAUNCH_SPEED_MAX		6
@@ -189,6 +190,7 @@ f_nameText:
 }
 
 static void sceneExit() {
+	Tracker_Update(TRACKER_LVL1 + level, strokes - par);
 	if (shouldFreeProjPath) Tracer_Free(projPath);
 	if (shouldFreeTerrain) Terrain_Exit();
 	Text_Free(strokesText);

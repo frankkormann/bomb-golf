@@ -8,6 +8,7 @@
 #include "../rendering/animations/smoke.h"
 #include "../util/list.h"
 #include "../util/macros.h"
+#include "../util/tracker.h"
 
 #define FRAMES_PER_ANIM 20
 
@@ -182,6 +183,7 @@ static void destroyObstacle(void *elem) {
 	Obstacle *obst = (Obstacle*)elem;
 	float x, y;
 	getObstaclePos(obst, &x, &y);
+	Tracker_Update(TRACKER_KILLS, 1);
 	Animation_Start(animationSmoke, Smoke_MakeParams(x, y), NULL);
 	freeObstacle(obst);
 }

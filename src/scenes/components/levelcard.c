@@ -8,6 +8,7 @@
 #include "../course.h"
 #include "../../rendering/colors.h"
 #include "../../util/dispatcher.h"
+#include "../../util/tracker.h"
 #include "../../levelio.h"
 
 #define TEXT_X		5
@@ -30,6 +31,7 @@ static void editLevel(int levelNum) {
 }
 
 static void playLevel(int levelNum) {
+	Tracker_Clear();
 	Scene_SetNext(sceneCourse, Course_MakeParams(levelNum, false));
 }
 

@@ -14,6 +14,7 @@
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
 #include "../util/dispatcher.h"
+#include "../util/tracker.h"
 
 #define BUTTON_X	60
 #define BUTTON_START_Y	45
@@ -28,6 +29,7 @@ Scene_Params Title_MakeParams() {
 }
 
 static void startGame() {
+	Tracker_Clear();
 	Scene_SetNext(sceneCourse, Course_MakeParams(0, true));
 }
 
