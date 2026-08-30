@@ -1,6 +1,3 @@
-//TODO Redesign this UI
-//	Put stats on the bottom screen
-//	Overall stats as well
 #include <stdlib.h>
 #include <3ds.h>
 #include <citro2d.h>
@@ -20,36 +17,42 @@
 #include "../rendering/animation.h"
 #include "../audio/music.h"
 #include "../util/dispatcher.h"
+#include "../util/tracker.h"
 #include "../levelio.h"
 #include "../savedata.h"
 
-#define TEXT_MARGIN		10
 #define COMPLETE_TEXT_Y		20
-#define LEVEL_STATS_Y		(COMPLETE_TEXT_Y + 2*TEXT_LINE_HEIGHT)
-
-#define TIMER_REVEAL_PAR	                        30
-#define TIMER_REVEAL_STROKES	(TIMER_REVEAL_PAR     + 45)
-#define TIMER_REVEAL_SCORE	(TIMER_REVEAL_STROKES + 45)
-
 #define LEVEL_PREVIEW_X		10
-#define LEVEL_PREVIEW_Y		(LEVEL_STATS_Y + 50)
+#define LEVEL_PREVIEW_Y		(COMPLETE_TEXT_Y + 20 + 2*TEXT_LINE_HEIGHT)
 #define LEVEL_PREVIEW_WIDTH	380
 #define LEVEL_PREVIEW_HEIGHT	(240 - 35 - LEVEL_PREVIEW_Y)
 
+#define NUM_TEXT_GAP		80
+#define PAR_TEXT_X		(BUTTON_X + 2)
+#define PAR_TEXT_Y		50
+#define STROKES_TEXT_X		PAR_TEXT_X
+#define STROKES_TEXT_Y		(PAR_TEXT_Y + TEXT_LINE_HEIGHT)
+#define SCORE_TEXT_Y		(STROKES_TEXT_Y + TEXT_LINE_HEIGHT + 10)
+#define OVERALL_TEXT_X		(PAR_TEXT_X + NUM_TEXT_GAP + 23)
+#define OVERALL_TEXT_Y		PAR_TEXT_Y
 #define BUTTON_X		60
-#define BUTTON_START_Y		45
-#define BUTTON_GAP		90
+#define BUTTON_Y		(SCORE_TEXT_Y + TEXT_LINE_HEIGHT + 15)
+
+#define TIMER_REVEAL_PAR	                        15
+#define TIMER_REVEAL_STROKES	(TIMER_REVEAL_PAR     + 30)
+#define TIMER_REVEAL_SCORE	(TIMER_REVEAL_STROKES + 45)
 
 static int level, nextLevel;
 static bool levelInRomfs;
 
 static int strokes, par;
 
-static Text completeText, parText, strokesText, scoreText;
+static Text completeText, parText, parNumText, strokesText, strokesNumText,
+		scoreNameText, scoreTotText, scoreTotNumText;
 static int textRevealCounter;
 static Tracer projPath;
 
-static Text   nextText,   quitText;
+static Text   buttonText;
 static Button nextButton, quitButton;
 static Dispatcher touchDispatcher, keyDispatcher;
 
@@ -160,27 +163,46 @@ static bool sceneInit(Scene_Params params) {
 	if (!completeText) goto f_completeText;
 	Text_SetContent(completeText, "Hole Complete!");
 
-	parText = Text_Create(16);
+	parText = Text_Create(4);
 	if (!parText) goto f_parText;
-	Text_SetContent(parText, "Par %i", par);
+	Text_SetContent(parText, "Par");
 
-	strokesText = Text_Create(16);
+	parNumText = Text_Create(4);
+	if (!parNumText) goto f_parNumText;
+	Text_SetContent(parNumText, "%i", par);
+
+	strokesText = Text_Create(8);
 	if (!strokesText) goto f_strokesText;
-	Text_SetContent(strokesText, "Strokes %i", params.results.strokes);
+	Text_SetContent(strokesText, "Strokes");
 
-	scoreText = Text_Create(16);
-	if (!scoreText) goto f_scoreText;
-	char buf[32];
-	getScoreForStrokes(params.results.strokes, par, buf);
-	Text_SetContent(scoreText, buf);
+	strokesNumText = Text_Create(4);
+	if (!strokesNumText) goto f_strokesNumText;
+	Text_SetContent(strokesNumText, "%i", params.results.strokes);
 
-	nextText = Text_Create(16);
-	if (!nextText) goto f_nextText;
-	Text_SetContent(nextText, "Next Hole");
+	scoreNameText = Text_Create(16);
+	if (!scoreNameText) goto f_scoreNameText;
+	{
+		char buf[32];
+		getScoreForStrokes(params.results.strokes, par, buf);
+		Text_SetContent(scoreNameText, buf);
+	}
 
-	quitText = Text_Create(8);
-	if (!quitText) goto f_quitText;
-	Text_SetContent(quitText, "Exit");
+	scoreTotText = Text_Create(11);
+	if (!scoreTotText) goto f_scoreTotText;
+	Text_SetContent(scoreTotText, "Tot. Score");
+
+	scoreTotNumText = Text_Create(4);
+	if (!scoreTotNumText) goto f_scoreTotNumText;
+	{
+		int overall = 0;
+		for (Tracker_Stat i = TRACKER_LVL1; i <= TRACKER_LVL18; i++) {
+			overall += Tracker_Get(i);
+		}
+		Text_SetContent(scoreTotNumText, "%i", overall);
+	}
+
+	buttonText = Text_Create(16);
+	if (!buttonText) goto f_buttonText;
 
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
@@ -188,33 +210,44 @@ static bool sceneInit(Scene_Params params) {
 	keyDispatcher = Dispatcher_Create();
 	if (!keyDispatcher) goto f_keyDispatcher;
 
-	nextButton = Button_Create(BUTTON_X, BUTTON_START_Y,
+	nextButton = Button_Create(BUTTON_X, BUTTON_Y,
 			SPRITE_LARGE_BUTTON, KEY_A, NULL, goNextLevel);
 	if (!nextButton) goto f_nextButton;
 	Button_RegisterForTouchEvents(nextButton, touchDispatcher, 1);
 	Button_RegisterForKeyEvents(nextButton, keyDispatcher, 1);
+	Button_Disable(nextButton);
 
-	quitButton = Button_Create(BUTTON_X, BUTTON_START_Y + BUTTON_GAP,
-			SPRITE_LARGE_BUTTON, KEY_B, NULL, quit);
+	quitButton = Button_Create(BUTTON_X, BUTTON_Y,
+			SPRITE_LARGE_BUTTON, KEY_A | KEY_B, NULL, quit);
 	if (!quitButton) goto f_quitButton;
 	Button_RegisterForTouchEvents(quitButton, touchDispatcher, 1);
 	Button_RegisterForKeyEvents(quitButton, keyDispatcher, 1);
+	Button_Disable(quitButton);
 
-	//TODO Create a "final results"/summary Scene
-	nextLevel = params.results.level + 1;
-	while (true) {
-		char path[LEVEL_PATH_MAX];
-		LevelIO_MakePath(nextLevel, params.results.levelInRomfs, path);
-		if (FILE *f = fopen(path, "rb")) {
-			fclose(f);
-			break;
+	if (params.results.levelInRomfs) {
+		//TODO Create a "final results"/summary Scene
+		nextLevel = params.results.level + 1;
+		while (true) {
+			char path[LEVEL_PATH_MAX];
+			LevelIO_MakePath(nextLevel, params.results.levelInRomfs,
+					path);
+			if (FILE *f = fopen(path, "rb")) {
+				fclose(f);
+				Text_SetContent(buttonText, "Next Hole");
+				Button_Enable(nextButton);
+				break;
+			}
+			if (nextLevel >= SAVEDATA_NUM_LEVELS) {
+				nextLevel = -1;
+				Text_SetContent(buttonText, "Back");
+				Button_Enable(quitButton);
+				break;
+			}
+			nextLevel++;
 		}
-		if (nextLevel >= SAVEDATA_NUM_LEVELS) {
-			nextLevel = -1;
-			Button_Disable(nextButton);
-			break;
-		}
-		nextLevel++;
+	} else {
+		Text_SetContent(buttonText, "Back");
+		Button_Enable(quitButton);
 	}
 
 	Music_Start(MUSIC_RESULTS);
@@ -235,14 +268,20 @@ f_nextButton:
 f_keyDispatcher:
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
-	Text_Free(quitText);
-f_quitText:
-	Text_Free(nextText);
-f_nextText:
-	Text_Free(scoreText);
-f_scoreText:
+	Text_Free(buttonText);
+f_buttonText:
+	Text_Free(scoreTotNumText);
+f_scoreTotNumText:
+	Text_Free(scoreTotText);
+f_scoreTotText:
+	Text_Free(scoreNameText);
+f_scoreNameText:
+	Text_Free(strokesNumText);
+f_strokesNumText:
 	Text_Free(strokesText);
 f_strokesText:
+	Text_Free(parNumText);
+f_parNumText:
 	Text_Free(parText);
 f_parText:
 	Text_Free(completeText);
@@ -255,12 +294,15 @@ f_LevelIO_Read:
 static void sceneExit() {
 	Text_Free(completeText);
 	Text_Free(parText);
+	Text_Free(parNumText);
 	Text_Free(strokesText);
-	Text_Free(scoreText);
+	Text_Free(strokesNumText);
+	Text_Free(scoreNameText);
+	Text_Free(scoreTotText);
+	Text_Free(scoreTotNumText);
 	Tracer_Free(projPath);
-	Text_Free(nextText);
+	Text_Free(buttonText);
 	Button_Free(nextButton);
-	Text_Free(quitText);
 	Button_Free(quitButton);
 	Dispatcher_Free(touchDispatcher);
 	Dispatcher_Free(keyDispatcher);
@@ -285,18 +327,6 @@ static void sceneDraw() {
 
 	Text_Draw(completeText, 200, COMPLETE_TEXT_Y, 0, COLOR_DGREEN, 2,
 			TEXT_CENTERED);
-	if (textRevealCounter >= TIMER_REVEAL_PAR) {
-		Text_Draw(parText, 150, LEVEL_STATS_Y, 0, COLOR_DGRAY, 1,
-				TEXT_CENTERED);
-	}
-	if (textRevealCounter >= TIMER_REVEAL_STROKES) {
-		Text_Draw(strokesText, 250, LEVEL_STATS_Y, 0, COLOR_DGRAY, 1,
-				TEXT_CENTERED);
-	}
-	if (textRevealCounter >= TIMER_REVEAL_SCORE) {
-		Text_Draw(scoreText, 200, LEVEL_STATS_Y + TEXT_LINE_HEIGHT, 0,
-				getColorForScore(strokes, par), 1, TEXT_CENTERED);
-	}
 
 	int terrainX, terrainY, terrainWidth, terrainHeight;
 	Terrain_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
@@ -310,12 +340,31 @@ static void sceneDraw() {
 	C2D_TargetClear(bottom, COLOR_LGRAY);
 	C2D_SceneBegin(bottom);
 
+	if (textRevealCounter >= TIMER_REVEAL_PAR) {
+		Text_Draw(parText, PAR_TEXT_X, PAR_TEXT_Y, 0, COLOR_DGRAY, 1,
+				TEXT_LEFT);
+		Text_Draw(parNumText, PAR_TEXT_X + NUM_TEXT_GAP, PAR_TEXT_Y, 0,
+				COLOR_DGRAY, 1, TEXT_RIGHT);
+	}
+	if (textRevealCounter >= TIMER_REVEAL_STROKES) {
+		Text_Draw(strokesText, STROKES_TEXT_X, STROKES_TEXT_Y, 0,
+				COLOR_DGRAY, 1, TEXT_LEFT);
+		Text_Draw(strokesNumText, STROKES_TEXT_X + NUM_TEXT_GAP,
+				STROKES_TEXT_Y, 0, COLOR_DGRAY, 1, TEXT_RIGHT);
+	}
+	if (textRevealCounter >= TIMER_REVEAL_SCORE) {
+		Text_Draw(scoreTotText, OVERALL_TEXT_X, OVERALL_TEXT_Y, 0,
+				COLOR_DGRAY, 1, TEXT_LEFT);
+		Text_Draw(scoreTotNumText, OVERALL_TEXT_X + NUM_TEXT_GAP + 15,
+				OVERALL_TEXT_Y, 0, COLOR_DGRAY, 1, TEXT_RIGHT);
+		Text_Draw(scoreNameText, 160, SCORE_TEXT_Y, 0,
+				getColorForScore(strokes, par), 1, TEXT_CENTERED);
+	}
+
 	Button_Draw(nextButton, 0.5);
-	Text_Draw(nextText, BUTTON_X + 20, BUTTON_START_Y + 10, 1, COLOR_LGRAY, 2,
-			TEXT_LEFT);
 	Button_Draw(quitButton, 0.5);
-	Text_Draw(quitText, BUTTON_X + 20, BUTTON_START_Y + BUTTON_GAP + 10, 1,
-			COLOR_LGRAY, 2, TEXT_LEFT);
+	Text_Draw(buttonText, BUTTON_X + 20, BUTTON_Y + 10, 1, COLOR_LGRAY,
+			2, TEXT_LEFT);
 
 	Animation_Draw(0.5);
 }
