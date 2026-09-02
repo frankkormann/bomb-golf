@@ -286,7 +286,7 @@ static void sceneDraw() {
 	Terrain_UpdateGraphics();
 
 
-	C3D_RenderTarget *top = RenderTarget_GetTop();
+	C3D_RenderTarget *top = RenderTarget_Left();
 	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);
 
@@ -315,7 +315,7 @@ static void sceneDraw() {
 	C2D_ViewReset();
 
 
-	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
+	C3D_RenderTarget *bottom = RenderTarget_Bottom();
 	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
 

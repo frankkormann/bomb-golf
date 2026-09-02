@@ -49,14 +49,14 @@ static void sceneUpdate(float _) {
 }
 
 static void sceneDraw() {
-	C3D_RenderTarget *top = RenderTarget_GetTop();
+	C3D_RenderTarget *top = RenderTarget_Left();
 	C2D_TargetClear(top, COLOR_WHITE);
 	C2D_SceneBegin(top);
 
 	C2D_DrawText(&errText, 0, 50, 50, 0, 0.5, 0.5);
 	C2D_DrawText(&infoText, 0, 50, 180, 0, 0.5, 0.5);
 
-	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
+	C3D_RenderTarget *bottom = RenderTarget_Bottom();
 	C2D_TargetClear(bottom, COLOR_WHITE);
 	C2D_SceneBegin(bottom);
 }

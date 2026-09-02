@@ -96,14 +96,14 @@ static void sceneUpdate(float _) {
 }
 
 static void sceneDraw() {
-	C3D_RenderTarget *top = RenderTarget_GetTop();
+	C3D_RenderTarget *top = RenderTarget_Left();
 	C2D_TargetClear(top, COLOR_LGRAY);
 	C2D_SceneBegin(top);
 
 	SpriteSheet_Draw(SPRITE_TITLE, 0, 0, 1, 0, false, false);
 
 
-	C3D_RenderTarget *bottom = RenderTarget_GetBottom();
+	C3D_RenderTarget *bottom = RenderTarget_Bottom();
 	C2D_TargetClear(bottom, COLOR_LGRAY);
 	C2D_SceneBegin(bottom);
 
