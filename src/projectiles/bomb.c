@@ -216,7 +216,6 @@ static void draw(float depth) {
 					data->y + 1, depth, rotation, false, false);
 			break;
 	}
-	drawCircle(data->x, data->y, 1, BALL_RADIUS, COLOR_DRED);
 }
 
 Projectile projectileBomb = &(struct projectile) {
