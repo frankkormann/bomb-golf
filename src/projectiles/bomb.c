@@ -130,7 +130,7 @@ static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
 		float ny = data->y - hitY;
 		// Amount of the velocity vector in the direction of n
 		float p = fabs(nx * data->velY + ny * data->velX)
-					/ sqrt(nx*nx + ny*ny);
+				/ sqrt(nx*nx + ny*ny);
 		rotationVel = p / BALL_RADIUS;
 
 		if (data->velX*data->velX + data->velY*data->velY > 1) {

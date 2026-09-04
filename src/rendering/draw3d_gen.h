@@ -11,7 +11,8 @@ int sign;
 #ifdef D3D_VALS
 #define D3D_D(i)		((D3D_Value[])D3D_VALS[i].depth)
 #define D3D_CORRECTION(i)	D3D_CEIL(D3D_3D_STRENGTH * slider * D3D_D(i))
-#define D3D_X(i)		((D3D_Value[])D3D_VALS[i].x + sign * D3D_CORRECTION(i))
+#define D3D_X(i) \
+		((D3D_Value[])D3D_VALS[i].x + sign * D3D_CORRECTION(i))
 #else
 #define D3D_D(i)		((float[])D3D_DEPTHS[i])
 #define D3D_CORRECTION(i)	D3D_CEIL(D3D_3D_STRENGTH * slider * D3D_D(i))
