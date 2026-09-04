@@ -98,13 +98,13 @@ static void sceneUpdate(float _) {
 
 static void sceneDraw() {
 	#define D3D_VALS { \
-			{ 0, 0.5 } \
+			{ 0, 0.8 } \
 		}
 	#define D3D_CODE \
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
 	C2D_SceneBegin(D3D_TARGET); \
 	\
-	SpriteSheet_Draw(SPRITE_TITLE, D3D_X(0), 0, D3D_D(0), 0, false, false);
+	SpriteSheet_Draw(SPRITE_TITLE, D3D_Xi(0), 0, D3D_D(0), 0, false, false);
 	#include "../rendering/draw3d_gen.h"
 	/* Everything gets #undef'd by draw3d */
 

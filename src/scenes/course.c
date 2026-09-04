@@ -288,13 +288,13 @@ static void sceneDraw() {
 
 	float projX, projY;
 	int terrainX, terrainY, terrainWidth, terrainHeight;
-	#define D3D_DEPTHS { 0.5, 0.5, 0.5, 0, 0.5, 0.5, 0.5 }
+	#define D3D_DEPTHS { 0.8, 0.8, 0.8, 0, 0.6, 0.8, 0.8 }
 	#define D3D_XS { \
 			TEXT_MARGIN, \
 			400 - TEXT_MARGIN, \
 			400 - TEXT_MARGIN, \
 			LEVEL_PREVIEW_X, \
-			terrainX + D3D_CORRECTION(4), \
+			terrainX + ceilf(D3D_CORRECTION(4)), \
 			terrainX + (projX * terrainWidth) / fieldWidth, \
 			0 \
 		}
@@ -302,17 +302,17 @@ static void sceneDraw() {
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
 	C2D_SceneBegin(D3D_TARGET); \
 	\
-	Text_Draw(nameText, D3D_X(0), LEVEL_NAME_Y, D3D_D(0), COLOR_DGREEN, 1, \
+	Text_Draw(nameText, D3D_Xi(0), LEVEL_NAME_Y, D3D_D(0), COLOR_DGREEN, 1, \
 			TEXT_LEFT); \
-	Text_Draw(parText, D3D_X(1), PAR_Y, D3D_D(1), COLOR_DGREEN, 1, \
+	Text_Draw(parText, D3D_Xi(1), PAR_Y, D3D_D(1), COLOR_DGREEN, 1, \
 			TEXT_RIGHT); \
-	Text_Draw(strokesText, D3D_X(2), PAR_Y + TEXT_LINE_HEIGHT, D3D_D(2), \
+	Text_Draw(strokesText, D3D_Xi(2), PAR_Y + TEXT_LINE_HEIGHT, D3D_D(2), \
 			COLOR_DGREEN, 1, TEXT_RIGHT); \
 	Terrain_Draw(D3D_X(3), LEVEL_PREVIEW_Y, D3D_D(3), LEVEL_PREVIEW_WIDTH, \
 			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth, \
 			&terrainHeight); \
-	Border_Draw(D3D_X(4), terrainY, D3D_D(4), \
-			terrainWidth - 2*D3D_CORRECTION(4), terrainHeight); \
+	Border_Draw(D3D_Xi(4), terrainY, D3D_D(4), \
+			terrainWidth - 2*ceilf(D3D_CORRECTION(4)), terrainHeight); \
 	\
 	Projectile_GetPos(&projX, &projY); \
 	C2D_DrawRectSolid(D3D_X(5), \

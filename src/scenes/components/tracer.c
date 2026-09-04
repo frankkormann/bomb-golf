@@ -105,7 +105,8 @@ void Tracer_UpdateGraphics(Tracer tracer) {
 	}
 }
 
-void Tracer_Draw(Tracer tracer, int x, int y, float depth, int width, int height) {
+void Tracer_Draw(Tracer tracer, float x, float y, float depth, float width,
+		float height) {
 	C2D_Image img = { &tracer->tex, &tracer->subtex };
 	C3D_TexSetFilter(&tracer->tex, GPU_LINEAR, GPU_LINEAR);
 	C2D_DrawImageAt(img, x, y, depth, NULL, width / tracer->maxX,

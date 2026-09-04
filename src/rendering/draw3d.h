@@ -15,6 +15,7 @@
  * - D3D_TARGET: The C3D_RenderTarget currently in use.
  * - D3D_X(i):   The x-position of the ith component, D3D_XS(i) corresponding
  *               to D3D_VALS[i].
+ * - D3D_Xi(i):  Like above, except the correction is rounded up to an integer.
  * - D3D_D(i):   The depth of the ith component, D3D_DS(i) corresponding to
  *               D3D_VALS[i].
  * - D3D_CORRECTION(i): The correction applied to each x value, that is, how
@@ -30,6 +31,7 @@
 #ifndef DRAW3D_H
 #define DRAW3D_H
 
+#include <math.h>
 #include "rendertarget.h"
 
 #define D3D_3D_STRENGTH 3

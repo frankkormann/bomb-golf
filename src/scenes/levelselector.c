@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <malloc.h>
+#include <math.h>
 #include <3ds.h>
 #include <citro2d.h>
 #include "../scene.h"
@@ -213,12 +214,12 @@ static void sceneDraw() {
 	BG_UpdateGraphics(levelPreview);
 
 	int previewX, previewY, previewWidth, previewHeight;
-	#define D3D_DEPTHS { 0.5, 0.5, 0, 0.5, 0.5, 0.5 }
+	#define D3D_DEPTHS { 0.8, 0.8, 0, 0.6, 0.8, 0.8 }
 	#define D3D_XS { \
 			LEVEL_NAME_X, \
 			390, \
 			LEVEL_PREVIEW_X, \
-			previewX + D3D_CORRECTION(3), \
+			previewX + ceilf(D3D_CORRECTION(3)), \
 			previewX, \
 			105, \
 		}
@@ -227,17 +228,17 @@ static void sceneDraw() {
 	C2D_SceneBegin(D3D_TARGET); \
 	\
 	if (levelIsSelected) { \
-		Text_Draw(nameText, D3D_X(0), LEVEL_NAME_Y, D3D_D(0), COLOR_DGREEN, \
-				1, TEXT_LEFT); \
-		Text_Draw(parText, D3D_X(1), LEVEL_NAME_Y, D3D_D(1), COLOR_DGREEN, \
+		Text_Draw(nameText, D3D_Xi(0), LEVEL_NAME_Y, D3D_D(0), \
+				COLOR_DGREEN, 1, TEXT_LEFT); \
+		Text_Draw(parText, D3D_Xi(1), LEVEL_NAME_Y, D3D_D(1), COLOR_DGREEN, \
 				1, TEXT_RIGHT); \
 		\
-		BG_DrawFit(levelPreview, D3D_X(2), LEVEL_PREVIEW_Y, D3D_D(2), \
+		BG_DrawFit(levelPreview, D3D_Xi(2), LEVEL_PREVIEW_Y, D3D_D(2), \
 				LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT, \
 				&previewX, &previewY, &previewWidth, \
 				&previewHeight); \
-		Border_Draw(D3D_X(3), previewY, D3D_D(3), \
-				previewWidth - 2*D3D_CORRECTION(3), \
+		Border_Draw(D3D_Xi(3), previewY, D3D_D(3), \
+				previewWidth - 2*ceilf(D3D_CORRECTION(3)), \
 				previewHeight); \
 		\
 		for (size_t i = 0; i < numObstacles; i++) { \
@@ -245,7 +246,7 @@ static void sceneDraw() {
 					previewWidth, previewHeight, D3D_D(4)); \
 		} \
 	} else { \
-		Text_Draw(infoText, D3D_X(5), 60, D3D_D(5), COLOR_DGRAY, 1, \
+		Text_Draw(infoText, D3D_Xi(5), 60, D3D_D(5), COLOR_DGRAY, 1, \
 			TEXT_LEFT); \
 	}
 	#include "../rendering/draw3d_gen.h"

@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <malloc.h>
 #include <alloca.h>
+#include <math.h>
 #include <3ds.h>
 #include <citro2d.h>
 #include "../scene.h"
@@ -753,12 +754,12 @@ static void sceneDraw() {
 	TileSelector_UpdateGraphics();
 
 	int bgX, bgY, bgWidth, bgHeight;
-	#define D3D_DEPTHS { 0.5, 0.5, 0, 0.5, 0.5, 0.5 }
+	#define D3D_DEPTHS { 0.8, 0.8, 0, 0.6, 0.8, 0.8 }
 	#define D3D_XS { \
 			TEXT_MARGIN, \
 			390, \
 			LEVEL_PREVIEW_X, \
-			bgX + D3D_CORRECTION(3), \
+			bgX + ceilf(D3D_CORRECTION(3)), \
 			0, \
 			TEXT_MARGIN \
 		}
@@ -766,18 +767,18 @@ static void sceneDraw() {
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
 	C2D_SceneBegin(D3D_TARGET); \
 	\
-	Text_Draw(nameText, D3D_X(0), LEVEL_NAME_Y, D3D_D(0), COLOR_DGREEN, 1, \
+	Text_Draw(nameText, D3D_Xi(0), LEVEL_NAME_Y, D3D_D(0), COLOR_DGREEN, 1, \
 			TEXT_LEFT); \
-	Text_Draw(parText, D3D_X(1), LEVEL_NAME_Y, D3D_D(1), COLOR_DGREEN, 1, \
+	Text_Draw(parText, D3D_Xi(1), LEVEL_NAME_Y, D3D_D(1), COLOR_DGREEN, 1, \
 			TEXT_RIGHT); \
 	\
 	BG_DrawFit(bg, D3D_X(2), LEVEL_PREVIEW_Y, D3D_D(2), LEVEL_PREVIEW_WIDTH, \
 			LEVEL_PREVIEW_HEIGHT, &bgX, &bgY, &bgWidth, &bgHeight); \
-	Border_Draw(D3D_X(3), bgY, D3D_D(3), bgWidth - 2*D3D_CORRECTION(3), \
-			bgHeight); \
+	Border_Draw(D3D_Xi(3), bgY, D3D_D(3), \
+			bgWidth - 2*ceilf(D3D_CORRECTION(3)), bgHeight); \
 	C2D_ViewTranslate(D3D_X(4), 0); \
 	List_ForEach(obstacleList, drawObstacleTop); \
-	drawInfoText(D3D_X(5), \
+	drawInfoText(D3D_Xi(5), \
 			LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + TEXT_MARGIN, \
 			D3D_D(5)); \
 	C2D_ViewReset();
