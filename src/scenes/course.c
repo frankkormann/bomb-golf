@@ -19,6 +19,7 @@
 #include "../environment/terrain.h"
 #include "../rendering/colors.h"
 #include "../rendering/rendertarget.h"
+#include "../rendering/draw3d.h"
 #include "../rendering/animation.h"
 #include "../rendering/animations/firework.h"
 #include "../audio/music.h"
@@ -285,34 +286,47 @@ static void plotTrajectoryPoint(float initX, float initY, float velX, float velY
 static void sceneDraw() {
 	Terrain_UpdateGraphics();
 
-
-	C3D_RenderTarget *top = RenderTarget_Left();
-	C2D_TargetClear(top, COLOR_LGRAY);
-	C2D_SceneBegin(top);
-
-	Text_Draw(nameText, TEXT_MARGIN, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1,
-			TEXT_LEFT);
-	Text_Draw(parText, 400 - TEXT_MARGIN, PAR_Y, 0, COLOR_DGREEN, 1,
-			TEXT_RIGHT);
-	Text_Draw(strokesText, 400 - TEXT_MARGIN, PAR_Y + TEXT_LINE_HEIGHT,
-			0, COLOR_DGREEN, 1, TEXT_RIGHT);
-	int terrainX, terrainY, terrainWidth, terrainHeight;
-	Terrain_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
-			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth,
-			&terrainHeight);
-	Border_Draw(terrainX, terrainY, 0, terrainWidth, terrainHeight);
-
 	float projX, projY;
-	Projectile_GetPos(&projX, &projY);
-	C2D_DrawRectSolid(terrainX + (projX * terrainWidth) / fieldWidth,
-			terrainY + (projY * terrainHeight) / LEVEL_HEIGHT,
-			1, 2, 2, COLOR_WHITE);
-
-	C2D_ViewTranslate(terrainX, terrainY);
-	C2D_ViewScale((float)terrainWidth / fieldWidth,
-			(float)terrainHeight / LEVEL_HEIGHT);
-	Obstacle_Draw(1);
+	int terrainX, terrainY, terrainWidth, terrainHeight;
+	#define D3D_DEPTHS { 0.5, 0.5, 0.5, 0, 0.5, 0.5, 0.5 }
+	#define D3D_XS { \
+			TEXT_MARGIN, \
+			400 - TEXT_MARGIN, \
+			400 - TEXT_MARGIN, \
+			LEVEL_PREVIEW_X, \
+			terrainX + D3D_CORRECTION(4), \
+			terrainX + (projX * terrainWidth) / fieldWidth, \
+			0 \
+		}
+	#define D3D_CODE \
+	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
+	C2D_SceneBegin(D3D_TARGET); \
+	\
+	Text_Draw(nameText, D3D_X(0), LEVEL_NAME_Y, D3D_D(0), COLOR_DGREEN, 1, \
+			TEXT_LEFT); \
+	Text_Draw(parText, D3D_X(1), PAR_Y, D3D_D(1), COLOR_DGREEN, 1, \
+			TEXT_RIGHT); \
+	Text_Draw(strokesText, D3D_X(2), PAR_Y + TEXT_LINE_HEIGHT, D3D_D(2), \
+			COLOR_DGREEN, 1, TEXT_RIGHT); \
+	Terrain_Draw(D3D_X(3), LEVEL_PREVIEW_Y, D3D_D(3), LEVEL_PREVIEW_WIDTH, \
+			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth, \
+			&terrainHeight); \
+	Border_Draw(D3D_X(4), terrainY, D3D_D(4), \
+			terrainWidth - 2*D3D_CORRECTION(4), terrainHeight); \
+	\
+	Projectile_GetPos(&projX, &projY); \
+	C2D_DrawRectSolid(D3D_X(5), \
+			terrainY + (projY * terrainHeight) / LEVEL_HEIGHT, \
+			D3D_D(5), 2, 2, COLOR_WHITE); \
+	\
+	C2D_ViewTranslate(terrainX, terrainY); \
+	C2D_ViewScale((float)terrainWidth / fieldWidth, \
+			(float)terrainHeight / LEVEL_HEIGHT); \
+	C2D_ViewTranslate(D3D_X(6), 0); \
+	Obstacle_Draw(D3D_D(6)); \
 	C2D_ViewReset();
+	#include "../rendering/draw3d_gen.h"
+	/* Everything gets #undef'd by draw3d */
 
 
 	C3D_RenderTarget *bottom = RenderTarget_Bottom();

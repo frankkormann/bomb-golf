@@ -19,6 +19,7 @@
 int main() {
 	romfsInit();
 	gfxInitDefault();
+	gfxSet3D(true);
 	ndspInit();
 	ndspSetOutputMode(NDSP_OUTPUT_STEREO);
 

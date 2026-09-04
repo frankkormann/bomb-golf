@@ -195,7 +195,6 @@ void BG_DrawFit(Background bg, int x, int y, float depth, int maxWidth,
 
 	BG_Draw(bg, x, y, depth, scale, scale);
 
-
 	if (drawnX) *drawnX = x;
 	if (drawnY) *drawnY = y;
 	if (drawnWidth) *drawnWidth = bg->subtex.width * scale;

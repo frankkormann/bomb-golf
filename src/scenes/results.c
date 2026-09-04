@@ -15,6 +15,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/colors.h"
 #include "../rendering/animation.h"
+#include "../rendering/draw3d.h"
 #include "../audio/music.h"
 #include "../util/dispatcher.h"
 #include "../util/tracker.h"
@@ -321,19 +322,30 @@ static void sceneDraw() {
 	Tracer_UpdateGraphics(projPath);
 
 
-	C3D_RenderTarget *top = RenderTarget_Left();
-	C2D_TargetClear(top, COLOR_LGRAY);
-	C2D_SceneBegin(top);
-
-	Text_Draw(completeText, 200, COMPLETE_TEXT_Y, 0, COLOR_DGREEN, 2,
-			TEXT_CENTERED);
-
 	int terrainX, terrainY, terrainWidth, terrainHeight;
-	Terrain_Draw(LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
-			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth,
-			&terrainHeight);
-	Border_Draw(terrainX, terrainY, 0, terrainWidth, terrainHeight);
-	Tracer_Draw(projPath, terrainX, terrainY, 0.5, terrainWidth, terrainHeight);
+	#define D3D_DEPTHS { 0.5, 0, 0.5, 0.5 }
+	#define D3D_XS { \
+			200, \
+			LEVEL_PREVIEW_X, \
+			terrainX + D3D_CORRECTION(2), \
+			terrainX \
+		}
+	#define D3D_CODE \
+	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
+	C2D_SceneBegin(D3D_TARGET); \
+	\
+	Text_Draw(completeText, D3D_X(0), COMPLETE_TEXT_Y, D3D_D(0), COLOR_DGREEN, \
+			2, TEXT_CENTERED); \
+	\
+	Terrain_Draw(D3D_X(1), LEVEL_PREVIEW_Y, D3D_D(1), LEVEL_PREVIEW_WIDTH, \
+			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth, \
+			&terrainHeight); \
+	Border_Draw(D3D_X(2), terrainY, D3D_D(2), \
+			terrainWidth - 2*D3D_CORRECTION(2), terrainHeight); \
+	Tracer_Draw(projPath, D3D_X(3), terrainY, D3D_D(3), terrainWidth, \
+			terrainHeight);
+	#include "../rendering/draw3d_gen.h"
+	/* Everything gets #undef'd by draw3d */
 
 
 	C3D_RenderTarget *bottom = RenderTarget_Bottom();

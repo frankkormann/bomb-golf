@@ -1,4 +1,3 @@
-//TODO 3D on top screen
 #include <3ds.h>
 #include <citro2d.h>
 #include "rendertarget.h"

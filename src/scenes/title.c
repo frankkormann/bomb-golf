@@ -13,6 +13,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
+#include "../rendering/draw3d.h"
 #include "../util/dispatcher.h"
 #include "../util/tracker.h"
 
@@ -96,12 +97,16 @@ static void sceneUpdate(float _) {
 }
 
 static void sceneDraw() {
-	C3D_RenderTarget *top = RenderTarget_Left();
-	C2D_TargetClear(top, COLOR_LGRAY);
-	C2D_SceneBegin(top);
-
-	SpriteSheet_Draw(SPRITE_TITLE, 0, 0, 1, 0, false, false);
-
+	#define D3D_VALS { \
+			{ 0, 0.5 } \
+		}
+	#define D3D_CODE \
+	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
+	C2D_SceneBegin(D3D_TARGET); \
+	\
+	SpriteSheet_Draw(SPRITE_TITLE, D3D_X(0), 0, D3D_D(0), 0, false, false);
+	#include "../rendering/draw3d_gen.h"
+	/* Everything gets #undef'd by draw3d */
 
 	C3D_RenderTarget *bottom = RenderTarget_Bottom();
 	C2D_TargetClear(bottom, COLOR_LGRAY);

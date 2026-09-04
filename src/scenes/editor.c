@@ -22,6 +22,7 @@
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
+#include "../rendering/draw3d.h"
 #include "../environment/obstacle.h"
 #include "../audio/music.h"
 #include "../projectiles/bomb.h"
@@ -751,22 +752,37 @@ static void sceneDraw() {
 	BG_UpdateGraphics(bg);
 	TileSelector_UpdateGraphics();
 
-
-	C3D_RenderTarget *top = RenderTarget_Left();
-	C2D_TargetClear(top, COLOR_LGRAY);
-	C2D_SceneBegin(top);
-
-	Text_Draw(nameText, TEXT_MARGIN, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1,
-			TEXT_LEFT);
-	Text_Draw(parText, 390, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1, TEXT_RIGHT);
 	int bgX, bgY, bgWidth, bgHeight;
-	BG_DrawFit(bg, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0, LEVEL_PREVIEW_WIDTH,
-			LEVEL_PREVIEW_HEIGHT, &bgX, &bgY, &bgWidth, &bgHeight);
-	Border_Draw(bgX, bgY, 0, bgWidth, bgHeight);
-	List_ForEach(obstacleList, drawObstacleTop);
-	drawInfoText(TEXT_MARGIN,
-			LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + TEXT_MARGIN,
-			1);
+	#define D3D_DEPTHS { 0.5, 0.5, 0, 0.5, 0.5, 0.5 }
+	#define D3D_XS { \
+			TEXT_MARGIN, \
+			390, \
+			LEVEL_PREVIEW_X, \
+			bgX + D3D_CORRECTION(3), \
+			0, \
+			TEXT_MARGIN \
+		}
+	#define D3D_CODE \
+	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
+	C2D_SceneBegin(D3D_TARGET); \
+	\
+	Text_Draw(nameText, D3D_X(0), LEVEL_NAME_Y, D3D_D(0), COLOR_DGREEN, 1, \
+			TEXT_LEFT); \
+	Text_Draw(parText, D3D_X(1), LEVEL_NAME_Y, D3D_D(1), COLOR_DGREEN, 1, \
+			TEXT_RIGHT); \
+	\
+	BG_DrawFit(bg, D3D_X(2), LEVEL_PREVIEW_Y, D3D_D(2), LEVEL_PREVIEW_WIDTH, \
+			LEVEL_PREVIEW_HEIGHT, &bgX, &bgY, &bgWidth, &bgHeight); \
+	Border_Draw(D3D_X(3), bgY, D3D_D(3), bgWidth - 2*D3D_CORRECTION(3), \
+			bgHeight); \
+	C2D_ViewTranslate(D3D_X(4), 0); \
+	List_ForEach(obstacleList, drawObstacleTop); \
+	drawInfoText(D3D_X(5), \
+			LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + TEXT_MARGIN, \
+			D3D_D(5)); \
+	C2D_ViewReset();
+	#include "../rendering/draw3d_gen.h"
+	/* Everything gets #undef'd by draw3d */
 
 
 	C3D_RenderTarget *bottom = RenderTarget_Bottom();

@@ -15,6 +15,7 @@
 #include "../rendering/colors.h"
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
+#include "../rendering/draw3d.h"
 #include "../util/dispatcher.h"
 #include "../levelio.h"
 
@@ -211,29 +212,44 @@ static void drawObstacle(LevelIO_Obst obst, float previewX, float previewY,
 static void sceneDraw() {
 	BG_UpdateGraphics(levelPreview);
 
-	C3D_RenderTarget *top = RenderTarget_Left();
-	C2D_TargetClear(top, COLOR_LGRAY);
-	C2D_SceneBegin(top);
-
-	if (levelIsSelected) {
-		Text_Draw(nameText, LEVEL_NAME_X, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1,
-				TEXT_LEFT);
-		Text_Draw(parText, 390, LEVEL_NAME_Y, 0, COLOR_DGREEN, 1,
-				TEXT_RIGHT);
-
-		int previewX, previewY, previewWidth, previewHeight;
-		BG_DrawFit(levelPreview, LEVEL_PREVIEW_X, LEVEL_PREVIEW_Y, 0,
-				LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT,
-				&previewX, &previewY, &previewWidth, &previewHeight);
-		Border_Draw(previewX, previewY, 0, previewWidth, previewHeight);
-
-		for (size_t i = 0; i < numObstacles; i++) {
-			drawObstacle(obstacles[i], previewX, previewY, previewWidth,
-					previewHeight, 0.5);
+	int previewX, previewY, previewWidth, previewHeight;
+	#define D3D_DEPTHS { 0.5, 0.5, 0, 0.5, 0.5, 0.5 }
+	#define D3D_XS { \
+			LEVEL_NAME_X, \
+			390, \
+			LEVEL_PREVIEW_X, \
+			previewX + D3D_CORRECTION(3), \
+			previewX, \
+			105, \
 		}
-	} else {
-		Text_Draw(infoText, 105, 60, 0, COLOR_DGRAY, 1, TEXT_LEFT);
+	#define D3D_CODE \
+	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
+	C2D_SceneBegin(D3D_TARGET); \
+	\
+	if (levelIsSelected) { \
+		Text_Draw(nameText, D3D_X(0), LEVEL_NAME_Y, D3D_D(0), COLOR_DGREEN, \
+				1, TEXT_LEFT); \
+		Text_Draw(parText, D3D_X(1), LEVEL_NAME_Y, D3D_D(1), COLOR_DGREEN, \
+				1, TEXT_RIGHT); \
+		\
+		BG_DrawFit(levelPreview, D3D_X(2), LEVEL_PREVIEW_Y, D3D_D(2), \
+				LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT, \
+				&previewX, &previewY, &previewWidth, \
+				&previewHeight); \
+		Border_Draw(D3D_X(3), previewY, D3D_D(3), \
+				previewWidth - 2*D3D_CORRECTION(3), \
+				previewHeight); \
+		\
+		for (size_t i = 0; i < numObstacles; i++) { \
+			drawObstacle(obstacles[i], D3D_X(4), previewY, \
+					previewWidth, previewHeight, D3D_D(4)); \
+		} \
+	} else { \
+		Text_Draw(infoText, D3D_X(5), 60, D3D_D(5), COLOR_DGRAY, 1, \
+			TEXT_LEFT); \
 	}
+	#include "../rendering/draw3d_gen.h"
+	/* Everything gets #undef'd by draw3d */
 
 
 	C3D_RenderTarget *bottom = RenderTarget_Bottom();
