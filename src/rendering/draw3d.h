@@ -5,10 +5,6 @@
  * #define D3D_VALS with an array of pairs of { x, depth }. Each pair describes
  * the x-position and depth that a component should be drawn at.
  *
- * If you want to use D3D_CORRECTION in D3D_VALS, instead you must split it by
- * defining D3D_DEPTHS and D3D_XS. Then D3D_CORRECTION can be used in D3D_XS
- * but not in D3D_DEPTHS.
- *
  * Then #define D3D_CODE with the code to draw on the top screen. The following
  * macros are provided for the code:
  *
@@ -21,8 +17,13 @@
  * - D3D_CORRECTION(i): The correction applied to each x value, that is, how
  *                      much D3D_X differs from the value in D3D_VALS.
  *
- * Any variables used in D3D_VALS must be declared ahead of time, although
- * their values will not be read until required by a call to D3D_XS or D3D_DS.
+ * If you want to use D3D_CORRECTION in D3D_VALS, instead you must split it by
+ * defining D3D_DEPTHS and D3D_XS. Then D3D_CORRECTION can be used in D3D_XS
+ * but not in D3D_DEPTHS.
+ *
+ * Any variables used in D3D_VALS, D3D_XS, or D3D_DEPTHS must be declared ahead
+ * of time, although their values will not be read until required by an
+ * instance of D3D_X/D3D_Xi or D3D_D.
  *
  * After #define'ing everything, #include draw3d_gen.h.
  * All macros described above will be #undef'd automatically.
