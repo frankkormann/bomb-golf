@@ -6,7 +6,7 @@
 #include "../../rendering/spritesheet.h"
 #include "../../tile.h"
 
-#define MAX_TO_DRAW_PER_FRAME (C2D_DEFAULT_MAX_OBJECTS - 200)
+#define MAX_TO_DRAW_PER_FRAME (C2D_DEFAULT_MAX_OBJECTS - 300)
 
 typedef struct {
 	int x;
