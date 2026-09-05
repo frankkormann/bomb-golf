@@ -1,3 +1,4 @@
+//TODO Redesign this
 #include <stdbool.h>
 #include <malloc.h>
 #include <math.h>
