@@ -286,6 +286,7 @@ static void plotTrajectoryPoint(float initX, float initY, float velX, float velY
 static void sceneDraw() {
 	Terrain_UpdateGraphics();
 
+
 	float projX, projY;
 	int terrainX, terrainY, terrainWidth, terrainHeight;
 	#define D3D_DEPTHS { 0.8, 0.8, 0.8, 0, 0.6, 0.8, 0.8 }
