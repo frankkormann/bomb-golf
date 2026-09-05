@@ -1,4 +1,3 @@
-//TODO Fix movement bugs
 #include <stdlib.h>
 #include <math.h>
 #include <3ds.h>
@@ -94,52 +93,59 @@ void ProjDefault_Launch(float velX, float velY) {
 }
 
 static void checkCircle(int x, int y, int radius, float *hitX, float *hitY) {
-	int hitsX = 0, hitsY = 0;
-	int numHits = 0;
-	void checkTerrain(int x, int y) {
+	int hitsX, hitsY;
+	int numHits;
+	int i, j, T;
+
+	void checkTerrain(int x, int y, int weight) {
+		weight &= 0xFFFF;
 		if (Env_TypeAt(x, y) != TERRAIN_NOTHING) {
-			hitsX += x;
-			hitsY += y;
-			numHits++;
+			hitsX += x * weight;
+			hitsY += y * weight;
+			numHits += weight;
 		}
 	}
 
-	int f = 1 - radius;
-	int ddF_x = 0;
-	int ddF_y = -2 * radius;
-	int x0 = 0;
-	int y0 = radius;
-
-	checkTerrain(x, y + radius);
-	checkTerrain(x, y - radius);
-	checkTerrain(x + radius, y);
-	checkTerrain(x - radius, y);
-
-	while(x0 < y0) {
-		if(f >= 0) {
-			y0--;
-			ddF_y += 2;
-			f += ddF_y;
-		}
-		x0++;
-		ddF_x += 2;
-		f += ddF_x + 1;	
-		checkTerrain(x + x0, y + y0);
-		checkTerrain(x - x0, y + y0);
-		checkTerrain(x + x0, y - y0);
-		checkTerrain(x - x0, y - y0);
-		checkTerrain(x + y0, y + x0);
-		checkTerrain(x - y0, y + x0);
-		checkTerrain(x + y0, y - x0);
-		checkTerrain(x - y0, y - x0);
+	int D(int a) {
+		float inner = sqrt(radius*radius - a*a);
+		return floor(0xFFFF * (ceil(inner) - inner) + 0.5);
 	}
 
-	if (numHits == 0) {
-		*hitX = 0;
-		*hitY = 0;
-	} else {
+	hitsX = hitsY = numHits = 0;
+	i = radius;
+	j = T = 0;
+
+	checkTerrain(x + radius, y, 0xFFFF);
+	checkTerrain(x - radius, y, 0xFFFF);
+	checkTerrain(x, y + radius, 0xFFFF);
+	checkTerrain(x, y - radius, 0xFFFF);
+	while (i > j) {
+		j++;
+		if (D(j) < T) i--;
+		checkTerrain(x + i, y + j, ~D(j));
+		checkTerrain(x - i, y + j, ~D(j));
+		checkTerrain(x + i, y - j, ~D(j));
+		checkTerrain(x - i, y - j, ~D(j));
+		checkTerrain(x + i - 1, y + j, D(j));
+		checkTerrain(x - i + 1, y + j, D(j));
+		checkTerrain(x + i - 1, y - j, D(j));
+		checkTerrain(x - i + 1, y - j, D(j));
+		checkTerrain(x + j, y + i, ~D(j));
+		checkTerrain(x - j, y + i, ~D(j));
+		checkTerrain(x + j, y - i, ~D(j));
+		checkTerrain(x - j, y - i, ~D(j));
+		checkTerrain(x + j, y + i - 1, D(j));
+		checkTerrain(x + j, y - i + 1, D(j));
+		checkTerrain(x - j, y + i - 1, D(j));
+		checkTerrain(x - j, y - i + 1, D(j));
+		T = D(j);
+	}
+
+	if (numHits > 0) {
 		*hitX = (float)hitsX / numHits;
 		*hitY = (float)hitsY / numHits;
+	} else {
+		*hitX = *hitY = -1;
 	}
 }
 
@@ -162,7 +168,7 @@ static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 		*ultimateY = y0;
 
 		checkCircle(x0, y0, proj->radius, hitX, hitY);
-		if (*hitX != 0 || *hitY != 0) {
+		if (*hitX >= 0 || *hitY >= 0) {
 			*hitSomething = true;
 			break;
 		}
