@@ -154,7 +154,7 @@ f_levelCards:
 	}
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
-	Scene_SetNext(sceneError, Error_MakeParams("Out of memory"));
+	Scene_Switch(sceneError, Error_MakeParams("Out of memory"));
 	return false;
 }
 
@@ -179,8 +179,7 @@ static void sceneUpdate(float _) {
 	u32 kDown = hidKeysDown();
 
 	if (kDown & KEY_B) {
-		Scene_SetNext(sceneTitle, Title_MakeParams());
-		return;
+		Scene_Switch(sceneTitle, Title_MakeParams());
 	}
 
 	Dispatcher_DispatchEvent(touchDispatcher);

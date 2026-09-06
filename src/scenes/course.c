@@ -78,6 +78,8 @@ Scene_Params Course_MakeParams(int level, bool inRomfs) {
 static bool sceneInit(Scene_Params params) {
 	char *errMsg = "";  // Fill this in whenever you goto f_XYZ
 
+	Scene_Switch(sceneTitle, Title_MakeParams());
+
 	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
 	if (!nameText) {
 		errMsg = "Out of memory";
@@ -186,7 +188,7 @@ f_strokesText:
 f_parText:
 	Text_Free(nameText);
 f_nameText:
-	Scene_SetNext(sceneError, Error_MakeParams(errMsg));
+	Scene_Switch(sceneError, Error_MakeParams(errMsg));
 	return false;
 }
 
@@ -232,7 +234,7 @@ static void checkLaunchInput() {
 static void nextLevel() {
 	shouldFreeTerrain = false;
 	shouldFreeProjPath = false;
-	Scene_SetNext(sceneResults, Results_MakeParams(strokes, level,
+	Scene_Switch(sceneResults, Results_MakeParams(strokes, level,
 			levelInRomfs, projPath));
 }
 
@@ -242,12 +244,11 @@ static void sceneUpdate(float speed) {
 
 	if (kDown & KEY_B) {
 		if (levelInRomfs) {
-			Scene_SetNext(sceneTitle, Title_MakeParams());
+			Scene_Switch(sceneTitle, Title_MakeParams());
 		} else {
-			Scene_SetNext(sceneLevelSelector,
+			Scene_Switch(sceneLevelSelector,
 					LevelSelector_MakeParams(level));
 		}
-		return;
 	}
 
 	if (canLaunch()) {

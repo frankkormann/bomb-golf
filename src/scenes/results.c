@@ -142,14 +142,14 @@ static u32 getColorForScore(int strokes, int par) {
 }
 
 static void goNextLevel() {
-	Scene_SetNext(sceneCourse, Course_MakeParams(nextLevel, levelInRomfs));
+	Scene_Switch(sceneCourse, Course_MakeParams(nextLevel, levelInRomfs));
 }
 
 static void quit() {
 	if (levelInRomfs) {
-		Scene_SetNext(sceneTitle, Title_MakeParams());
+		Scene_Switch(sceneTitle, Title_MakeParams());
 	} else {
-		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
+		Scene_Switch(sceneLevelSelector, LevelSelector_MakeParams(level));
 	}
 }
 
@@ -289,7 +289,7 @@ f_parText:
 	Text_Free(completeText);
 f_completeText:
 f_LevelIO_Read:
-	Scene_SetNext(sceneError, Error_MakeParams("Out of memory"));
+	Scene_Switch(sceneError, Error_MakeParams("Out of memory"));
 	return false;
 }
 

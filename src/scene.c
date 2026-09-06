@@ -1,55 +1,55 @@
 #include <stddef.h>
+#include <setjmp.h>
 #include "scene.h"
 #include "scenes/scene_internal.h"
 #include "scenes/components/popup.h"
 #include "rendering/animation.h"
 
-static Scene sceneCurrent;
-static Scene sceneNext;
-static Scene_Params nextParams;
+static Scene scene;
+static bool inScene;
+static jmp_buf jmpbuf;
 static float speed;
 
 bool Scene_Start(Scene first, Scene_Params params) {
 	bool success = first->init(params);
-	sceneCurrent = success ? first : NULL;
+	scene = success ? first : NULL;
 	speed = 1;
 	return success;
 }
 
 void Scene_Update() {
-	if (sceneNext) {
-		// Do this shuffling in case Scene_Start calls Scene_SetNext
-		Scene toStart = sceneNext;
-		sceneNext = NULL;
-		Scene_Exit();
-		Animation_Clear(false);
-		Scene_Start(toStart, nextParams);
-	}
-	if (sceneCurrent) {
+	inScene = true;
+	if (setjmp(jmpbuf) != 0) return;
+	if (scene) {
 		if (!Popup_IsOpen()) {
-			sceneCurrent->update(speed);
+			scene->update(speed);
 			Animation_Update(speed);
 		} else {
 			Popup_Update();
 		}
 	}
+	inScene = false;
 }
 
 void Scene_Draw() {
-	if (sceneCurrent) {
-		sceneCurrent->draw();
+	if (scene) {
+		scene->draw();
 		if (Popup_IsOpen()) Popup_Draw();
 	}
 }
 
 void Scene_Exit() {
-	if (sceneCurrent) sceneCurrent->exit();
-	sceneCurrent = NULL;
+	if (scene) scene->exit();
+	scene = NULL;
 }
 
-void Scene_SetNext(Scene next, Scene_Params params) {
-	sceneNext = next;
-	nextParams = params;
+void Scene_Switch(Scene next, Scene_Params params) {
+	Scene_Exit();
+	Animation_Clear(false);
+	Scene_Start(next, params);
+	if (inScene) {
+		longjmp(jmpbuf, 1);
+	}
 }
 
 void Scene_SetSpeed(float argSpeed) {

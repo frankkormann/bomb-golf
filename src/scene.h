@@ -56,9 +56,12 @@ void Scene_Exit();
  * Exits the active Scene and sets next as the new active Scene.
  * Each implementor of Scene provides a function to make their Scene_Params.
  *
+ * If this is called from inside a Scene, it does not return; the new Scene
+ * is switched to immediately.
+ *
  * Also calls Animation_Clear and resets speed to 1 (see Scene_SetSpeed).
  */
-void Scene_SetNext(Scene next, Scene_Params params);
+void Scene_Switch(Scene next, Scene_Params params);
 
 /*
  * Affects how much the active Scene updates for each call to Scene_Update.

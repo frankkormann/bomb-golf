@@ -37,7 +37,7 @@ int main() {
 	Scene_Start(sceneTitle, Title_MakeParams());
 
 	if (!SaveData_Mount()) {
-		Scene_SetNext(sceneError,
+		Scene_Switch(sceneError,
 				Error_MakeParams("Failed to mount save data"));
 	}
 

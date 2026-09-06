@@ -31,11 +31,11 @@ Scene_Params Title_MakeParams() {
 
 static void startGame() {
 	Tracker_Clear();
-	Scene_SetNext(sceneCourse, Course_MakeParams(0, true));
+	Scene_Switch(sceneCourse, Course_MakeParams(0, true));
 }
 
 static void openEditor() {
-	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(-1));
+	Scene_Switch(sceneLevelSelector, LevelSelector_MakeParams(-1));
 }
 
 static bool sceneInit() {
@@ -78,7 +78,7 @@ f_touchDispatcher:
 f_editorText:
 	Text_Free(startText);
 f_startText:
-	Scene_SetNext(sceneError, Error_MakeParams("Out of memory"));
+	Scene_Switch(sceneError, Error_MakeParams("Out of memory"));
 	return false;
 }
 

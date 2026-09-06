@@ -234,7 +234,7 @@ f_parText:
 f_nameText:
 	BG_Free(bg);
 f_bg:
-	Scene_SetNext(sceneError, Error_MakeParams("Out of memory"));
+	Scene_Switch(sceneError, Error_MakeParams("Out of memory"));
 	return false;
 }
 
@@ -500,7 +500,7 @@ static void editMusic() {
 static void saveExit() {
 	Popup_Exit();
 	if (exportLevel()) {
-		Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
+		Scene_Switch(sceneLevelSelector, LevelSelector_MakeParams(level));
 	} else {
 		Popup_Init("Failed to save file", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "OK", -1, NULL, Popup_Exit } });
@@ -508,8 +508,8 @@ static void saveExit() {
 }
 
 static void exitNoSave() {
-	Scene_SetNext(sceneLevelSelector, LevelSelector_MakeParams(level));
 	Popup_Exit();
+	Scene_Switch(sceneLevelSelector, LevelSelector_MakeParams(level));
 }
 
 static void showExitPopup() {
