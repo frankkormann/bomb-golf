@@ -8,34 +8,27 @@
 
 #include <stdbool.h>
 
+// GCC doesn't warn for missing field initializers if a struct is
+// empty-intialized, like struct foo {}. But we always want these warnings in
+// case a Scene gains parameters. This hack gets around that somewhat.
+typedef struct {
+	char _;
+} Scene_EmptyParams;
+#define SCENE_PARAMS_EMPTY	{{ 1 }}
+#define SCENE_PARAMS_EMPTY_DEF	Scene_EmptyParams _;
+
 typedef struct scene *Scene;
-// Make Scene_Params visible to each scene header
-typedef union scene_params Scene_Params;
-
-#include "scenes/course.h"
-#include "scenes/editor.h"
-#include "scenes/title.h"
-#include "scenes/error.h"
-#include "scenes/levelselector.h"
-#include "scenes/results.h"
-
-union scene_params {
-	Course_Params course;
-	Editor_Params editor;
-	Title_Params title;
-	Error_Params error;
-	LevelSelector_Params levelselector;
-	Results_Params results;
-};
 
 /*
- * Sets first as the active Scene.
- * Each implementor of Scene provides a function to make their Scene_Params.
+ * Sets first as the active Scene. Each implementor of Scene provides a way
+ * to make their params, usually a struct to fill int.
+ *
  * Resets speed to 1 (see Scene_SetSpeed).
  *
- * Returns false if the Scene was unable to intialized.
+ * Returns false if the Scene was unable to intialized. (Note that a different
+ * Scene may have been initialized instead to display the error.)
  */
-bool Scene_Start(Scene first, Scene_Params params);
+bool Scene_Start(Scene first, void *params);
 
 /*
  * Updates the active Scene.
@@ -53,15 +46,16 @@ void Scene_Draw();
 void Scene_Exit();
 
 /*
- * Exits the active Scene and sets next as the new active Scene.
- * Each implementor of Scene provides a function to make their Scene_Params.
+ * Exits the active Scene and sets next as the new active Scene. Each
+ * implementor of Scene provides a way to make their params, usually a struct
+ * to fill int.
  *
  * If this is called from inside a Scene, it does not return; the new Scene
  * is switched to immediately.
  *
  * Also calls Animation_Clear and resets speed to 1 (see Scene_SetSpeed).
  */
-void Scene_Switch(Scene next, Scene_Params params);
+void Scene_Switch(Scene next, void *params);
 
 /*
  * Affects how much the active Scene updates for each call to Scene_Update.

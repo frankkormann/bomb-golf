@@ -10,7 +10,7 @@ static bool inScene;
 static jmp_buf jmpbuf;
 static float speed;
 
-bool Scene_Start(Scene first, Scene_Params params) {
+bool Scene_Start(Scene first, void *params) {
 	bool success = first->init(params);
 	scene = success ? first : NULL;
 	speed = 1;
@@ -43,7 +43,7 @@ void Scene_Exit() {
 	scene = NULL;
 }
 
-void Scene_Switch(Scene next, Scene_Params params) {
+void Scene_Switch(Scene next, void *params) {
 	Scene_Exit();
 	Animation_Clear(false);
 	Scene_Start(next, params);

@@ -8,6 +8,7 @@
 #include "error.h"
 #include "title.h"
 #include "levelselector.h"
+#include "course.h"
 #include "components/text.h"
 #include "components/button.h"
 #include "components/border.h"
@@ -57,16 +58,6 @@ static Tracer projPath;
 static Text   buttonText;
 static Button nextButton, quitButton;
 static Dispatcher touchDispatcher, keyDispatcher;
-
-Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
-		Tracer projPath) {
-	return (Scene_Params) { .results = {
-		.strokes = strokes,
-		.level = level,
-		.levelInRomfs = levelInRomfs,
-		.projPath = projPath
-	} };
-}
 
 static void getScoreForStrokes(int strokes, int par, char *buf) {
 	if (strokes == 1) {
@@ -142,20 +133,21 @@ static u32 getColorForScore(int strokes, int par) {
 }
 
 static void goNextLevel() {
-	Scene_Switch(sceneCourse, Course_MakeParams(nextLevel, levelInRomfs));
+	Scene_Switch(sceneCourse, &(Course_Params) { nextLevel, levelInRomfs });
 }
 
 static void quit() {
 	if (levelInRomfs) {
-		Scene_Switch(sceneTitle, Title_MakeParams());
+		Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 	} else {
-		Scene_Switch(sceneLevelSelector, LevelSelector_MakeParams(level));
+		Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { level });
 	}
 }
 
-static bool sceneInit(Scene_Params params) {
+static bool sceneInit(void *sceneParams) {
+	Results_Params *params = (Results_Params*)sceneParams;
 	char path[LEVEL_PATH_MAX];
-	LevelIO_MakePath(params.results.level, params.results.levelInRomfs, path);
+	LevelIO_MakePath(params->level, params->levelInRomfs, path);
 	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &par,
 			NULL, NULL)) {
 		goto f_LevelIO_Read;
@@ -179,13 +171,13 @@ static bool sceneInit(Scene_Params params) {
 
 	strokesNumText = Text_Create(4);
 	if (!strokesNumText) goto f_strokesNumText;
-	Text_SetContent(strokesNumText, "%i", params.results.strokes);
+	Text_SetContent(strokesNumText, "%i", params->strokes);
 
 	scoreNameText = Text_Create(16);
 	if (!scoreNameText) goto f_scoreNameText;
 	{
 		char buf[32];
-		getScoreForStrokes(params.results.strokes, par, buf);
+		getScoreForStrokes(params->strokes, par, buf);
 		Text_SetContent(scoreNameText, buf);
 	}
 
@@ -226,12 +218,12 @@ static bool sceneInit(Scene_Params params) {
 	Button_RegisterForKeyEvents(quitButton, keyDispatcher, 1);
 	Button_Disable(quitButton);
 
-	if (params.results.levelInRomfs) {
+	if (params->levelInRomfs) {
 		//TODO Create a "final results"/summary Scene
-		nextLevel = params.results.level + 1;
+		nextLevel = params->level + 1;
 		while (true) {
 			char path[LEVEL_PATH_MAX];
-			LevelIO_MakePath(nextLevel, params.results.levelInRomfs,
+			LevelIO_MakePath(nextLevel, params->levelInRomfs,
 					path);
 			if (FILE *f = fopen(path, "rb")) {
 				fclose(f);
@@ -254,12 +246,12 @@ static bool sceneInit(Scene_Params params) {
 
 	Music_Start(MUSIC_RESULTS);
 
-	level = params.results.level;
-	levelInRomfs = params.results.levelInRomfs;
-	strokes = params.results.strokes;
+	level = params->level;
+	levelInRomfs = params->levelInRomfs;
+	strokes = params->strokes;
 
 	textRevealCounter = 0;
-	projPath = params.results.projPath;
+	projPath = params->projPath;
 
 	return true;
 
@@ -289,7 +281,7 @@ f_parText:
 	Text_Free(completeText);
 f_completeText:
 f_LevelIO_Read:
-	Scene_Switch(sceneError, Error_MakeParams("Out of memory"));
+	Scene_Switch(sceneError, &(Error_Params) { "Out of memory" });
 	return false;
 }
 

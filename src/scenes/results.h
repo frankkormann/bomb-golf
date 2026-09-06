@@ -8,6 +8,7 @@
 #ifndef RESULTS_H
 #define RESULTS_H
 
+#include "../scene.h"
 #include "components/background.h"
 #include "components/tracer.h"
 
@@ -18,15 +19,6 @@ typedef struct {
 	Tracer projPath;
 } Results_Params;
 
-#include "../scene.h"
-
 extern Scene sceneResults;
-
-/*
- * Makes Scene_Params to show the specified level having been completed in
- * strokes strokes.
- */
-Scene_Params Results_MakeParams(int strokes, int level, bool levelInRomfs,
-		Tracer projPath);
 
 #endif

@@ -8,17 +8,12 @@
 // Not including null terminator
 #define EDITOR_LEVEL_NAME_MAX 32
 
-typedef struct {
-	unsigned int level;
-} Editor_Params;
-
 #include "../scene.h"
 
-extern Scene sceneEditor;
+typedef struct {
+	int level;
+} Editor_Params;
 
-/*
- * Makes Scene_Params to create or edit the course with number level.
- */
-Scene_Params Editor_MakeParams(unsigned int level);
+extern Scene sceneEditor;
 
 #endif

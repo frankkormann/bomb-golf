@@ -5,15 +5,12 @@
 #ifndef TITLE_H
 #define TITLE_H
 
-typedef struct {} Title_Params;
-
 #include "../scene.h"
 
-extern Scene sceneTitle;
+typedef struct {
+	SCENE_PARAMS_EMPTY_DEF
+} Title_Params;
 
-/*
- * Makes empty Scene_Params.
- */
-Scene_Params Title_MakeParams();
+extern Scene sceneTitle;
 
 #endif

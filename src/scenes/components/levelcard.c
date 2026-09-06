@@ -27,12 +27,12 @@ struct levelcard {
 };
 
 static void editLevel(int levelNum) {
-	Scene_Switch(sceneEditor, Editor_MakeParams(levelNum));
+	Scene_Switch(sceneEditor, &(Editor_Params) { levelNum });
 }
 
 static void playLevel(int levelNum) {
 	Tracker_Clear();
-	Scene_Switch(sceneCourse, Course_MakeParams(levelNum, false));
+	Scene_Switch(sceneCourse, &(Course_Params) { levelNum, false });
 }
 
 static void doNothing() {}

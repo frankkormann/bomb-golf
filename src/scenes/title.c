@@ -25,17 +25,13 @@ static Text   startText,   editorText;
 static Button startButton, editorButton;
 static Dispatcher touchDispatcher, keyDispatcher;
 
-Scene_Params Title_MakeParams() {
-	return (Scene_Params) {};
-}
-
 static void startGame() {
 	Tracker_Clear();
-	Scene_Switch(sceneCourse, Course_MakeParams(0, true));
+	Scene_Switch(sceneCourse, &(Course_Params) { 0, true });
 }
 
 static void openEditor() {
-	Scene_Switch(sceneLevelSelector, LevelSelector_MakeParams(-1));
+	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1 });
 }
 
 static bool sceneInit() {
@@ -78,7 +74,7 @@ f_touchDispatcher:
 f_editorText:
 	Text_Free(startText);
 f_startText:
-	Scene_Switch(sceneError, Error_MakeParams("Out of memory"));
+	Scene_Switch(sceneError, &(Error_Params) { "Out of memory" });
 	return false;
 }
 

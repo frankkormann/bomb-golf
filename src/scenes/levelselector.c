@@ -8,6 +8,8 @@
 #include "scene_internal.h"
 #include "levelselector.h"
 #include "title.h"
+#include "error.h"
+#include "editor.h"
 #include "components/levelcard.h"
 #include "components/background.h"
 #include "components/text.h"
@@ -45,12 +47,6 @@ static Background levelPreview;
 static LevelIO_Obst *obstacles;
 static size_t numObstacles;
 static bool levelIsSelected;
-
-Scene_Params LevelSelector_MakeParams(int level) {
-	return (Scene_Params) { .levelselector = {
-		.level = level
-	} };
-}
 
 static void displayLevel(int levelNum) {
 	if (levelNum < 0) {
@@ -103,7 +99,8 @@ static void displayLevel(int levelNum) {
 	}
 }
 
-static bool sceneInit(Scene_Params params) {
+static bool sceneInit(void *sceneParams) {
+	LevelSelector_Params *params = (LevelSelector_Params*)sceneParams;
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
 
@@ -135,7 +132,7 @@ static bool sceneInit(Scene_Params params) {
 	levelPreview = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!levelPreview) goto f_levelPreview;
 
-	displayLevel(params.levelselector.level);
+	displayLevel(params->level);
 
 	return true;
 
@@ -154,7 +151,7 @@ f_levelCards:
 	}
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
-	Scene_Switch(sceneError, Error_MakeParams("Out of memory"));
+	Scene_Switch(sceneError, &(Error_Params) { "Out of memory" });
 	return false;
 }
 
@@ -179,7 +176,7 @@ static void sceneUpdate(float _) {
 	u32 kDown = hidKeysDown();
 
 	if (kDown & KEY_B) {
-		Scene_Switch(sceneTitle, Title_MakeParams());
+		Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 	}
 
 	Dispatcher_DispatchEvent(touchDispatcher);

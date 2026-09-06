@@ -34,11 +34,11 @@ int main() {
 	Music_Init();
 	SoundEffect_Init();
 	Obstacle_Init();
-	Scene_Start(sceneTitle, Title_MakeParams());
+	Scene_Start(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 
 	if (!SaveData_Mount()) {
 		Scene_Switch(sceneError,
-				Error_MakeParams("Failed to mount save data"));
+				&(Error_Params) { "Failed to mount save data" });
 	}
 
 	while (aptMainLoop()) {

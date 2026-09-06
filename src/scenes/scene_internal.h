@@ -11,9 +11,10 @@ struct scene {
 	/*
 	 * Initializes the Scene.
 	 *
-	 * Returns false if an error occurred and the Scene could not be intialized.
+	 * Returns false if an error occurred and the Scene could not be
+	 * initialized.
 	 */
-	bool (*const init)(Scene_Params params);
+	bool (*const init)(void *params);
 	/*
 	 * Function which should be called once per frame to update its state.
 	 */

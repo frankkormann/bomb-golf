@@ -6,21 +6,14 @@
 #define COURSE_H
 
 #include <stdbool.h>
+#include "../scene.h"
 
 typedef struct {
-	unsigned int level;
+	int level;
 	bool inRomfs;
 } Course_Params;
 
-#include "../scene.h"
-
 extern Scene sceneCourse;
-
-/*
- * Makes Scene_Params to load the course with number level. If inRomfs is true,
- * looks for the file in ROM; otherwise looks in save data.
- */
-Scene_Params Course_MakeParams(int level, bool inRomfs);
 
 int Course_GetFieldWidth();
 int Course_GetFieldHeight();

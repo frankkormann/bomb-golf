@@ -10,6 +10,7 @@
 #include "levelselector.h"
 #include "error.h"
 #include "results.h"
+#include "editor.h"
 #include "components/text.h"
 #include "components/background.h"
 #include "components/border.h"
@@ -68,17 +69,9 @@ int Course_GetScreenOffset() {
 	return clamp(projX - 160, 0, fieldWidth - 320);
 }
 
-Scene_Params Course_MakeParams(int level, bool inRomfs) {
-	return (Scene_Params) { .course = {
-		.level = level,
-		.inRomfs = inRomfs
-	} };
-}
-
-static bool sceneInit(Scene_Params params) {
+static bool sceneInit(void *sceneParams) {
+	Course_Params *params = (Course_Params*)sceneParams;
 	char *errMsg = "";  // Fill this in whenever you goto f_XYZ
-
-	Scene_Switch(sceneTitle, Title_MakeParams());
 
 	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
 	if (!nameText) {
@@ -99,7 +92,7 @@ static bool sceneInit(Scene_Params params) {
 	}
 
 	char path[LEVEL_PATH_MAX];
-	LevelIO_MakePath(params.course.level, params.course.inRomfs, path);
+	LevelIO_MakePath(params->level, params->inRomfs, path);
 
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
@@ -171,8 +164,8 @@ static bool sceneInit(Scene_Params params) {
 	strokes  = 0;
 	timestep = 1;
 	hasFinished = false;
-	level = params.course.level;
-	levelInRomfs = params.course.inRomfs;
+	level = params->level;
+	levelInRomfs = params->inRomfs;
 
 	return true;
 
@@ -188,7 +181,7 @@ f_strokesText:
 f_parText:
 	Text_Free(nameText);
 f_nameText:
-	Scene_Switch(sceneError, Error_MakeParams(errMsg));
+	Scene_Switch(sceneError, &(Error_Params) { errMsg });
 	return false;
 }
 
@@ -234,8 +227,8 @@ static void checkLaunchInput() {
 static void nextLevel() {
 	shouldFreeTerrain = false;
 	shouldFreeProjPath = false;
-	Scene_Switch(sceneResults, Results_MakeParams(strokes, level,
-			levelInRomfs, projPath));
+	Scene_Switch(sceneResults, &(Results_Params)
+			{ strokes, level, levelInRomfs, projPath });
 }
 
 static void sceneUpdate(float speed) {
@@ -244,10 +237,10 @@ static void sceneUpdate(float speed) {
 
 	if (kDown & KEY_B) {
 		if (levelInRomfs) {
-			Scene_Switch(sceneTitle, Title_MakeParams());
+			Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 		} else {
 			Scene_Switch(sceneLevelSelector,
-					LevelSelector_MakeParams(level));
+					&(LevelSelector_Params) { level });
 		}
 	}
 

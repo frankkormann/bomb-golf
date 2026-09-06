@@ -69,12 +69,6 @@ static Dispatcher touchDispatcher;
 static Text infoText;
 static int infoTextPage;
 
-Scene_Params Editor_MakeParams(unsigned int level) {
-	return (Scene_Params) { .editor = {
-		.level = level
-	} };
-}
-
 // Declarations needed to register with dispatcher, buttons
 static bool handleTouchInput();
 static void editName();
@@ -89,7 +83,9 @@ static bool getObstacles(LevelIO_Obst **obsts, size_t *numObsts);
 
 static void pageInfoText();
 
-static bool sceneInit(Scene_Params params) {
+static bool sceneInit(void *sceneParams) {
+	Editor_Params *params = (Editor_Params*)sceneParams;
+
 	bg = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!bg) goto f_bg;
 
@@ -111,7 +107,7 @@ static bool sceneInit(Scene_Params params) {
 	if (!obstacleList) goto f_obstacleList;
 
 	char path[LEVEL_PATH_MAX];
-	LevelIO_MakePath(params.editor.level, false, path);
+	LevelIO_MakePath(params->level, false, path);
 	LevelIO_Hole hole;
 	LevelIO_Proj proj;
 	int width;
@@ -202,7 +198,7 @@ static bool sceneInit(Scene_Params params) {
 
 	infoTextPage = 0;
 	scroll = 0;
-	level = params.editor.level;
+	level = params->level;
 	curObst = NULL;
 	curObstPoint = 0;
 
@@ -234,7 +230,7 @@ f_parText:
 f_nameText:
 	BG_Free(bg);
 f_bg:
-	Scene_Switch(sceneError, Error_MakeParams("Out of memory"));
+	Scene_Switch(sceneError, &(Error_Params) { "Out of memory" });
 	return false;
 }
 
@@ -500,7 +496,7 @@ static void editMusic() {
 static void saveExit() {
 	Popup_Exit();
 	if (exportLevel()) {
-		Scene_Switch(sceneLevelSelector, LevelSelector_MakeParams(level));
+		Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { level });
 	} else {
 		Popup_Init("Failed to save file", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "OK", -1, NULL, Popup_Exit } });
@@ -509,7 +505,7 @@ static void saveExit() {
 
 static void exitNoSave() {
 	Popup_Exit();
-	Scene_Switch(sceneLevelSelector, LevelSelector_MakeParams(level));
+	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { level });
 }
 
 static void showExitPopup() {
