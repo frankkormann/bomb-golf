@@ -116,22 +116,6 @@ static void getScoreForStrokes(int strokes, int par, char *buf) {
 	}
 }
 
-static u32 getColorForScore(int strokes, int par) {
-	//TODO Decide on better colors?
-	if (strokes == 1) return COLOR_WHITE;
-
-	int score = strokes - par;
-	if (score <= -2) {
-		return COLOR_YELLOW;
-	} else if (score <= -1) {
-		return COLOR_BLUE;
-	} else if (score <= 0) {
-		return COLOR_GREEN;
-	} else {
-		return COLOR_DBROWN;
-	}
-}
-
 static void goNextLevel() {
 	Scene_Switch(sceneCourse, &(Course_Params) { nextLevel, levelInRomfs });
 }
@@ -363,7 +347,7 @@ static void sceneDraw() {
 		Text_Draw(scoreTotNumText, OVERALL_TEXT_X + NUM_TEXT_GAP + 15,
 				OVERALL_TEXT_Y, 0, COLOR_DGRAY, 1, TEXT_RIGHT);
 		Text_Draw(scoreNameText, 160, SCORE_TEXT_Y, 0,
-				getColorForScore(strokes, par), 1, TEXT_CENTERED);
+				Color_ForScore(strokes, par), 1, TEXT_CENTERED);
 	}
 
 	Button_Draw(nextButton, 0.5);
