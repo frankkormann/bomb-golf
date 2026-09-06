@@ -6,7 +6,7 @@
 #include "../../scene.h"
 #include "../editor.h"
 #include "../course.h"
-#include "../../rendering/colors.h"
+#include "../../rendering/color.h"
 #include "../../util/dispatcher.h"
 #include "../../util/tracker.h"
 #include "../../levelio.h"

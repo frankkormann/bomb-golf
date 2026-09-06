@@ -9,7 +9,7 @@
 #include "error.h"
 #include "components/button.h"
 #include "components/text.h"
-#include "../rendering/colors.h"
+#include "../rendering/color.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"

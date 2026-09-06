@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <citro2d.h>
 #include "tracer.h"
-#include "../../rendering/colors.h"
+#include "../../rendering/color.h"
 #include "../../util/queue.h"
 
 #define MAX_TO_DRAW_PER_FRAME (C2D_DEFAULT_MAX_OBJECTS - 200)

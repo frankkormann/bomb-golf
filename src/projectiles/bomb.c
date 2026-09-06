@@ -5,7 +5,7 @@
 #include "../projectile.h"
 #include "projectile_internal.h"
 #include "bomb.h"
-#include "../rendering/colors.h"
+#include "../rendering/color.h"
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
 #include "../rendering/animations/explosion.h"

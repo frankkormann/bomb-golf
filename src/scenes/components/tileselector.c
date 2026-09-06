@@ -7,7 +7,7 @@
 #include "background.h"
 #include "brushselector.h"
 #include "../../tile.h"
-#include "../../rendering/colors.h"
+#include "../../rendering/color.h"
 #include "../../util/touchinput.h"
 
 #define HOTBAR_LENGTH 21

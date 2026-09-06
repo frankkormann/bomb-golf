@@ -3,7 +3,7 @@
 #include "brushselector.h"
 #include "button.h"
 #include "../../rendering/spritesheet.h"
-#include "../../rendering/colors.h"
+#include "../../rendering/color.h"
 #include "../../util/dispatcher.h"
 
 #define BUTTON_START_Y	43

@@ -4,7 +4,7 @@
 #include "../animation.h"
 #include "animation_internal.h"
 #include "firework.h"
-#include "../colors.h"
+#include "../color.h"
 #include "../rendertarget.h"
 #include "../spritesheet.h"
 #include "../../scenes/course.h"

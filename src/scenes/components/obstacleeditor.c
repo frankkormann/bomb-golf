@@ -6,7 +6,7 @@
 #include "button.h"
 #include "border.h"
 #include "../../rendering/spritesheet.h"
-#include "../../rendering/colors.h"
+#include "../../rendering/color.h"
 #include "../../environment/obstacle.h"
 #include "../../util/dispatcher.h"
 #include "../../util/macros.h"

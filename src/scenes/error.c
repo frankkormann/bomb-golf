@@ -7,7 +7,7 @@
 #include "error.h"
 #include "title.h"
 #include "../rendering/rendertarget.h"
-#include "../rendering/colors.h"
+#include "../rendering/color.h"
 
 #define GLYPH_KEY_A ""
 

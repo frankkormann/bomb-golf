@@ -2,7 +2,7 @@
 #include "button.h"
 #include "text.h"
 #include "border.h"
-#include "../../rendering/colors.h"
+#include "../../rendering/color.h"
 #include "../../audio/music.h"
 #include "../../util/dispatcher.h"
 #include "../../util/touchinput.h"

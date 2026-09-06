@@ -15,7 +15,7 @@
 #include "components/tracer.h"
 #include "../environment/terrain.h"
 #include "../rendering/rendertarget.h"
-#include "../rendering/colors.h"
+#include "../rendering/color.h"
 #include "../rendering/animation.h"
 #include "../rendering/draw3d.h"
 #include "../audio/music.h"

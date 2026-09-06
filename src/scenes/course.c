@@ -18,7 +18,7 @@
 #include "../projectiles/bomb.h"
 #include "../environment/obstacle.h"
 #include "../environment/terrain.h"
-#include "../rendering/colors.h"
+#include "../rendering/color.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/draw3d.h"
 #include "../rendering/animation.h"

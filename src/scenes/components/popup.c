@@ -8,7 +8,7 @@
 #include "text.h"
 #include "border.h"
 #include "../../rendering/spritesheet.h"
-#include "../../rendering/colors.h"
+#include "../../rendering/color.h"
 #include "../../util/dispatcher.h"
 
 #define MAX_BUTTONS 2

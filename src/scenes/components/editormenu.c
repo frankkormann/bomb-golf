@@ -4,7 +4,7 @@
 #include "border.h"
 #include "button.h"
 #include "text.h"
-#include "../../rendering/colors.h"
+#include "../../rendering/color.h"
 #include "../../rendering/spritesheet.h"
 #include "../../util/touchinput.h"
 #include "../../util/dispatcher.h"

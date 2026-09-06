@@ -5,7 +5,7 @@
 #include "environment.h"
 #include "../tile.h"
 #include "../scenes/components/background.h"
-#include "../rendering/colors.h"
+#include "../rendering/color.h"
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
 #include "../rendering/animations/explosion.h"

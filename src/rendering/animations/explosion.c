@@ -3,7 +3,7 @@
 #include "../animation.h"
 #include "animation_internal.h"
 #include "explosion.h"
-#include "../colors.h"
+#include "../color.h"
 #include "../rendertarget.h"
 #include "../../scenes/course.h"
 
