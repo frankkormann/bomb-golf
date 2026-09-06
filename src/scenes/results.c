@@ -30,16 +30,16 @@
 #define LEVEL_PREVIEW_WIDTH	380
 #define LEVEL_PREVIEW_HEIGHT	(240 - 35 - LEVEL_PREVIEW_Y)
 
-#define NUM_TEXT_GAP		80
-#define PAR_TEXT_X		(BUTTON_X + 2)
-#define PAR_TEXT_Y		50
+#define NUM_TEXT_GAP		176
+#define PAR_TEXT_X		(BUTTON_X + 12)
+#define PAR_TEXT_Y		40
 #define STROKES_TEXT_X		PAR_TEXT_X
 #define STROKES_TEXT_Y		(PAR_TEXT_Y + TEXT_LINE_HEIGHT)
-#define SCORE_TEXT_Y		(STROKES_TEXT_Y + TEXT_LINE_HEIGHT + 10)
-#define OVERALL_TEXT_X		(PAR_TEXT_X + NUM_TEXT_GAP + 23)
-#define OVERALL_TEXT_Y		PAR_TEXT_Y
+#define OVERALL_TEXT_X		PAR_TEXT_X
+#define OVERALL_TEXT_Y		(SCORE_TEXT_Y + TEXT_LINE_HEIGHT + 5)
+#define SCORE_TEXT_Y		(STROKES_TEXT_Y + TEXT_LINE_HEIGHT + 5)
 #define BUTTON_X		60
-#define BUTTON_Y		(SCORE_TEXT_Y + TEXT_LINE_HEIGHT + 15)
+#define BUTTON_Y		(OVERALL_TEXT_Y + TEXT_LINE_HEIGHT + 10)
 
 #define TIMER_REVEAL_PAR	                        15
 #define TIMER_REVEAL_STROKES	(TIMER_REVEAL_PAR     + 30)
@@ -165,9 +165,9 @@ static bool sceneInit(void *sceneParams) {
 		Text_SetContent(scoreNameText, buf);
 	}
 
-	scoreTotText = Text_Create(11);
+	scoreTotText = Text_Create(16);
 	if (!scoreTotText) goto f_scoreTotText;
-	Text_SetContent(scoreTotText, "Tot. Score");
+	Text_SetContent(scoreTotText, "Overall Score");
 
 	scoreTotNumText = Text_Create(4);
 	if (!scoreTotNumText) goto f_scoreTotNumText;
@@ -176,7 +176,7 @@ static bool sceneInit(void *sceneParams) {
 		for (Tracker_Stat i = TRACKER_LVL1; i <= TRACKER_LVL18; i++) {
 			overall += Tracker_Get(i);
 		}
-		Text_SetContent(scoreTotNumText, "%i", overall);
+		Text_SetContent(scoreTotNumText, "%+i", overall);
 	}
 
 	buttonText = Text_Create(16);
@@ -344,7 +344,7 @@ static void sceneDraw() {
 	if (textRevealCounter >= TIMER_REVEAL_SCORE) {
 		Text_Draw(scoreTotText, OVERALL_TEXT_X, OVERALL_TEXT_Y, 0,
 				COLOR_DGRAY, 1, TEXT_LEFT);
-		Text_Draw(scoreTotNumText, OVERALL_TEXT_X + NUM_TEXT_GAP + 15,
+		Text_Draw(scoreTotNumText, OVERALL_TEXT_X + NUM_TEXT_GAP,
 				OVERALL_TEXT_Y, 0, COLOR_DGRAY, 1, TEXT_RIGHT);
 		Text_Draw(scoreNameText, 160, SCORE_TEXT_Y, 0,
 				Color_ForScore(strokes, par), 1, TEXT_CENTERED);
