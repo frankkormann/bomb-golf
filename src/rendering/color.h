@@ -24,6 +24,4 @@
 #define COLOR_LBLUE (C2D_Color32(44, 232, 244, 255))
 #define COLOR_BLUE (C2D_Color32(4, 132, 209, 255))
 
-u32 Color_ForScore(int score);
-
 #endif

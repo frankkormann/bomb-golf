@@ -16,6 +16,11 @@
 #include "audio/soundeffect.h"
 #include "util/touchinput.h"
 
+static void gotoTitle() {
+	Popup_Exit();
+	Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
+}
+
 int main() {
 	romfsInit();
 	gfxInitDefault();
@@ -48,9 +53,10 @@ int main() {
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START) {
 			Popup_Button buttons[] = {
-					{ "Resume", KEY_START, NULL, Popup_Exit }
+					{ "Resume", KEY_START, NULL, Popup_Exit },
+					{ "Quit to Title", -1, NULL, gotoTitle }
 				};
-			Popup_Init("Paused", POPUP_ONE_BUTTON, buttons);
+			Popup_Init("Paused", POPUP_TWO_BUTTON, buttons);
 		}
 		#ifndef _CIA
 			if (kDown & KEY_SELECT) break;
