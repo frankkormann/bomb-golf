@@ -219,11 +219,11 @@ static void draw(float depth) {
 }
 
 Projectile projectileBomb = &(struct projectile) {
-	.radius = 	BALL_RADIUS,
-	.reset = 	reset,
-	.launch = 	launch,
-	.move = 	move,
+	.radius =	BALL_RADIUS,
+	.reset =	reset,
+	.launch =	launch,
+	.move =		move,
 	.isMoving =	isMoving,
-	.onHitGround = 	onHitGround,
+	.onHitGround =	onHitGround,
 	.draw =		draw
 };
