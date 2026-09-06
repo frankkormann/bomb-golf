@@ -93,51 +93,52 @@ void ProjDefault_Launch(float velX, float velY) {
 }
 
 static void checkCircle(int x, int y, int radius, float *hitX, float *hitY) {
+	//TODO Figure out if using the weighted average (see commit 19138b35)
+	// is better and why it wasn't working before
 	int hitsX, hitsY;
 	int numHits;
 	int i, j, T;
 
-	void checkTerrain(int x, int y, int weight) {
-		weight &= 0xFFFF;
+	void checkTerrain(int x, int y) {
 		if (Env_TypeAt(x, y) != TERRAIN_NOTHING) {
-			hitsX += x * weight;
-			hitsY += y * weight;
-			numHits += weight;
+			hitsX += x;
+			hitsY += y;
+			numHits ++;
 		}
 	}
 
 	int D(int a) {
 		float inner = sqrt(radius*radius - a*a);
-		return floor(0xFFFF * (ceil(inner) - inner) + 0.5);
+		return 0xFFFF * (ceil(inner) - inner) + 0.5;
 	}
 
 	hitsX = hitsY = numHits = 0;
 	i = radius;
 	j = T = 0;
 
-	checkTerrain(x + radius, y, 0xFFFF);
-	checkTerrain(x - radius, y, 0xFFFF);
-	checkTerrain(x, y + radius, 0xFFFF);
-	checkTerrain(x, y - radius, 0xFFFF);
+	checkTerrain(x + radius, y);
+	checkTerrain(x - radius, y);
+	checkTerrain(x, y + radius);
+	checkTerrain(x, y - radius);
 	while (i > j) {
 		j++;
 		if (D(j) < T) i--;
-		checkTerrain(x + i, y + j, ~D(j));
-		checkTerrain(x - i, y + j, ~D(j));
-		checkTerrain(x + i, y - j, ~D(j));
-		checkTerrain(x - i, y - j, ~D(j));
-		checkTerrain(x + i - 1, y + j, D(j));
-		checkTerrain(x - i + 1, y + j, D(j));
-		checkTerrain(x + i - 1, y - j, D(j));
-		checkTerrain(x - i + 1, y - j, D(j));
-		checkTerrain(x + j, y + i, ~D(j));
-		checkTerrain(x - j, y + i, ~D(j));
-		checkTerrain(x + j, y - i, ~D(j));
-		checkTerrain(x - j, y - i, ~D(j));
-		checkTerrain(x + j, y + i - 1, D(j));
-		checkTerrain(x + j, y - i + 1, D(j));
-		checkTerrain(x - j, y + i - 1, D(j));
-		checkTerrain(x - j, y - i + 1, D(j));
+		checkTerrain(x + i, y + j);
+		checkTerrain(x - i, y + j);
+		checkTerrain(x + i, y - j);
+		checkTerrain(x - i, y - j);
+		checkTerrain(x + i - 1, y + j);
+		checkTerrain(x - i + 1, y + j);
+		checkTerrain(x + i - 1, y - j);
+		checkTerrain(x - i + 1, y - j);
+		checkTerrain(x + j, y + i);
+		checkTerrain(x - j, y + i);
+		checkTerrain(x + j, y - i);
+		checkTerrain(x - j, y - i);
+		checkTerrain(x + j, y + i - 1);
+		checkTerrain(x + j, y - i + 1);
+		checkTerrain(x - j, y + i - 1);
+		checkTerrain(x - j, y - i + 1);
 		T = D(j);
 	}
 
