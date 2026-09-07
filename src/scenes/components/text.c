@@ -18,11 +18,6 @@ struct text {
 	char content[];
 };
 
-typedef enum {
-	TOP_LEFT,
-	BOTTOM_RIGHT
-} GlyphPosition;
-
 static C2D_SpriteSheet fontSheet;
 
 bool Text_Init() {
@@ -65,7 +60,17 @@ void Text_SetContent(Text text, char *format, ...) {
 	text->content[i] = '\0';
 }
 
-int getGlyphIndex(char c) {
+float Text_CalculateHeight(Text text, int size) {
+	if (text->content[0] == '\0') return 0;
+
+	float height = TEXT_LINE_HEIGHT * size;
+	for (char *c = text->content; *c != '\0'; c++) {
+		if (*c == '\n') height += TEXT_LINE_HEIGHT * size;
+	}
+	return height;
+}
+
+static int getGlyphIndex(char c) {
 	if (c >= 0x21 && c <= 0x7E) {
 		return c - 0x21;
 	} else {
@@ -98,7 +103,7 @@ int getGlyphIndex(char c) {
 	}
 }
 
-float nextLineWidth(char *str, int size) {
+static float nextLineWidth(char *str, int size) {
 	float width = 0;
 	for (char *c = str; *c != '\n' && *c != '\0'; c++) {
 		width += GLYPH_SPACING * size;
@@ -114,66 +119,60 @@ float nextLineWidth(char *str, int size) {
 }
 
 // Returns the drawn width
-float drawGlyph(int index, float x, float y, float depth, u32 color, int size,
-		GlyphPosition pos) {
+static float drawGlyph(int index, int x, int y, float depth, u32 color, int size) {
 	C2D_Image img = C2D_SpriteSheetGetImage(fontSheet, index);
 	C2D_ImageTint tint;
 	C2D_PlainImageTint(&tint, color, 1);
 	float width = img.subtex->width * size;
 	float height = img.subtex->height * size;
 	C2D_DrawImage(img, &(C2D_DrawParams) {
-		.pos = {
-			pos == TOP_LEFT ? x : x - width,
-			pos == TOP_LEFT ? y : y - height,
-			width,
-			height
-		},
-		.center = { 0, 0 },
-		.depth = depth,
-		.angle = 0
-	}, &tint);
+			.pos = { x, y, width, height },
+			.center = { 0, 0 },
+			.depth = depth,
+			.angle = 0
+		}, &tint);
 	return width;
 }
 
-float Text_CalculateHeight(Text text, int size) {
-	if (text->content[0] == '\0') return 0;
-
-	float height = TEXT_LINE_HEIGHT * size;
-	for (char *c = text->content; *c != '\0'; c++) {
-		if (*c == '\n') height += TEXT_LINE_HEIGHT * size;
+// Returns position in line where drawing stopped
+static char* drawLine(char *line, float x, float y, float depth, u32 color,
+		int size) {
+	int glyphIndex = -1;
+	for (; *line != '\0' && *line != '\n'; line++) {
+		if (*line == ' ') {
+			x += (SPACE_WIDTH + GLYPH_SPACING) * size;
+		} else {
+			glyphIndex = getGlyphIndex(*line);
+		}
+		if (glyphIndex >= 0) {
+			x += drawGlyph(glyphIndex, x, y, depth, color, size);
+			x += GLYPH_SPACING * size;
+			glyphIndex = -1;
+		}
 	}
-	return height;
+	return line;
 }
 
 void Text_Draw(Text text, float x, float y, float depth, u32 color, int size,
 		Text_DrawMode mode) {
-	if (mode == TEXT_RIGHT) {
-		x -= nextLineWidth(text->content, size);
-	} else if (mode == TEXT_CENTERED) {
-		// There can be weird artifacts if this division isn't rounded
-		x -= (int)nextLineWidth(text->content, size) / 2;
-	}
-	float cx = x;
-	float cy = y;
-	int glyphIndex = -1;
-	for (char *c = text->content; *c != '\0'; c++) {
-		switch (*c) {
-			case '\n':
-				cx = x;
-				cy += TEXT_LINE_HEIGHT * size;
-				break;
-			case ' ':
-				cx += (SPACE_WIDTH + GLYPH_SPACING) * size;
-				break;
-			default:
-				glyphIndex = getGlyphIndex(*c);
-				break;
+	char *c = text->content;
+	while (*c != '\0') {
+		float cx = x;
+		if (mode == TEXT_RIGHT) {
+			cx -= nextLineWidth(c, size);
+		} else if (mode == TEXT_CENTERED) {
+			cx -= nextLineWidth(c, size) / 2;
 		}
-		if (glyphIndex >= 0) {
-			cx += drawGlyph(glyphIndex, cx, cy, depth, color, size,
-					TOP_LEFT);
-			cx += (GLYPH_SPACING * size);
-			glyphIndex = -1;
+		c = drawLine(c, cx, y, depth, color, size);
+		if (*c == '\n') {
+			c++;
+			y += TEXT_LINE_HEIGHT * size;
 		}
 	}
 }
+
+void Text_DrawBounded(Text text, float x, float y, float depth, float maxWidth,
+		u32 color, int size, Text_DrawMode mode) {
+
+}
+

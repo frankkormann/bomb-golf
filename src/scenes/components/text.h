@@ -5,17 +5,17 @@
 #ifndef TEXT_H
 #define TEXT_H
 
-#define TEXT_KEY_A '\200'
-#define TEXT_KEY_B '\201'
-#define TEXT_KEY_X '\202'
-#define TEXT_KEY_Y '\203'
-#define TEXT_KEY_L '\204'
-#define TEXT_KEY_R '\205'
-#define TEXT_KEY_DPAD '\206'
-#define TEXT_KEY_DUP '\207'
-#define TEXT_KEY_DDOWN '\210'
-#define TEXT_KEY_DLEFT '\211'
-#define TEXT_KEY_DRIGHT '\212'
+#define TEXT_KEY_A	'\200'
+#define TEXT_KEY_B	'\201'
+#define TEXT_KEY_X	'\202'
+#define TEXT_KEY_Y	'\203'
+#define TEXT_KEY_L	'\204'
+#define TEXT_KEY_R	'\205'
+#define TEXT_KEY_DPAD	'\206'
+#define TEXT_KEY_DUP	'\207'
+#define TEXT_KEY_DDOWN	'\210'
+#define TEXT_KEY_DLEFT	'\211'
+#define TEXT_KEY_DRIGHT	'\212'
 
 #define TEXT_LINE_HEIGHT 20
 
