@@ -237,13 +237,14 @@ bool ProjDefault_IsMoving() {
 }
 
 void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType) {
+	Obstacle_Destroy(hitX + sign(data.velX), hitY + sign(data.velY));
+
 	// Use this formula from https://math.stackexchange.com/a/13263 to reflect
 	// the velocity vector over the line between the hit point and the center
 	// of the ball:
 	//	v' = v - 2(v·n)n
 	// where v' is the new velocity, v is the current velocity, and n is the
 	// normalized vector to reflect across. Also reverses the direction of v'
-
 	float nX = data.x - hitX;
 	float nY = data.y - hitY;
 	float lenN = sqrt(nX*nX + nY*nY);
@@ -256,7 +257,6 @@ void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType) {
 
 	switch (hitType) {
 		case TERRAIN_GROUND:
-			Obstacle_DestroyCircle(data.x, data.y, proj->radius + 1);
 		case TERRAIN_EXPLOSIVE:
 		case TERRAIN_NOTHING:  // Cover for an imprecise hit position
 			data.velX *= BOUNCE_VELOCITY_RETENTION_X;
