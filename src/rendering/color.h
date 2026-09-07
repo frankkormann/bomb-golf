@@ -1,7 +1,5 @@
-#ifndef COLOR_H
-#define COLOR_H
-
-#include <citro2d.h>
+#ifndef COLORS_H
+#define COLORS_H
 
 #define COLOR_TRANSPARENT (C2D_Color32(0, 0, 0, 0))
 
@@ -25,7 +23,5 @@
 
 #define COLOR_LBLUE	(C2D_Color32( 44, 232, 244, 255))
 #define COLOR_BLUE	(C2D_Color32(  4, 132, 209, 255))
-
-u32 Color_ForScore(int strokes, int par);
 
 #endif
