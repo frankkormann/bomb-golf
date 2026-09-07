@@ -19,6 +19,7 @@
 #include "../rendering/animation.h"
 #include "../rendering/draw3d.h"
 #include "../audio/music.h"
+#include "../audio/soundeffect.h"
 #include "../util/dispatcher.h"
 #include "../util/tracker.h"
 #include "../levelio.h"
@@ -309,6 +310,11 @@ static void sceneUpdate(float _) {
 	Dispatcher_DispatchEvent(keyDispatcher);
 
 	textRevealCounter++;
+	if (textRevealCounter == TIMER_REVEAL_PAR
+			|| textRevealCounter == TIMER_REVEAL_STROKES
+			|| textRevealCounter == TIMER_REVEAL_SCORE) {
+		SoundEffect_Play(SFX_UI_ADVANCE, false);
+	}
 }
 
 static void sceneDraw() {
