@@ -6,7 +6,7 @@
 #include "scene_internal.h"
 #include "results.h"
 #include "error.h"
-#include "title.h"
+#include "summary.h"
 #include "levelselector.h"
 #include "course.h"
 #include "components/text.h"
@@ -139,7 +139,7 @@ static void goNextLevel() {
 
 static void quit() {
 	if (levelInRomfs) {
-		Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
+		Scene_Switch(sceneSummary, &(Summary_Params) { levelInRomfs });
 	} else {
 		Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { level });
 	}
@@ -234,7 +234,7 @@ static bool sceneInit(void *sceneParams) {
 			}
 			if (nextLevel >= SAVEDATA_NUM_LEVELS) {
 				nextLevel = -1;
-				Text_SetContent(buttonText, "Back");
+				Text_SetContent(buttonText, "Next");
 				Button_Enable(quitButton);
 				break;
 			}
