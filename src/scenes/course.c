@@ -235,8 +235,9 @@ static void sceneUpdate(float speed) {
 	u32 kDown = hidKeysDown();
 //	u32 kHeld = hidKeysHeld();
 
-	if (kDown & KEY_B && levelInRomfs) {
-		Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
+	if (kDown & KEY_B && !levelInRomfs) {
+		Scene_Switch(sceneLevelSelector,
+				&(LevelSelector_Params) { level });
 	}
 
 	if (canLaunch()) {
