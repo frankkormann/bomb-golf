@@ -5,10 +5,12 @@
  */
 
 #include <malloc.h>
+#include <float.h>
 #include <stdarg.h>
 #include <citro2d.h>
 #include "text.h"
 #include "../../rendering/spritesheet.h"
+#include "../../util/macros.h"
 
 #define SPACE_WIDTH 5
 #define GLYPH_SPACING 1
@@ -103,14 +105,15 @@ static int getGlyphIndex(char c) {
 	}
 }
 
-static float nextLineWidth(char *str, int size) {
+// Stops at numChars or end of line
+static float calculateWidth(char *line, int size, int numChars) {
 	float width = 0;
-	for (char *c = str; *c != '\n' && *c != '\0'; c++) {
+	for (int i = 0; i < numChars && line[i] != '\n' && line[i] != '\0'; i++) {
 		width += GLYPH_SPACING * size;
-		if (*c == ' ') {
+		if (line[i] == ' ') {
 			width += SPACE_WIDTH * size;
 		} else {
-			int index = getGlyphIndex(*c);
+			int index = getGlyphIndex(line[i]);
 			C2D_Image img = C2D_SpriteSheetGetImage(fontSheet, index);
 			width += img.subtex->width * size;
 		}
@@ -135,18 +138,20 @@ static float drawGlyph(int index, int x, int y, float depth, u32 color, int size
 }
 
 // Returns position in line where drawing stopped
-static char* drawLine(char *line, float x, float y, float depth, u32 color,
-		int size) {
+static char* drawLine(char *line, float x, float y, float depth, float maxWidth,
+		u32 color, int size) {
 	int glyphIndex = -1;
+	float cx = x;
 	for (; *line != '\0' && *line != '\n'; line++) {
+		if (cx - x + calculateWidth(line, size, 1) > maxWidth) break;
 		if (*line == ' ') {
-			x += (SPACE_WIDTH + GLYPH_SPACING) * size;
+			cx += (SPACE_WIDTH + GLYPH_SPACING) * size;
 		} else {
 			glyphIndex = getGlyphIndex(*line);
 		}
 		if (glyphIndex >= 0) {
-			x += drawGlyph(glyphIndex, x, y, depth, color, size);
-			x += GLYPH_SPACING * size;
+			cx += drawGlyph(glyphIndex, cx, y, depth, color, size);
+			cx += GLYPH_SPACING * size;
 			glyphIndex = -1;
 		}
 	}
@@ -155,24 +160,29 @@ static char* drawLine(char *line, float x, float y, float depth, u32 color,
 
 void Text_Draw(Text text, float x, float y, float depth, u32 color, int size,
 		Text_DrawMode mode) {
+	Text_DrawBounded(text, x, y, depth, FLT_MAX, color, size, mode);
+}
+
+void Text_DrawBounded(Text text, float x, float y, float depth, float maxWidth,
+		u32 color, int size, Text_DrawMode mode) {
 	char *c = text->content;
+	maxWidth -= calculateWidth("...", size, 3);
 	while (*c != '\0') {
 		float cx = x;
 		if (mode == TEXT_RIGHT) {
-			cx -= nextLineWidth(c, size);
+			cx -= min(calculateWidth(c, size, text->maxChars), maxWidth);
 		} else if (mode == TEXT_CENTERED) {
-			cx -= nextLineWidth(c, size) / 2;
+			cx -= min(calculateWidth(c, size, text->maxChars), maxWidth)
+					/ 2;
 		}
-		c = drawLine(c, cx, y, depth, color, size);
+		c = drawLine(c, cx, y, depth, maxWidth, color, size);
+		if (*c != '\n' && *c != '\0') {
+			drawLine("...", cx + maxWidth, y, depth, 100, color, size);
+			for (; *c != '\0' && *c != '\n'; c++);
+		}
 		if (*c == '\n') {
 			c++;
 			y += TEXT_LINE_HEIGHT * size;
 		}
 	}
 }
-
-void Text_DrawBounded(Text text, float x, float y, float depth, float maxWidth,
-		u32 color, int size, Text_DrawMode mode) {
-
-}
-

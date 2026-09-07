@@ -66,4 +66,11 @@ float Text_CalculateHeight(Text text, int size);
 void Text_Draw(Text text, float x, float y, float depth, u32 color, int size,
 		Text_DrawMode mode);
 
+/*
+ * If text exceeds maxWidth, it is truncated and the final characters are
+ * replaced by "...". Each line is considered separately.
+ */
+void Text_DrawBounded(Text text, float x, float y, float depth, float maxWidth,
+		u32 color, int size, Text_DrawMode mode);
+
 #endif
