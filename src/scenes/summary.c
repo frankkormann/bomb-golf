@@ -6,16 +6,17 @@
 #include "summary.h"
 #include "editor.h"
 #include "error.h"
+#include "title.h"
 #include "components/text.h"
-#include "components/button.h"
 #include "components/border.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/color.h"
 #include "../rendering/draw3d.h"
-#include "../audio/music.h"  //TODO
+#include "../audio/music.h"
 #include "../audio/soundeffect.h"
 #include "../util/tracker.h"
 #include "../util/macros.h"
+#include "../util/touchinput.h"
 #include "../levelio.h"
 
 #define BORDER_MARGIN_HORIZ	10
@@ -32,11 +33,10 @@
 #define OVERALL_Y \
 	(SCORES_BOT_Y_START + TEXT_LINE_HEIGHT*8 + BORDER_MARGIN_VERT + 10)
 
-#define SCORE_REVEAL_TIME 15
+#define SCORE_REVEAL_TIME	15
+#define TIMER_MAX		(18*SCORE_REVEAL_TIME + 1)
 
-static Text nameText[18], scoreText[18], bottomText, totalScoreText, killCountText,
-		nextText;
-static Button nextButton;
+static Text nameText[18], scoreText[18], bottomText, totalScoreText, killCountText;
 
 static u32 bgColor, fgColor;
 static int timer;
@@ -49,6 +49,15 @@ static bool sceneInit(void *sceneParams) {
 	for (i = 0; i < 18; i++) {
 		nameText[i] = Text_Create(EDITOR_LEVEL_NAME_MAX + 1);
 		if (!nameText[i]) goto f_nameText;
+
+		char *s, path[LEVEL_PATH_MAX];
+		LevelIO_MakePath(i, params->inRomfs, path);
+		if (LevelIO_ReadName(path, &s)) {
+			Text_SetContent(nameText[i], s);
+			free(s);
+		} else {
+			Text_SetContent(nameText[i], "");
+		}
 	}
 
 	int j;
@@ -87,17 +96,13 @@ static bool sceneInit(void *sceneParams) {
 	if (!killCountText) goto f_killCountText;
 	Text_SetContent(killCountText, "%i", Tracker_Get(TRACKER_KILLS));
 
-	nextText = Text_Create(5);
-	if (!nextText) goto f_nextText;
-	Text_SetContent(nextText, "Next");
-
 	timer = -1;  // So it's incremented to 0 on the first pass
 	inRomfs = params->inRomfs;
 
+	Music_Start(MUSIC_SUMMARY);
+
 	return true;
 
-f_nextText:
-	Text_Free(killCountText);
 f_killCountText:
 	Text_Free(totalScoreText);
 f_totalScoreText:
@@ -119,22 +124,24 @@ static void sceneExit() {
 	Text_Free(bottomText);
 	Text_Free(totalScoreText);
 	Text_Free(killCountText);
-	Text_Free(nextText);
+	Music_Stop();
 }
 
 static void sceneUpdate(float _) {
-	timer = clamp(timer + 1, 0, SCORE_REVEAL_TIME*18 + 1);
+	u32 kDown = hidKeysDown();
+
+	timer = clamp(timer + 1, 0, TIMER_MAX);
 	if (timer % SCORE_REVEAL_TIME == 0 && timer / SCORE_REVEAL_TIME < 18) {
-		char *s, path[LEVEL_PATH_MAX];
-		int i = timer / SCORE_REVEAL_TIME;
-		LevelIO_MakePath(timer / SCORE_REVEAL_TIME, inRomfs, path);
-		if (LevelIO_ReadName(path, &s)) {
-			Text_SetContent(nameText[i], s);
-			free(s);
-		} else {
-			Text_SetContent(nameText[i], "");
-		}
 		SoundEffect_Play(SFX_UI_ADVANCE, false);
+	}
+
+	if (kDown & (KEY_A | KEY_B | KEY_X | KEY_Y)
+			|| TouchInput_JustFinished()) {
+		if (timer < TIMER_MAX) {
+			timer = TIMER_MAX;
+		} else {
+			Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
+		}
 	}
 }
 
@@ -170,8 +177,8 @@ static void sceneDraw() {
 				SCORES_TOP_Y_START + i*TEXT_LINE_HEIGHT, D3D_D(1), \
 				scoreColor, 1, TEXT_RIGHT); \
 	} \
-	Border_DrawLight(D3D_Xi(2), SCORES_TOP_Y_START - BORDER_MARGIN_VERT, D3D_D(2), \
-			SCORES_WIDTH + 2*BORDER_MARGIN_HORIZ, 240);
+	Border_DrawLight(D3D_Xi(2), SCORES_TOP_Y_START - BORDER_MARGIN_VERT, \
+			D3D_D(2), SCORES_WIDTH + 2*BORDER_MARGIN_HORIZ, 240);
 	#include "../rendering/draw3d_gen.h"
 	/* Everything gets #undef'd by draw3d */
 
