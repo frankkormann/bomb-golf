@@ -32,7 +32,7 @@
 #define OVERALL_Y \
 	(SCORES_BOT_Y_START + TEXT_LINE_HEIGHT*8 + BORDER_MARGIN_VERT + 10)
 
-#define SCORE_REVEAL_TIME 30
+#define SCORE_REVEAL_TIME 15
 
 static Text nameText[18], scoreText[18], bottomText, totalScoreText, killCountText,
 		nextText;
@@ -116,8 +116,7 @@ static void sceneUpdate(float _) {
 		char *s, path[LEVEL_PATH_MAX];
 		int i = timer / SCORE_REVEAL_TIME;
 		LevelIO_MakePath(timer / SCORE_REVEAL_TIME, inRomfs, path);
-		if (LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-				NULL, NULL, &s, NULL)) {
+		if (LevelIO_ReadName(path, &s)) {
 			Text_SetContent(nameText[i], s);
 			free(s);
 		} else {
