@@ -15,7 +15,7 @@ typedef enum {
 	MUSIC_LEVEL_2,
 	MUSIC_RESULTS,
 	MUSIC_EDITOR,
-//	MUSIC_SUMMARY,  // Future idea
+	MUSIC_SUMMARY,
 //	MUSIC_CREDITS,  // Future idea
 
 	NUM_MUSIC_SONGS
