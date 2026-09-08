@@ -230,7 +230,7 @@ void EditorMenu_Draw(float depth) {
 	if (!isMenuOpen) return;
 
 	Button_Draw(hideButton, layer1);
-	Border_Draw(MENU_X, MENU_Y, layer3, MENU_WIDTH, MENU_HEIGHT);
+	Border_DrawLight(MENU_X, MENU_Y, layer3, MENU_WIDTH, MENU_HEIGHT);
 	C2D_DrawRectSolid(MENU_X, MENU_Y, layer3, MENU_WIDTH, MENU_HEIGHT,
 			COLOR_LGRAY);
 

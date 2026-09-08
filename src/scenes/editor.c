@@ -770,7 +770,7 @@ static void sceneDraw() {
 	\
 	BG_DrawFit(bg, D3D_X(2), LEVEL_PREVIEW_Y, D3D_D(2), LEVEL_PREVIEW_WIDTH, \
 			LEVEL_PREVIEW_HEIGHT, &bgX, &bgY, &bgWidth, &bgHeight); \
-	Border_Draw(D3D_Xi(3), bgY, D3D_D(3), \
+	Border_DrawLight(D3D_Xi(3), bgY, D3D_D(3), \
 			bgWidth - 2*ceilf(D3D_CORRECTION(3)), bgHeight); \
 	C2D_ViewTranslate(D3D_X(4), 0); \
 	List_ForEach(obstacleList, drawObstacleTop); \

@@ -234,7 +234,7 @@ static void sceneDraw() {
 				LEVEL_PREVIEW_WIDTH, LEVEL_PREVIEW_HEIGHT, \
 				&previewX, &previewY, &previewWidth, \
 				&previewHeight); \
-		Border_Draw(D3D_Xi(3), previewY, D3D_D(3), \
+		Border_DrawLight(D3D_Xi(3), previewY, D3D_D(3), \
 				previewWidth - 2*ceilf(D3D_CORRECTION(3)), \
 				previewHeight); \
 		\

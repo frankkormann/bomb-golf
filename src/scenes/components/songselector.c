@@ -182,7 +182,7 @@ void SongSelector_Draw(float depth) {
 	float below = nextafter(depth, -1);
 	C2D_DrawRectSolid(0, 0, below, 320, 240, COLOR_DGRAY & 0x77FFFFFF);
 
-	Border_Draw(BOX_X, BOX_Y, below, BOX_WIDTH, BOX_HEIGHT);
+	Border_DrawLight(BOX_X, BOX_Y, below, BOX_WIDTH, BOX_HEIGHT);
 	C2D_DrawRectSolid(BOX_X, BOX_Y, below, BOX_WIDTH, BOX_HEIGHT, COLOR_LGRAY);
 
 	Button_Draw(leftButton, depth);

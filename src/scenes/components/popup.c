@@ -156,7 +156,7 @@ void Popup_Draw() {
 	C2D_DrawRectSolid(0, 0, 1, 320, 240, COLOR_DGRAY & 0x77FFFFFF);
 	float height = messageHeight + 3*MARGIN_Y + BUTTON_HEIGHT;
 	float y = 120 - height/2;
-	Border_Draw(MARGIN_X, y, 1, 320 - 2*MARGIN_X, height);
+	Border_DrawLight(MARGIN_X, y, 1, 320 - 2*MARGIN_X, height);
 	C2D_DrawRectSolid(MARGIN_X, y, 1, 320 - 2*MARGIN_X, height, COLOR_LGRAY);
 
 	Text_Draw(messageText, 2*MARGIN_X, y + MARGIN_Y, 1, COLOR_DGREEN, 1,

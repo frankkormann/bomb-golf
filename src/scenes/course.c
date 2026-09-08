@@ -302,7 +302,7 @@ static void sceneDraw() {
 	Terrain_Draw(D3D_X(3), LEVEL_PREVIEW_Y, D3D_D(3), LEVEL_PREVIEW_WIDTH, \
 			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth, \
 			&terrainHeight); \
-	Border_Draw(D3D_Xi(4), terrainY, D3D_D(4), \
+	Border_DrawLight(D3D_Xi(4), terrainY, D3D_D(4), \
 			terrainWidth - 2*ceilf(D3D_CORRECTION(4)), terrainHeight); \
 	\
 	Projectile_GetPos(&projX, &projY); \

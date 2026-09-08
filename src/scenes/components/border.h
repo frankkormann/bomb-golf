@@ -11,6 +11,12 @@
  * Draws a border bounding a rectangle with its top-left corner at (x, y).
  * The space inside the border is specified by x, y, width, height.
  */
-void Border_Draw(int x, int y, float depth, int width, int height);
+void Border_DrawLight(int x, int y, float depth, int width, int height);
+
+/*
+ * Draws a border bounding a rectangle with its top-left corner at (x, y).
+ * The space inside the border is specified by x, y, width, height.
+ */
+void Border_DrawDark(int x, int y, float depth, int width, int height);
 
 #endif

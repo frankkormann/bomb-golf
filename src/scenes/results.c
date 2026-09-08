@@ -339,7 +339,7 @@ static void sceneDraw() {
 	Terrain_Draw(D3D_Xi(1), LEVEL_PREVIEW_Y, D3D_D(1), LEVEL_PREVIEW_WIDTH, \
 			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth, \
 			&terrainHeight); \
-	Border_Draw(D3D_Xi(2), terrainY, D3D_D(2), \
+	Border_DrawLight(D3D_Xi(2), terrainY, D3D_D(2), \
 			terrainWidth - 2*ceilf(D3D_CORRECTION(2)), terrainHeight); \
 	Tracer_Draw(projPath, D3D_X(3), terrainY, D3D_D(3), terrainWidth, \
 			terrainHeight);

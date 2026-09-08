@@ -170,7 +170,7 @@ static void sceneDraw() {
 				SCORES_TOP_Y_START + i*TEXT_LINE_HEIGHT, D3D_D(1), \
 				scoreColor, 1, TEXT_RIGHT); \
 	} \
-	Border_Draw(D3D_Xi(2), SCORES_TOP_Y_START - BORDER_MARGIN_VERT, D3D_D(2), \
+	Border_DrawLight(D3D_Xi(2), SCORES_TOP_Y_START - BORDER_MARGIN_VERT, D3D_D(2), \
 			SCORES_WIDTH + 2*BORDER_MARGIN_HORIZ, 240);
 	#include "../rendering/draw3d_gen.h"
 	/* Everything gets #undef'd by draw3d */
@@ -194,7 +194,7 @@ static void sceneDraw() {
 				SCORES_BOT_Y_START + i*TEXT_LINE_HEIGHT, 0,
 				scoreColor, 1, TEXT_RIGHT);
 	}
-	Border_Draw(SCORES_BOT_X - BORDER_MARGIN_HORIZ, 0, 0,
+	Border_DrawLight(SCORES_BOT_X - BORDER_MARGIN_HORIZ, 0, 0,
 			SCORES_WIDTH + 2*BORDER_MARGIN_HORIZ,
 			SCORES_BOT_Y_START + 8*TEXT_LINE_HEIGHT
 				+ BORDER_MARGIN_VERT);
