@@ -101,6 +101,27 @@ f_numObsts:
 	return false;
 }
 
+bool LevelIO_ReadName(const char *path, char **name) {
+	FILE *data = fopen(path, "rb");
+	if (!data) return false;
+
+	size_t nameSize;
+	if (!maybeRead(&nameSize, sizeof(nameSize), data)) goto f_nameSize;
+	*name = malloc(nameSize);
+	if (!(*name)) goto f_name1;
+	if (!maybeRead(*name, nameSize, data)) goto f_name2;
+
+	fclose(data);
+	return true;
+
+f_name2:
+	free(*name);
+f_name1:
+f_nameSize:
+	fclose(data);
+	return false;
+}
+
 bool LevelIO_Read(
 		const char *path,
 		LevelIO_Hole *hole,
@@ -122,8 +143,16 @@ bool LevelIO_Read(
 	int readWidth;
 	size_t nameSize, overlayTilesSize;
 
-	if (!maybeRead(&readWidth, sizeof(readWidth), data)) goto f_maybeRead1;
-	if (!maybeRead(par, sizeof(*par), data)) goto f_maybeRead1;
+	if (!maybeRead(&nameSize, sizeof(nameSize), data)) goto f_maybeRead1;
+
+	if (name) {
+		*name = malloc(nameSize);
+		if (!(*name)) goto f_name;
+	}
+
+	if (!maybeRead(name ? *name : NULL, nameSize, data)) goto f_maybeRead2;
+	if (!maybeRead(&readWidth, sizeof(readWidth), data)) goto f_maybeRead2;
+	if (!maybeRead(par,        sizeof(*par),      data)) goto f_maybeRead2;
 
 	size_t tilesSize = sizeof(**tiles) * readWidth / TILE_SIZE;
 	if (tiles) {
@@ -132,28 +161,19 @@ bool LevelIO_Read(
 	}
 
 	if (!maybeRead(hole  ? &hole->x      : NULL, sizeof(hole->x),      data))
-		goto f_maybeRead2;
+		goto f_maybeRead3;
 	if (!maybeRead(hole  ? &hole->y      : NULL, sizeof(hole->y),      data))
-		goto f_maybeRead2;
+		goto f_maybeRead3;
 	if (!maybeRead(hole  ? &hole->width  : NULL, sizeof(hole->width),  data))
-		goto f_maybeRead2;
+		goto f_maybeRead3;
 	if (!maybeRead(hole  ? &hole->height : NULL, sizeof(hole->height), data))
-		goto f_maybeRead2;
+		goto f_maybeRead3;
 	if (!maybeRead(proj  ? &proj->startX : NULL, sizeof(proj->startX), data))
-		goto f_maybeRead2;
+		goto f_maybeRead3;
 	if (!maybeRead(proj  ? &proj->startY : NULL, sizeof(proj->startY), data))
-		goto f_maybeRead2;
+		goto f_maybeRead3;
 	if (!maybeRead(tiles ? **tiles       : NULL, tilesSize,            data))
-		goto f_maybeRead2;
-	if (!maybeRead(&nameSize,                    sizeof(nameSize),     data))
-		goto f_maybeRead2;
-
-	if (name) {
-		*name = malloc(nameSize);
-		if (!(*name)) goto f_name;
-	}
-
-	if (!maybeRead(name ? *name : NULL, nameSize, data)) goto f_maybeRead3;
+		goto f_maybeRead3;
 	if (!maybeRead(&overlayTilesSize, sizeof(overlayTilesSize), data))
 		goto f_maybeRead3;
 
@@ -179,11 +199,11 @@ f_maybeRead4:
 	if (overlayTiles) free(*overlayTiles);
 f_overlayTiles:
 f_maybeRead3:
-	if (name) free(*name);
-f_name:
-f_maybeRead2:
 	if (tiles) free(*tiles);
 f_tiles:
+f_maybeRead2:
+	if (name) free(*name);
+f_name:
 f_maybeRead1:
 	fclose(data);
 f_data:
@@ -234,6 +254,8 @@ bool LevelIO_Write(
 	size_t nameSize = (strlen(name) + 1) * sizeof(char);
 	size_t overlayTilesSize = numOverlayTiles * sizeof(*overlayTiles);
 
+	if (!fwrite(&nameSize,         sizeof(nameSize),    1, data)) goto f_fwrite;
+	if (!fwrite(name,              nameSize,            1, data)) goto f_fwrite;
 	if (!fwrite(&width,            sizeof(width),       1, data)) goto f_fwrite;
 	if (!fwrite(&par,              sizeof(par),         1, data)) goto f_fwrite;
 	if (!fwrite(&hole.x,           sizeof(hole.x),      1, data)) goto f_fwrite;
@@ -243,8 +265,6 @@ bool LevelIO_Write(
 	if (!fwrite(&proj.startX,      sizeof(proj.startX), 1, data)) goto f_fwrite;
 	if (!fwrite(&proj.startY,      sizeof(proj.startY), 1, data)) goto f_fwrite;
 	if (!fwrite(tiles,             tilesSize,           1, data)) goto f_fwrite;
-	if (!fwrite(&nameSize,         sizeof(nameSize),    1, data)) goto f_fwrite;
-	if (!fwrite(name,              nameSize,            1, data)) goto f_fwrite;
 	if (!fwrite(&overlayTilesSize, sizeof(overlayTilesSize), 1, data))
 		goto f_fwrite;
 	if (!fwrite(overlayTiles,      overlayTilesSize,    1, data)) goto f_fwrite;

@@ -45,6 +45,8 @@ typedef struct {
  */
 void LevelIO_MakePath(int levelNum, bool inRomfs, char *path);
 
+bool LevelIO_ReadName(const char *path, char **name);
+
 /*
  * Reads the level file at path and fills in the arguments with the data
  * therein. If any argument is NULL, that variable will not be filled.
