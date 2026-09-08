@@ -38,6 +38,7 @@ static Text nameText[18], scoreText[18], bottomText, totalScoreText, killCountTe
 		nextText;
 static Button nextButton;
 
+static u32 bgColor, fgColor;
 static int timer;
 static bool inRomfs;
 
@@ -69,6 +70,17 @@ static bool sceneInit(void *sceneParams) {
 			overall += Tracker_Get(i);
 		}
 		Text_SetContent(totalScoreText, "%+i", overall);
+
+		if (overall <= -6) {
+			bgColor = COLOR_YELLOW;
+			fgColor = COLOR_DGRAY;
+		} else if (overall <= 0) {
+			bgColor = COLOR_LGREEN;
+			fgColor = COLOR_DGRAY;
+		} else {
+			bgColor = COLOR_DGRAY;
+			fgColor = COLOR_LGRAY;
+		}
 	}
 
 	killCountText = Text_Create(4);
@@ -143,7 +155,7 @@ static void sceneDraw() {
 			{ SCORES_TOP_X - BORDER_MARGIN_HORIZ, 0.8 } \
 		}
 	#define D3D_CODE \
-	C2D_TargetClear(D3D_TARGET, COLOR_DGRAY); \
+	C2D_TargetClear(D3D_TARGET, bgColor); \
 	C2D_SceneBegin(D3D_TARGET); \
 	\
 	C2D_DrawRectSolid(D3D_Xi(2), SCORES_TOP_Y_START - BORDER_MARGIN_VERT, -1, \
@@ -165,7 +177,7 @@ static void sceneDraw() {
 
 
 	C3D_RenderTarget *bottom = RenderTarget_Bottom();
-	C2D_TargetClear(bottom, COLOR_DGRAY);
+	C2D_TargetClear(bottom, bgColor);
 	C2D_SceneBegin(bottom);
 
 	C2D_DrawRectSolid(SCORES_BOT_X - BORDER_MARGIN_HORIZ, 0, 0,
@@ -188,12 +200,12 @@ static void sceneDraw() {
 				+ BORDER_MARGIN_VERT);
 
 	if (timer >= SCORE_REVEAL_TIME*18) {
-		Text_Draw(bottomText, OVERALL_X, OVERALL_Y, 0, COLOR_LGRAY, 1,
+		Text_Draw(bottomText, OVERALL_X, OVERALL_Y, 0, fgColor, 1,
 				TEXT_LEFT);
 		Text_Draw(totalScoreText, OVERALL_X + SCORES_WIDTH, OVERALL_Y, 0,
-				COLOR_LGRAY, 1, TEXT_RIGHT);
+				fgColor, 1, TEXT_RIGHT);
 		Text_Draw(killCountText, OVERALL_X + SCORES_WIDTH,
-				OVERALL_Y + TEXT_LINE_HEIGHT, 0, COLOR_LGRAY, 1,
+				OVERALL_Y + TEXT_LINE_HEIGHT, 0, fgColor, 1,
 				TEXT_RIGHT);
 	}
 }
