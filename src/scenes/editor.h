@@ -6,7 +6,7 @@
 #define EDITOR_H
 
 // Not including null terminator
-#define EDITOR_LEVEL_NAME_MAX 32
+#define EDITOR_LEVEL_NAME_MAX 24
 
 #include "../scene.h"
 
