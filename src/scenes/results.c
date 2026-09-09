@@ -38,14 +38,14 @@
 #define PAR_TEXT_Y		(NAME_TEXT_Y + TEXT_LINE_HEIGHT)
 #define STROKES_TEXT_X		PAR_TEXT_X
 #define STROKES_TEXT_Y		(PAR_TEXT_Y + TEXT_LINE_HEIGHT)
-#define SCORE_TEXT_Y		(STROKES_TEXT_Y + TEXT_LINE_HEIGHT + 20)
+#define SCORE_TEXT_Y		(STROKES_TEXT_Y + TEXT_LINE_HEIGHT + 5)
 #define OVERALL_TEXT_X		PAR_TEXT_X
-#define OVERALL_TEXT_Y		(SCORE_TEXT_Y + TEXT_LINE_HEIGHT + 5)
+#define OVERALL_TEXT_Y		(SCORE_TEXT_Y + TEXT_LINE_HEIGHT + 20)
 
 #define BOX_X			(PAR_TEXT_X - 10)
 #define BOX_Y			(NAME_TEXT_Y - 5)
 #define BOX_WIDTH		(NUM_TEXT_GAP + 20)
-#define BOX_HEIGHT		(3*TEXT_LINE_HEIGHT + 10)
+#define BOX_HEIGHT		(4*TEXT_LINE_HEIGHT + 15)
 
 #define TIMER_REVEAL_PAR	                        15
 #define TIMER_REVEAL_STROKES	(TIMER_REVEAL_PAR     + 30)
@@ -119,22 +119,6 @@ static void getScoreForStrokes(int strokes, int par, char *buf) {
 	}
 }
 
-static u32 getColorForScore(int strokes, int par) {
-	//TODO Decide on better colors?
-	if (strokes == 1) return COLOR_WHITE;
-
-	int score = strokes - par;
-	if (score <= -2) {
-		return COLOR_YELLOW;
-	} else if (score <= -1) {
-		return COLOR_BLUE;
-	} else if (score <= 0) {
-		return COLOR_GREEN;
-	} else {
-		return COLOR_DBROWN;
-	}
-}
-
 static bool sceneInit(void *sceneParams) {
 	Results_Params *params = (Results_Params*)sceneParams;
 	char path[LEVEL_PATH_MAX], *name;
@@ -188,7 +172,7 @@ static bool sceneInit(void *sceneParams) {
 
 	nameText = Text_Create(EDITOR_LEVEL_NAME_MAX + 5);
 	if (!nameText) goto f_nameText;
-	Text_SetContent(nameText, "- %s -", name);
+	Text_SetContent(nameText, name);
 
 	if (params->levelInRomfs) {
 		nextLevel = params->level + 1;
@@ -293,6 +277,21 @@ static void sceneUpdate(float _) {
 		} else {
 			nextScene();
 		}
+	}
+}
+
+static u32 getColorForScore(int strokes, int par) {
+	int score = strokes - par;
+	if (strokes == 1) {
+		return COLOR_WHITE;
+	} else if (score <= -2) {
+		return COLOR_YELLOW;
+	} else if (score <= -1) {
+		return COLOR_LBLUE;
+	} else if (score <= 0) {
+		return COLOR_LGREEN;
+	} else {
+		return COLOR_TAN;
 	}
 }
 
