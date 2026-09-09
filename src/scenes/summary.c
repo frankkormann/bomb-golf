@@ -151,7 +151,7 @@ static u32 getColorForScore(int score) {
 	} else if (score <= 0) {
 		return COLOR_GREEN;
 	} else {
-		return COLOR_BROWN;
+		return COLOR_DBROWN;
 	}
 }
 
