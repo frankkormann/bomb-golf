@@ -1,3 +1,5 @@
+//TODO Go through all the components/rendering code and determine what
+// should actually take a float vs. int for coordinates
 #include <3ds.h>
 #include <citro2d.h>
 #include <stdbool.h>
