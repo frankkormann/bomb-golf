@@ -64,6 +64,9 @@ int Course_GetFieldHeight() {
 }
 
 int Course_GetScreenOffset() {
+	if (fieldWidth <= 320) {
+		return fieldWidth/2 - 160;
+	}
 	float projX, projY;
 	Projectile_GetPos(&projX, &projY);
 	return clamp(projX - 160, 0, fieldWidth - 320);
@@ -321,7 +324,7 @@ static void sceneDraw() {
 
 
 	C3D_RenderTarget *bottom = RenderTarget_Bottom();
-	C2D_TargetClear(bottom, COLOR_WHITE);
+	C2D_TargetClear(bottom, COLOR_LGRAY);
 	C2D_SceneBegin(bottom);
 
 	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
