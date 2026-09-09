@@ -25,7 +25,7 @@ static char *sfxPaths[NUM_SOUND_EFFECTS] = {
 	"romfs:sfx/explosion.opus",
 	"romfs:sfx/bounce.opus",
 	"romfs:sfx/explosion.opus",
-	"romfs:sfx/bounce.opus"  //TODO
+	"romfs:sfx/bounce.opus"
 };
 
 static SfxObj sfxObjs[NUM_SOUND_EFFECTS];

@@ -50,7 +50,7 @@
 #define TIMER_REVEAL_PAR	                        15
 #define TIMER_REVEAL_STROKES	(TIMER_REVEAL_PAR     + 30)
 #define TIMER_REVEAL_SCORE	(TIMER_REVEAL_STROKES + 30)
-#define TIMER_MAX		TIMER_REVEAL_SCORE
+#define TIMER_MAX		(TIMER_REVEAL_SCORE + 1)
 
 static int level, nextLevel;
 static bool levelInRomfs;

@@ -34,7 +34,7 @@
 	(SCORES_BOT_Y_START + TEXT_LINE_HEIGHT*8 + BORDER_MARGIN_VERT + 10)
 
 #define SCORE_REVEAL_TIME	15
-#define TIMER_MAX		(18*SCORE_REVEAL_TIME)
+#define TIMER_MAX		(18*SCORE_REVEAL_TIME + 1)
 
 static Text nameText[18], scoreText[18], bottomText, totalScoreText, killCountText;
 
