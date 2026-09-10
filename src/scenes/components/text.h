@@ -24,7 +24,7 @@ typedef struct text *Text;
 typedef enum {
 	TEXT_LEFT,
 	TEXT_RIGHT,
-	TEXT_CENTERED
+	TEXT_CENTER
 } Text_DrawMode;
 
 /*

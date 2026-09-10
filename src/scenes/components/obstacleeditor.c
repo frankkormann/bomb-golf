@@ -245,7 +245,7 @@ void ObstacleEditor_Draw(float depth) {
 	Button_Draw(spriteDownButton, depth);
 
 	Text_Draw(speedText, SPEED_TEXT_X, SPEED_TEXT_Y, depth, COLOR_DGRAY, 1,
-			TEXT_CENTERED);
+			TEXT_CENTER);
 	Text_Draw(exitText, EXIT_X + 10, EXIT_Y + 5, depth, COLOR_LGRAY, 1,
 			TEXT_LEFT);
 	Text_Draw(rightText, SPRITE_UP_X + 7, SPRITE_UP_Y + 5, depth,

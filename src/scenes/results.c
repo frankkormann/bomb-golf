@@ -315,7 +315,7 @@ static void sceneDraw() {
 	C2D_SceneBegin(D3D_TARGET); \
 	\
 	Text_Draw(completeText, D3D_Xi(0), COMPLETE_TEXT_Y, D3D_D(0), COLOR_DGREEN, \
-			2, TEXT_CENTERED); \
+			2, TEXT_CENTER); \
 	\
 	Terrain_Draw(D3D_Xi(1), LEVEL_PREVIEW_Y, D3D_D(1), LEVEL_PREVIEW_WIDTH, \
 			LEVEL_PREVIEW_HEIGHT, &terrainX, &terrainY, &terrainWidth, \
@@ -334,7 +334,7 @@ static void sceneDraw() {
 
 	Border_DrawDark(BOX_X, BOX_Y, 0, BOX_WIDTH, BOX_HEIGHT);
 	C2D_DrawRectSolid(BOX_X, BOX_Y, 0, BOX_WIDTH, BOX_HEIGHT, COLOR_DGRAY);
-	Text_Draw(nameText, 160, NAME_TEXT_Y, 0, COLOR_LGRAY, 1, TEXT_CENTERED);
+	Text_Draw(nameText, 160, NAME_TEXT_Y, 0, COLOR_LGRAY, 1, TEXT_CENTER);
 	if (textRevealCounter >= TIMER_REVEAL_PAR) {
 		Text_Draw(parText, PAR_TEXT_X, PAR_TEXT_Y, 0, COLOR_LGRAY, 1,
 				TEXT_LEFT);
@@ -353,7 +353,7 @@ static void sceneDraw() {
 		Text_Draw(scoreTotNumText, OVERALL_TEXT_X + NUM_TEXT_GAP,
 				OVERALL_TEXT_Y, 0, COLOR_DGRAY, 1, TEXT_RIGHT);
 		Text_Draw(scoreNameText, 160, SCORE_TEXT_Y, 0,
-				getColorForScore(strokes, par), 1, TEXT_CENTERED);
+				getColorForScore(strokes, par), 1, TEXT_CENTER);
 	}
 
 	Animation_Draw(0.5);

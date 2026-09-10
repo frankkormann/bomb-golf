@@ -171,7 +171,7 @@ void Text_DrawBounded(Text text, float x, float y, float depth, float maxWidth,
 		float cx = x;
 		if (mode == TEXT_RIGHT) {
 			cx -= min(calculateWidth(c, size, text->maxChars), maxWidth);
-		} else if (mode == TEXT_CENTERED) {
+		} else if (mode == TEXT_CENTER) {
 			cx -= min(calculateWidth(c, size, text->maxChars), maxWidth)
 					/ 2;
 		}
