@@ -82,10 +82,10 @@ static bool sceneInit(void *sceneParams) {
 
 		if (overall <= -6) {
 			bgColor = COLOR_YELLOW;
-			fgColor = COLOR_DGRAY;
+			fgColor = COLOR_DGREEN;
 		} else if (overall <= 0) {
-			bgColor = COLOR_LGREEN;
-			fgColor = COLOR_DGRAY;
+			bgColor = COLOR_GREEN;
+			fgColor = COLOR_LGRAY;
 		} else {
 			bgColor = COLOR_DGRAY;
 			fgColor = COLOR_LGRAY;
