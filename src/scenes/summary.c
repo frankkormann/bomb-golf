@@ -13,6 +13,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/color.h"
 #include "../rendering/draw3d.h"
+#include "../rendering/animation.h"
 #include "../audio/music.h"
 #include "../audio/soundeffect.h"
 #include "../util/tracker.h"
@@ -214,6 +215,8 @@ static void sceneDraw() {
 				OVERALL_Y + TEXT_LINE_HEIGHT, 0, fgColor, 1,
 				TEXT_RIGHT);
 	}
+
+	Animation_Draw(0.5);
 }
 
 Scene sceneSummary = &(struct scene) {
