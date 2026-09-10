@@ -33,8 +33,7 @@ static SongInfo songInfo[NUM_MUSIC_SONGS] = {
 	{ "romfs:music/Bit Shift (Loop).opus",             DECIBELS(-5) },
 	{ "romfs:music/Overworld (Trimmed).opus",          DECIBELS( 0) },
 	{ "romfs:music/Itty Bitty 8 Bit (Beginning).opus", DECIBELS( 0) },
-	{ "romfs:music/Deliberate Thought.opus",           DECIBELS( 5) },
-	{ "romfs:music/Itty Bitty 8 Bit (Beginning).opus", DECIBELS( 0) }  //TODO
+	{ "romfs:music/Deliberate Thought.opus",           DECIBELS( 5) }
 };
 
 static OggOpusFile *opusFiles[NUM_MUSIC_SONGS];
