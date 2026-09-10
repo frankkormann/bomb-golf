@@ -99,8 +99,6 @@ static bool sceneInit(void *sceneParams) {
 	timer = -1;  // So it's incremented to 0 on the first pass
 	inRomfs = params->inRomfs;
 
-	Music_Start(MUSIC_SUMMARY);
-
 	return true;
 
 f_killCountText:
@@ -132,7 +130,7 @@ static void sceneUpdate(float _) {
 
 	timer = clamp(timer + 1, 0, TIMER_MAX);
 	if (timer % SCORE_REVEAL_TIME == 0 && timer / SCORE_REVEAL_TIME < 18) {
-		SoundEffect_Play(SFX_UI_ADVANCE, false);
+		SoundEffect_Play(SFX_BOUNCE, true);
 	}
 
 	if (kDown & (KEY_A | KEY_B | KEY_X | KEY_Y)

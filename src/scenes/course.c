@@ -24,6 +24,7 @@
 #include "../rendering/animation.h"
 #include "../rendering/animations/firework.h"
 #include "../audio/music.h"
+#include "../audio/soundeffect.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../util/tracker.h"
@@ -252,6 +253,9 @@ static void sceneUpdate(float speed) {
 	if (!hasFinished && holeX <= x && x <= holeX + holeWidth && holeY <= y
 			&& y <= holeY + holeHeight) {
 		hasFinished = true;
+		if (strokes == 1) {
+			SoundEffect_Play(SFX_HOLE_IN_ONE, false);
+		}
 		if (!Animation_Start(animationFirework,
 				Firework_MakeParams(x, y, strokes < par),
 				nextLevel)) {

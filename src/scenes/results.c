@@ -121,6 +121,7 @@ static void getScoreForStrokes(int strokes, int par, char *buf) {
 
 static bool sceneInit(void *sceneParams) {
 	Results_Params *params = (Results_Params*)sceneParams;
+
 	char path[LEVEL_PATH_MAX], *name;
 	LevelIO_MakePath(params->level, params->levelInRomfs, path);
 	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
@@ -243,12 +244,13 @@ static void sceneExit() {
 	Text_Free(nameText);
 	Tracer_Free(projPath);
 	Terrain_Exit();
-	Music_Stop();
+	// Music_Stop called contextually in nextScene
 }
 
 static void nextScene() {
 	if (levelInRomfs) {
-		if (nextLevel >= 0) {
+		if (nextLevel >= 0) {	
+			Music_Stop();
 			Scene_Switch(sceneCourse,
 					&(Course_Params) { nextLevel, true });
 		} else {
@@ -256,6 +258,7 @@ static void nextScene() {
 					&(Summary_Params) { levelInRomfs });
 		}
 	} else {
+		Music_Stop();
 		Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { level });
 	}
 }
@@ -267,7 +270,7 @@ static void sceneUpdate(float _) {
 	if (textRevealCounter == TIMER_REVEAL_PAR
 			|| textRevealCounter == TIMER_REVEAL_STROKES
 			|| textRevealCounter == TIMER_REVEAL_SCORE) {
-		SoundEffect_Play(SFX_UI_ADVANCE, false);
+		SoundEffect_Play(SFX_BOUNCE, true);
 	}
 
 	if (kDown & (KEY_A | KEY_B | KEY_X | KEY_Y)
