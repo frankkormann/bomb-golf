@@ -7,7 +7,7 @@
 #include "summary.h"
 #include "editor.h"
 #include "error.h"
-#include "title.h"
+#include "credits.h"
 #include "components/text.h"
 #include "components/border.h"
 #include "../rendering/rendertarget.h"
@@ -140,7 +140,8 @@ static void sceneUpdate(float _) {
 		if (timer < TIMER_MAX) {
 			timer = TIMER_MAX;
 		} else {
-			Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
+			Scene_Switch(sceneCredits,
+					&(Credits_Params) SCENE_PARAMS_EMPTY);
 		}
 	}
 }
