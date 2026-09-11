@@ -47,13 +47,14 @@ Background BG_Create(unsigned int width, unsigned int height, u32 clearColor) {
 	if (!C3D_TexInitVRAM(&bg->tex, texWidth, texHeight, GPU_RGBA8)) goto f_tex;
 
 	bg->subtex = (Tex3DS_SubTexture) {
-		.width	= width,
-		.height = height,
-		.left	= 0,
-		.right	= (float)width/ texWidth,
-		.top	= 1,
-		.bottom	= 1 - ((float)height / texHeight)
-	};
+			.width	= width,
+			.height = height,
+			.left	= 0,
+			.right	= (float)width/ texWidth,
+			.top	= 1,
+			.bottom	= 1 - ((float)height / texHeight)
+		};
+
 	bg->texTarget = C3D_RenderTargetCreateFromTex(&bg->tex, GPU_TEXFACE_2D, 0,
 			GPU_RB_DEPTH24);
 	if (!bg->texTarget) goto f_texTarget;
