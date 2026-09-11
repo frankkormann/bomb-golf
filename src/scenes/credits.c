@@ -13,7 +13,7 @@
 #include "../rendering/rendertarget.h"
 #include "../rendering/draw3d.h"
 #include "../rendering/animation.h"
-//#include "../rendering/spritesheet.h" //TODO
+#include "../rendering/spritesheet.h"
 #include "../rendering/animations/explosion.h"
 #include "../audio/soundeffect.h"
 //#include "../audio/music.h" //TODO
@@ -23,8 +23,8 @@
 #define SCROLL_SPEED 0.4
 // Compensates for buffer at the beginning of each texture
 #define SCROLL_MIN 10
-// Stop when "Thanks for Playing!" is the only line showing
-#define SCROLL_MAX (480 + (14 * TEXT_LINE_HEIGHT) + 10)
+// Stop when "Thanks For Playing!" is the only line showing
+#define SCROLL_MAX (480 + (14 * TEXT_LINE_HEIGHT) + SCROLL_MIN)
 
 #define CREDITS_TEXT_HEADERS \
 	"Design, Program, Art\n" \
@@ -61,7 +61,7 @@
 	"\n" \
 	"\n" \
 	"\n" \
-	"Thanks for Playing!\n"
+	"Thanks For Playing!\n"
 
 #define EXPLOSION_RADIUS 20
 
@@ -187,7 +187,8 @@ static void updateLayers() {
 		C2D_SceneBegin(layer1Target);
 		Text_Draw(headersText, 160, SCROLL_MIN, 0, COLOR_DGRAY, 1,
 				TEXT_CENTER);
-		//TODO Credits image
+		SpriteSheet_Draw(SPRITE_CREDITS, 0, SCROLL_MAX - 420, 0, 0, false,
+				false);
 
 		C2D_TargetClear(layer2Target, COLOR_TRANSPARENT);
 		C2D_SceneBegin(layer2Target);
@@ -199,8 +200,6 @@ static void updateLayers() {
 				GPU_ONE_MINUS_SRC_ALPHA,
 				GPU_SRC_ALPHA, GPU_ONE_MINUS_SRC_ALPHA);
 
-		// Can't use C2D_DrawCircleSolid due to weirdness with
-		// transparency--pixels outside of the circle are also cleared
 		C2D_SceneBegin(layer1Target);
 		fillCircle(explodeX, explodeY, 0, EXPLOSION_RADIUS,
 				COLOR_GREEN);
