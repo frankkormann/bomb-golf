@@ -158,9 +158,9 @@ static u32 getColorForScore(int score) {
 
 static void sceneDraw() {
 	#define D3D_VALS { \
-			{ SCORES_TOP_X, 0.6 }, \
-			{ SCORES_TOP_X + SCORES_WIDTH, 0.6 }, \
-			{ SCORES_TOP_X - BORDER_MARGIN_HORIZ, 0.8 } \
+			{ SCORES_TOP_X, 0.8 }, \
+			{ SCORES_TOP_X + SCORES_WIDTH, 0.8 }, \
+			{ SCORES_TOP_X - BORDER_MARGIN_HORIZ, 0.6 } \
 		}
 	#define D3D_CODE \
 	C2D_TargetClear(D3D_TARGET, bgColor); \

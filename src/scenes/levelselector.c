@@ -71,7 +71,7 @@ static void displayLevel(int levelNum) {
 				&numOverlayTiles, &obstacles, &numObstacles, &width,
 				&par, &name, NULL)) {
 			// Spaces to maintain center alignment
-			Text_SetContent(infoText, "     Level does not exist");
+			Text_SetContent(infoText, "Level does not exist");
 			levelIsSelected = false;
 			return;
 		}
@@ -218,7 +218,7 @@ static void sceneDraw() {
 			LEVEL_PREVIEW_X, \
 			previewX + ceilf(D3D_CORRECTION(3)), \
 			previewX, \
-			105, \
+			200, \
 		}
 	#define D3D_CODE \
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
@@ -244,7 +244,7 @@ static void sceneDraw() {
 		} \
 	} else { \
 		Text_Draw(infoText, D3D_Xi(5), 60, D3D_D(5), COLOR_DGRAY, 1, \
-			TEXT_LEFT); \
+			TEXT_CENTER); \
 	}
 	#include "../rendering/draw3d_gen.h"
 	/* Everything gets #undef'd by draw3d */

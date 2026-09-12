@@ -26,6 +26,6 @@ void SaveData_Unmount();
  * Returns the prefix of the save data, like "romfs" or "sdmc". For a 3dsx this
  * will always be "sdmc".
  */
-char* SaveData_GetDeviceName();
+const char* SaveData_GetDeviceName();
 
 #endif

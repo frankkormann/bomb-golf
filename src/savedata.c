@@ -3,6 +3,7 @@
 #include "savedata.h"
 
 #define CIA_DEVICE_NAME "save"
+#define NUM_FILES SAVEDATA_NUM_LEVELS
 
 #ifdef _CIA
 //https://www.3dbrew.org/wiki/RomFS#Hash_Table_Structure
@@ -37,9 +38,9 @@ bool SaveData_Mount() {
 					fsMakePath(PATH_EMPTY, ""),
 					512,
 					0,
-					SAVEDATA_NUM_LEVELS,
+					NUM_FILES,
 					getHashTableLength(0),
-					getHashTableLength(SAVEDATA_NUM_LEVELS),
+					getHashTableLength(NUM_FILES),
 					false
 				);
 			if (R_FAILED(res)) return false;
@@ -60,7 +61,7 @@ void SaveData_Unmount() {
 	#endif
 }
 
-char* SaveData_GetDeviceName() {
+const char* SaveData_GetDeviceName() {
 	#ifdef _CIA
 		return CIA_DEVICE_NAME;
 	#else

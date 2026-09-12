@@ -750,7 +750,7 @@ static void sceneDraw() {
 	TileSelector_UpdateGraphics();
 
 	int bgX, bgY, bgWidth, bgHeight;
-	#define D3D_DEPTHS { 0.8, 0.8, 0, 0.6, 0.8, 0.8 }
+	#define D3D_DEPTHS { 0.8, 0.8, 0, 0.6, 0.8, 0.6 }
 	#define D3D_XS { \
 			TEXT_MARGIN, \
 			390, \
