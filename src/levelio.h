@@ -10,7 +10,7 @@
 #include "tile.h"
 #include "audio/music.h"
 
-#define LEVEL_PATH_MAX 20
+#define LEVEL_PATH_MAX 32
 
 #define LEVEL_HEIGHT 240
 #define LEVEL_MAX_WIDTH 1020

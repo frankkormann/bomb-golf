@@ -23,9 +23,9 @@ bool SaveData_Mount();
 void SaveData_Unmount();
 
 /*
- * Returns the prefix of the save data, like "romfs" or "sdmc". For a 3dsx this
- * will always be "sdmc".
+ * Returns the path of the save data's root directory. For a 3dsx this will
+ * always be "sdmc:/".
  */
-const char* SaveData_GetDeviceName();
+const char* SaveData_Root();
 
 #endif

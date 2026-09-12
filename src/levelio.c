@@ -14,8 +14,7 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 	if (inRomfs) {
 		sprintf(path, "romfs:/level_%i.bin", levelNum);
 	} else {
-		sprintf(path, "%s:/level_%i.bin", SaveData_GetDeviceName(),
-				levelNum);
+		sprintf(path, "%slevel_%i.bin", SaveData_Root(), levelNum);
 	}
 }
 

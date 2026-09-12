@@ -1,8 +1,12 @@
 #include <stdbool.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <3ds.h>
 #include "savedata.h"
 
 #define CIA_DEVICE_NAME "save"
+#define _3DSX_FOLDER "bomb-golf"
 #define NUM_FILES SAVEDATA_NUM_LEVELS
 
 #ifdef _CIA
@@ -50,6 +54,14 @@ bool SaveData_Mount() {
 		}
 		return true;
 	#else
+		DIR *d = opendir(SaveData_Root());
+		if (!d) {
+			if (mkdir(SaveData_Root(),  0777) != 0) {
+				return false;
+			}
+		} else {
+			closedir(d);
+		}
 		return true;
 	#endif
 }
@@ -61,10 +73,10 @@ void SaveData_Unmount() {
 	#endif
 }
 
-const char* SaveData_GetDeviceName() {
+const char* SaveData_Root() {
 	#ifdef _CIA
-		return CIA_DEVICE_NAME;
+		return CIA_DEVICE_NAME ":/";
 	#else
-		return "sdmc";
+		return "sdmc:/" _3DSX_FOLDER "/";
 	#endif
 }
