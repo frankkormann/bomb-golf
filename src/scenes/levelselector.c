@@ -24,6 +24,7 @@
 #include "../rendering/draw3d.h"
 #include "../util/dispatcher.h"
 #include "../util/tracker.h"
+#include "../savedata.h"
 #include "../levelio.h"
 
 #define LEVEL_NAME_X		10
@@ -41,16 +42,16 @@
 #define DELETE_BUTTON_X		262
 #define NUM_CARD_ROWS		3
 #define NUM_CARD_COLS		6
-#define CARD_X_START		10
+#define CARD_X_START		31
 #define CARD_Y_START		45
-#define CARD_WIDTH		45
+#define CARD_WIDTH		38
 #define CARD_HEIGHT		45
 #define CARD_X_GAP		(CARD_WIDTH + 6)
 #define CARD_Y_GAP		(CARD_HEIGHT + 5)
 
 static Dispatcher touchDispatcher;
-static Button playButton, playSeqButton, editButton, swapButton, deleteButton;
-static Text   playText,   playSeqText,   editText,   swapText,   deleteText;
+static Button playButton, playSeqButton, editButton, copySwapButton, deleteButton;
+static Text   playText,   playSeqText,   editText,   copySwapText,   deleteText;
 
 static Button cards[NUM_CARD_ROWS * NUM_CARD_COLS];
 static Text cardNumbers[NUM_CARD_ROWS * NUM_CARD_COLS];
@@ -60,15 +61,15 @@ static Background levelPreview;
 static LevelIO_Obst *obstacles;
 static size_t numObstacles;
 static int selectedLevel;
-static bool isLevelLoaded;
+static bool isLevelLoaded, inCopyMode;
 
 // Declarations needed for buttons
 static void play();
 static void playSequence();
 static void edit();
-static void swap();
+static void copySwap();
 static void delete();
-static void display(int level);
+static void select(int level);
 
 static bool sceneInit(void *sceneParams) {
 	LevelSelector_Params *params = (LevelSelector_Params*)sceneParams;
@@ -88,9 +89,9 @@ static bool sceneInit(void *sceneParams) {
 			-1, NULL, edit);
 	if (!editButton) goto f_editButton;
 
-	swapButton = Button_Create(COPY_BUTTON_X, BUTTON_Y, SPRITE_SMALL_BUTTON,
-			-1, NULL, swap);
-	if (!swapButton) goto f_swapButton;
+	copySwapButton = Button_Create(COPY_BUTTON_X, BUTTON_Y, SPRITE_SMALL_BUTTON,
+			-1, NULL, copySwap);
+	if (!copySwapButton) goto f_copySwapButton;
 
 	deleteButton = Button_Create(DELETE_BUTTON_X, BUTTON_Y, SPRITE_SMALL_BUTTON,
 			-1, NULL, delete);
@@ -99,7 +100,7 @@ static bool sceneInit(void *sceneParams) {
 	Button_RegisterForTouchEvents(playButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(playSeqButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(editButton, touchDispatcher, 0);
-	Button_RegisterForTouchEvents(swapButton, touchDispatcher, 0);
+	Button_RegisterForTouchEvents(copySwapButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(deleteButton, touchDispatcher, 0);
 
 	playText = Text_Create(5);
@@ -114,9 +115,8 @@ static bool sceneInit(void *sceneParams) {
 	if (!editText) goto f_editText;
 	Text_SetContent(editText, "Edit");
 
-	swapText = Text_Create(5);
-	if (!swapText) goto f_swapText;
-	Text_SetContent(swapText, "Swap");
+	copySwapText = Text_Create(8);
+	if (!copySwapText) goto f_copySwapText;
 
 	deleteText = Text_Create(7);
 	if (!deleteText) goto f_deleteText;
@@ -128,7 +128,7 @@ static bool sceneInit(void *sceneParams) {
 			float cardX = CARD_X_START + j*CARD_X_GAP;
 			float cardY = CARD_Y_START + k*CARD_Y_GAP;
 			cards[i] = Button_Create(cardX, cardY, SPRITE_LEVEL_CARD,
-					-1, (void*)i, (void(*)(void*))display);
+					-1, (void*)i, (void(*)(void*))select);
 			if (!cards[i]) goto f_cards;
 			Button_RegisterForTouchEvents(cards[i], touchDispatcher, 0);
 		}
@@ -153,7 +153,8 @@ static bool sceneInit(void *sceneParams) {
 	levelPreview = BG_Create(LEVEL_MAX_WIDTH, LEVEL_HEIGHT, COLOR_BLUE);
 	if (!levelPreview) goto f_levelPreview;
 
-	display(params->level);
+	inCopyMode = false;
+	select(params->level);
 
 	return true;
 
@@ -170,8 +171,8 @@ f_cards:
 	for (int k = 0; k < i; k++) Button_Free(cards[k]);
 	Text_Free(deleteText);
 f_deleteText:
-	Text_Free(swapText);
-f_swapText:
+	Text_Free(copySwapText);
+f_copySwapText:
 	Text_Free(editText);
 f_editText:
 	Text_Free(playSeqText);
@@ -180,8 +181,8 @@ f_playSeqText:
 f_playText:
 	Button_Free(deleteButton);
 f_deleteButton:
-	Button_Free(swapButton);
-f_swapButton:
+	Button_Free(copySwapButton);
+f_copySwapButton:
 	Button_Free(editButton);
 f_editButton:
 	Button_Free(playSeqButton);
@@ -199,12 +200,12 @@ static void sceneExit() {
 	Text_Free(parText);
 	Text_Free(nameText);
 	Text_Free(deleteText);
-	Text_Free(swapText);
+	Text_Free(copySwapText);
 	Text_Free(editText);
 	Text_Free(playSeqText);
 	Text_Free(playText);
 	Button_Free(deleteButton);
-	Button_Free(swapButton);
+	Button_Free(copySwapButton);
 	Button_Free(editButton);
 	Button_Free(playSeqButton);
 	Button_Free(playButton);
@@ -234,15 +235,23 @@ static void edit() {
 	Scene_Switch(sceneEditor, &(Editor_Params) { selectedLevel });
 }
 
-static void swap() {
-	//FIXME
+static void copySwap() {
+	if (selectedLevel < 0) return;
+	if (!inCopyMode) {
+		inCopyMode = true;
+		Text_SetContent(infoText, "Tap another level number");
+		Text_SetContent(copySwapText, "Cancel");
+	} else {
+		inCopyMode = false;
+		select(selectedLevel);
+	}
 }
 
 static void doDelete() {
 	char path[LEVEL_PATH_MAX];
 	LevelIO_MakePath(selectedLevel, false, path);
 	remove(path);
-	display(selectedLevel);
+	select(selectedLevel);
 	Popup_Exit();
 }
 
@@ -260,6 +269,7 @@ static void display(int level) {
 	if (level < 0) {
 		Text_SetContent(infoText, "Tap a level number to preview");
 		isLevelLoaded = false;
+		Text_SetContent(copySwapText, "Copy");
 	} else {
 		if (obstacles) {
 			// In case we had it from a previous level selection
@@ -281,6 +291,7 @@ static void display(int level) {
 			// Spaces to maintain center alignment
 			Text_SetContent(infoText, "Level does not exist");
 			isLevelLoaded = false;
+			Text_SetContent(copySwapText, "Copy");
 			return;
 		}
 
@@ -304,6 +315,24 @@ static void display(int level) {
 		free(name);
 		Text_SetContent(parText, "Par %i", par);
 		isLevelLoaded = true;
+		Text_SetContent(copySwapText, "Swap");
+	}
+}
+
+static void select(int level) {
+	if (!inCopyMode) {
+		display(level);
+	} else {
+		char oldPath[LEVEL_PATH_MAX], newPath[LEVEL_PATH_MAX];
+		LevelIO_MakePath(selectedLevel, false, oldPath);
+		LevelIO_MakePath(level, false, newPath);
+		if (isLevelLoaded) {
+			SaveData_Swap(newPath, oldPath);
+		} else {
+			SaveData_Copy(oldPath, newPath);
+		}
+		inCopyMode = false;
+		display(selectedLevel);
 	}
 }
 
@@ -369,7 +398,7 @@ static void sceneDraw() {
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
 	C2D_SceneBegin(D3D_TARGET); \
 	\
-	if (isLevelLoaded) { \
+	if (isLevelLoaded && !inCopyMode) { \
 		Text_Draw(nameText, D3D_Xi(0), LEVEL_NAME_Y, D3D_D(0), \
 				COLOR_DGREEN, 1, TEXT_LEFT); \
 		Text_Draw(parText, D3D_Xi(1), LEVEL_NAME_Y, D3D_D(1), COLOR_DGREEN, \
@@ -402,7 +431,7 @@ static void sceneDraw() {
 	Button_Draw(playButton, 0);
 	Button_Draw(playSeqButton, 0);
 	Button_Draw(editButton, 0);
-	Button_Draw(swapButton, 0);
+	Button_Draw(copySwapButton, 0);
 	Button_Draw(deleteButton, 0);
 	Text_Draw(playText, PLAY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
@@ -410,7 +439,7 @@ static void sceneDraw() {
 			1, TEXT_CENTER);
 	Text_Draw(editText, EDIT_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
-	Text_Draw(swapText, COPY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
+	Text_Draw(copySwapText, COPY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
 	Text_Draw(deleteText, DELETE_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
@@ -420,8 +449,9 @@ static void sceneDraw() {
 			float cardX = CARD_X_START + i*CARD_X_GAP;
 			float cardY = CARD_Y_START + j*CARD_Y_GAP;
 			Button_Draw(cards[i + j*NUM_CARD_COLS], 0);
-			Text_Draw(cardNumbers[i + j*NUM_CARD_COLS], cardX + 10,
-					cardY + 5, 0.5, COLOR_LGRAY, 1, TEXT_LEFT);
+			Text_Draw(cardNumbers[i + j*NUM_CARD_COLS],
+					cardX + CARD_WIDTH/2, cardY + 10,
+					0.5, COLOR_LGRAY, 1, TEXT_CENTER);
 		}
 	}
 
