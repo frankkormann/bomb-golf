@@ -11,6 +11,7 @@
 typedef struct {
 	int level;
 	bool inRomfs;
+	bool isSequence;
 } Course_Params;
 
 extern Scene sceneCourse;

@@ -8,6 +8,7 @@
 #include "editor.h"
 #include "error.h"
 #include "credits.h"
+#include "title.h"
 #include "components/text.h"
 #include "components/border.h"
 #include "../rendering/rendertarget.h"
@@ -139,9 +140,11 @@ static void sceneUpdate(float _) {
 			|| TouchInput_JustFinished()) {
 		if (timer < TIMER_MAX) {
 			timer = TIMER_MAX;
-		} else {
+		} else if (inRomfs) {
 			Scene_Switch(sceneCredits,
 					&(Credits_Params) SCENE_PARAMS_EMPTY);
+		} else {
+			Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 		}
 	}
 }

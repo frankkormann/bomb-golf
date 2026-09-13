@@ -223,12 +223,30 @@ static void sceneExit() {
 static void play() {
 	if (isLevelLoaded) {
 		Tracker_Clear();
-		Scene_Switch(sceneCourse, &(Course_Params) { selectedLevel, false });
+		Scene_Switch(sceneCourse,
+				&(Course_Params) { selectedLevel, false, false });
 	}
 }
 
 static void playSequence() {
-	//FIXME
+	int firstLevel;
+	for (firstLevel = 0; firstLevel < SAVEDATA_NUM_LEVELS; firstLevel++) {
+		char path[LEVEL_PATH_MAX];
+		LevelIO_MakePath(firstLevel, false, path);
+		if (FILE *f = fopen(path, "rb")) {
+			fclose(f);
+			break;
+		}
+	}
+
+	if (firstLevel < SAVEDATA_NUM_LEVELS) {
+		Tracker_Clear();
+		Scene_Switch(sceneCourse,
+				&(Course_Params) { firstLevel, false, true });
+	} else {
+		Popup_Init("Create some holes first", POPUP_ONE_BUTTON,
+				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
+	}
 }
 
 static void edit() {

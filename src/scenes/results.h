@@ -16,6 +16,7 @@ typedef struct {
 	int strokes;
 	int level;
 	bool levelInRomfs;
+	bool isSequence;
 	Tracer projPath;
 } Results_Params;
 

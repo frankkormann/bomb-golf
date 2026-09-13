@@ -42,7 +42,7 @@
 #define LEVEL_PREVIEW_HEIGHT		(240 - 35 - LEVEL_PREVIEW_Y)
 
 static int level;
-static bool levelInRomfs;
+static bool levelInRomfs, isSequence;
 
 static bool shouldFreeTerrain;
 static int holeX, holeY, holeWidth, holeHeight;
@@ -170,6 +170,7 @@ static bool sceneInit(void *sceneParams) {
 	hasFinished = false;
 	level = params->level;
 	levelInRomfs = params->inRomfs;
+	isSequence = params->isSequence;
 
 	return true;
 
@@ -232,7 +233,7 @@ static void nextLevel() {
 	shouldFreeTerrain = false;
 	shouldFreeProjPath = false;
 	Scene_Switch(sceneResults, &(Results_Params)
-			{ strokes, level, levelInRomfs, projPath });
+			{ strokes, level, levelInRomfs, isSequence, projPath });
 }
 
 static void sceneUpdate(float speed) {

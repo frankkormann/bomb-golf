@@ -27,7 +27,7 @@ static Dispatcher touchDispatcher, keyDispatcher;
 
 static void startGame() {
 	Tracker_Clear();
-	Scene_Switch(sceneCourse, &(Course_Params) { 0, true });
+	Scene_Switch(sceneCourse, &(Course_Params) { 0, true, true });
 }
 
 static void openEditor() {

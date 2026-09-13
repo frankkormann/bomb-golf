@@ -53,7 +53,7 @@
 #define TIMER_MAX		(TIMER_REVEAL_SCORE + 1)
 
 static int level, nextLevel;
-static bool levelInRomfs;
+static bool levelInRomfs, isSequence;
 
 static int strokes, par;
 
@@ -175,11 +175,8 @@ static bool sceneInit(void *sceneParams) {
 	if (!nameText) goto f_nameText;
 	Text_SetContent(nameText, name);
 
-	if (params->levelInRomfs) {
+	if (params->isSequence) {
 		nextLevel = params->level + 1;
-		if (nextLevel >= 18) nextLevel = -1;
-/*
-		//TODO Allow for playing a sequence of custom levels
 		while (true) {
 			char path[LEVEL_PATH_MAX];
 			LevelIO_MakePath(nextLevel, params->levelInRomfs,
@@ -194,13 +191,13 @@ static bool sceneInit(void *sceneParams) {
 			}
 			nextLevel++;
 		}
-*/
 	}
 
 	Music_Start(MUSIC_RESULTS);
 
 	level = params->level;
 	levelInRomfs = params->levelInRomfs;
+	isSequence = params->isSequence;
 	strokes = params->strokes;
 
 	textRevealCounter = 0;
@@ -248,11 +245,12 @@ static void sceneExit() {
 }
 
 static void nextScene() {
-	if (levelInRomfs) {
+	if (isSequence) {
 		if (nextLevel >= 0) {	
 			Music_Stop();
 			Scene_Switch(sceneCourse,
-					&(Course_Params) { nextLevel, true });
+					&(Course_Params) { nextLevel, levelInRomfs,
+						isSequence });
 		} else {
 			Scene_Switch(sceneSummary,
 					&(Summary_Params) { levelInRomfs });
