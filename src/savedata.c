@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdio.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -7,7 +8,7 @@
 
 #define CIA_DEVICE_NAME "save"
 #define _3DSX_FOLDER "bomb-golf"
-#define NUM_FILES SAVEDATA_NUM_LEVELS
+#define NUM_FILES (SAVEDATA_NUM_LEVELS + 1)
 
 #ifdef _CIA
 //https://www.3dbrew.org/wiki/RomFS#Hash_Table_Structure
@@ -79,4 +80,33 @@ const char* SaveData_Root() {
 	#else
 		return "sdmc:/" _3DSX_FOLDER "/";
 	#endif
+}
+
+bool SaveData_Swap(const char *path1, const char *path2) {
+	rename(path1, "temp");
+	rename(path2, path1);
+	rename("temp", path2);
+	return true;
+}
+
+bool SaveData_Copy(const char *dest, const char *src) {
+	char buf[1024];
+	FILE *fdest = fopen(dest, "wb");
+	if (!fdest) return false;
+
+	FILE *fsrc = fopen(src, "rb");
+	if (!fsrc) {
+		fclose(fdest);
+		return false;
+	}
+
+	size_t num;
+	while ((num = fread(buf, sizeof(char), 1024, fsrc)) > 0) {
+		if (fwrite(buf, sizeof(char), num, fdest) < num) {
+			return false;
+		}
+	}
+	fclose(fdest);
+	fclose(fsrc);
+	return true;
 }

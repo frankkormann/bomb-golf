@@ -28,4 +28,16 @@ void SaveData_Unmount();
  */
 const char* SaveData_Root();
 
+/*
+ * Returns false if an error occured. In this case, nothing is swapped.
+ */
+bool SaveData_Swap(const char *path1, const char *path2);
+
+/*
+ * Copies the level with number srcNum into the level with number destNum.
+ *
+ * Returns false if an error occured. In this case, nothing is copied.
+ */
+bool SaveData_Copy(const char *dest, const char *src);
+
 #endif
