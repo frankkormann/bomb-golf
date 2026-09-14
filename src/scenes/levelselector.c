@@ -109,7 +109,7 @@ static bool sceneInit(void *sceneParams) {
 
 	playSeqText = Text_Create(16);
 	if (!playSeqText) goto f_playSeqText;
-	Text_SetContent(playSeqText, "Play In Order");
+	Text_SetContent(playSeqText, "Play All");
 
 	editText = Text_Create(5);
 	if (!editText) goto f_editText;
@@ -244,7 +244,7 @@ static void playSequence() {
 		Scene_Switch(sceneCourse,
 				&(Course_Params) { firstLevel, false, true });
 	} else {
-		Popup_Init("Create some holes first", POPUP_ONE_BUTTON,
+		Popup_Init("Create some levels first", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
 	}
 }
