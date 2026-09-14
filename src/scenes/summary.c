@@ -137,8 +137,7 @@ static void sceneUpdate(float _) {
 		SoundEffect_Play(SFX_BOUNCE, true);
 	}
 
-	if (kDown & (KEY_A | KEY_B | KEY_X | KEY_Y)
-			|| TouchInput_JustFinished()) {
+	if (kDown & (KEY_A | KEY_B | KEY_X | KEY_Y) || TouchInput_JustFinished()) {
 		if (timer < (numScores + 1) * SCORE_REVEAL_TIME) {
 			timer = (numScores + 1) * SCORE_REVEAL_TIME;
 		} else if (inRomfs) {

@@ -143,8 +143,7 @@ static void sceneUpdate(float speed) {
 	if (kHeld & KEY_DOWN) scroll -= 5 * speed;
 	scroll = clamp(scroll + speed * SCROLL_SPEED, SCROLL_MIN, SCROLL_MAX);
 
-	if ((kDown & (KEY_A | KEY_B | KEY_X | KEY_Y))
-			&& scroll >= SCROLL_MAX) {
+	if ((kDown & (KEY_A | KEY_B | KEY_X | KEY_Y)) && scroll >= SCROLL_MAX) {
 		Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 	}
 
