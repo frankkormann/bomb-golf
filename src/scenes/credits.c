@@ -202,10 +202,10 @@ static void updateLayers() {
 
 		C2D_SceneBegin(layer1Target);
 		fillCircle(explodeX, explodeY, 0, EXPLOSION_RADIUS,
-				COLOR_GREEN);
+				COLOR_TRANSPARENT);
 		C2D_SceneBegin(layer2Target);
 		fillCircle(explodeX, explodeY, 0, EXPLOSION_RADIUS,
-				COLOR_GREEN);
+				COLOR_TRANSPARENT);
 
 		C2D_Flush();
 		C3D_AlphaBlend(GPU_BLEND_ADD, GPU_BLEND_ADD, GPU_SRC_ALPHA,
