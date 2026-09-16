@@ -34,7 +34,7 @@ const char* SaveData_Root();
 bool SaveData_Swap(const char *path1, const char *path2);
 
 /*
- * Copies the level with number srcNum into the level with number destNum.
+ * Copies the file at src into dest.
  *
  * Returns false if an error occured. In this case, nothing is copied.
  */
