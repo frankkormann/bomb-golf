@@ -5,16 +5,16 @@
 
 /*
  * For Tile:
- *    Bits 1-3  are orientation flags,
- *         4-5  are hitbox,
- *           6  is whether the tile is an overlay or not,
- *         7-8  are padding/future use,
- *         9-16 are sprite
+ *     Bits 1-3  are orientation flags,
+ *          4-5  are hitbox,
+ *            6  is whether the tile is an overlay or not,
+ *          7-8  are padding/future use,
+ *          9-16 are sprite
  *
  * For Tile_WithPos:
- *    Bits  1-16 are the Tile,
- *         17-24 are x position (in TILE_SIZE grid coordinates),
- *         25-32 are y position (in TILE_SIZE grid coordinates)
+ *     Bits  1-16 are the Tile,
+ *          17-24 are x position (in TILE_SIZE grid coordinates),
+ *          25-32 are y position (in TILE_SIZE grid coordinates)
  */
 
 Tile_Hitbox spriteToHitbox(SpriteSheet_TileSprite sprite) {
