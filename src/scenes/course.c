@@ -191,7 +191,6 @@ f_nameText:
 }
 
 static void sceneExit() {
-	Tracker_Update(TRACKER_LVL1 + level, strokes - par);
 	if (shouldFreeProjPath) Tracer_Free(projPath);
 	if (shouldFreeTerrain) Terrain_Exit();
 	Text_Free(strokesText);

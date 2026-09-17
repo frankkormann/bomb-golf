@@ -22,6 +22,7 @@
 #include "../audio/soundeffect.h"
 #include "../file/levelio.h"
 #include "../file/savedir.h"
+#include "../file/saveio.h"
 #include "../util/tracker.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
@@ -56,6 +57,7 @@ static int level, nextLevel;
 static bool levelInRomfs, isSequence;
 
 static int strokes, par;
+static bool isHighScore;
 
 static Text completeText, parText, parNumText, strokesText, strokesNumText,
 		scoreNameText, scoreTotText, scoreTotNumText, nameText;
@@ -127,6 +129,12 @@ static bool sceneInit(void *sceneParams) {
 	if (!LevelIO_Read(path, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 			&par, &name, NULL)) {
 		goto f_LevelIO_Read;
+	}
+
+	Tracker_Update(TRACKER_LVL1 + params->level, params->strokes - par);
+	if (params->levelInRomfs) {
+		SaveIO_UpdateScore(params->level, params->strokes - par,
+				&isHighScore);
 	}
 
 	completeText = Text_Create(strlen("Hole Complete!") + 1);

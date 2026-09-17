@@ -8,8 +8,7 @@
 
 #define CIA_DEVICE_NAME "save"
 #define _3DSX_FOLDER "bomb-golf"
-//TODO Add more files for user save data (high scores, etc.)
-#define NUM_FILES SAVEDIR_NUM_LEVELS
+#define NUM_FILES (SAVEDIR_NUM_LEVELS + 1)
 
 #ifdef _CIA
 //https://www.3dbrew.org/wiki/RomFS#Hash_Table_Structure
