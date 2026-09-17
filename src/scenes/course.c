@@ -25,10 +25,10 @@
 #include "../rendering/animations/firework.h"
 #include "../audio/music.h"
 #include "../audio/soundeffect.h"
+#include "../file/levelio.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../util/tracker.h"
-#include "../levelio.h"
 
 #define LAUNCH_SPEED_MAX		6
 #define TOUCH_TO_LAUNCH_VEL_FACTOR 	0.05

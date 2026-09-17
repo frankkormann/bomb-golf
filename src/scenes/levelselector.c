@@ -22,10 +22,10 @@
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
 #include "../rendering/draw3d.h"
+#include "../file/savedir.h"
+#include "../file/levelio.h"
 #include "../util/dispatcher.h"
 #include "../util/tracker.h"
-#include "../savedata.h"
-#include "../levelio.h"
 
 #define LEVEL_NAME_X		10
 #define LEVEL_NAME_Y		15
@@ -230,7 +230,7 @@ static void play() {
 
 static void playSequence() {
 	int firstLevel;
-	for (firstLevel = 0; firstLevel < SAVEDATA_NUM_LEVELS; firstLevel++) {
+	for (firstLevel = 0; firstLevel < SAVEDIR_NUM_LEVELS; firstLevel++) {
 		char path[LEVEL_PATH_MAX];
 		LevelIO_MakePath(firstLevel, false, path);
 		if (FILE *f = fopen(path, "rb")) {
@@ -239,7 +239,7 @@ static void playSequence() {
 		}
 	}
 
-	if (firstLevel < SAVEDATA_NUM_LEVELS) {
+	if (firstLevel < SAVEDIR_NUM_LEVELS) {
 		Tracker_Clear();
 		Scene_Switch(sceneCourse,
 				&(Course_Params) { firstLevel, false, true });
@@ -345,9 +345,9 @@ static void select(int level) {
 		LevelIO_MakePath(selectedLevel, false, oldPath);
 		LevelIO_MakePath(level, false, newPath);
 		if (isLevelLoaded) {
-			SaveData_Swap(newPath, oldPath);
+			SaveDir_Swap(newPath, oldPath);
 		} else {
-			SaveData_Copy(oldPath, newPath);
+			SaveDir_Copy(oldPath, newPath);
 		}
 		inCopyMode = false;
 		display(selectedLevel);

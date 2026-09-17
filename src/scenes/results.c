@@ -20,11 +20,11 @@
 #include "../rendering/draw3d.h"
 #include "../audio/music.h"
 #include "../audio/soundeffect.h"
+#include "../file/levelio.h"
+#include "../file/savedir.h"
 #include "../util/tracker.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
-#include "../levelio.h"
-#include "../savedata.h"
 
 #define COMPLETE_TEXT_Y		20
 #define LEVEL_PREVIEW_X		10
@@ -185,7 +185,7 @@ static bool sceneInit(void *sceneParams) {
 				fclose(f);
 				break;
 			}
-			if (nextLevel >= SAVEDATA_NUM_LEVELS) {
+			if (nextLevel >= SAVEDIR_NUM_LEVELS) {
 				nextLevel = -1;
 				break;
 			}

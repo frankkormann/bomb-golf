@@ -4,7 +4,6 @@
 #include <citro2d.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "savedata.h"
 #include "scene.h"
 #include "scenes/title.h"
 #include "scenes/error.h"
@@ -16,6 +15,7 @@
 #include "rendering/animation.h"
 #include "audio/music.h"
 #include "audio/soundeffect.h"
+#include "file/savedir.h"
 #include "util/touchinput.h"
 
 static void gotoTitle() {
@@ -43,7 +43,7 @@ int main() {
 	Obstacle_Init();
 	Scene_Start(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 
-	if (!SaveData_Mount()) {
+	if (!SaveDir_Mount()) {
 		Scene_Switch(sceneError,
 				&(Error_Params) { "Failed to mount save data" });
 	}
@@ -71,7 +71,7 @@ int main() {
 		C3D_FrameEnd(0);
 	}
 
-	SaveData_Unmount();
+	SaveDir_Unmount();
 	Scene_Exit();
 	Obstacle_Exit();
 	SoundEffect_Exit();

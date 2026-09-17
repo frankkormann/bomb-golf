@@ -4,12 +4,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <3ds.h>
-#include "savedata.h"
+#include "savedir.h"
 
 #define CIA_DEVICE_NAME "save"
 #define _3DSX_FOLDER "bomb-golf"
-//TODO Add one more file for user save data (high scores, etc.)
-#define NUM_FILES SAVEDATA_NUM_LEVELS
+//TODO Add more files for user save data (high scores, etc.)
+#define NUM_FILES SAVEDIR_NUM_LEVELS
 
 #ifdef _CIA
 //https://www.3dbrew.org/wiki/RomFS#Hash_Table_Structure
@@ -34,13 +34,13 @@ static int getHashTableLength(int numEntries) {
 }
 #endif
 
-bool SaveData_Mount() {
+bool SaveDir_Mount() {
 	#ifdef _CIA
-		Result res = archiveMount(ARCHIVE_SAVEDATA,
+		Result res = archiveMount(ARCHIVE_SAVEDIR,
 				fsMakePath(PATH_EMPTY, ""), CIA_DEVICE_NAME);
 		if (R_FAILED(res)) {
-			res = FSUSER_FormatSaveData(
-					ARCHIVE_SAVEDATA,
+			res = FSUSER_FormatSaveDir(
+					ARCHIVE_SAVEDIR,
 					fsMakePath(PATH_EMPTY, ""),
 					512,
 					0,
@@ -50,15 +50,15 @@ bool SaveData_Mount() {
 					false
 				);
 			if (R_FAILED(res)) return false;
-			res = archiveMount(ARCHIVE_SAVEDATA,
+			res = archiveMount(ARCHIVE_SAVEDIR,
 					fsMakePath(PATH_EMPTY, ""), CIA_DEVICE_NAME);
 			if (R_FAILED(res)) return false;
 		}
 		return true;
 	#else
-		DIR *d = opendir(SaveData_Root());
+		DIR *d = opendir(SaveDir_Root());
 		if (!d) {
-			if (mkdir(SaveData_Root(),  0777) != 0) {
+			if (mkdir(SaveDir_Root(),  0777) != 0) {
 				return false;
 			}
 		} else {
@@ -68,14 +68,14 @@ bool SaveData_Mount() {
 	#endif
 }
 
-void SaveData_Unmount() {
+void SaveDir_Unmount() {
 	#ifdef _CIA
-		archiveCommitSaveData(CIA_DEVICE_NAME);
+		archiveCommitSaveDir(CIA_DEVICE_NAME);
 		archiveUnmount(CIA_DEVICE_NAME);
 	#endif
 }
 
-const char* SaveData_Root() {
+const char* SaveDir_Root() {
 	#ifdef _CIA
 		return CIA_DEVICE_NAME ":/";
 	#else
@@ -83,14 +83,14 @@ const char* SaveData_Root() {
 	#endif
 }
 
-bool SaveData_Swap(const char *path1, const char *path2) {
+bool SaveDir_Swap(const char *path1, const char *path2) {
 	rename(path1, "temp");
 	rename(path2, path1);
 	rename("temp", path2);
 	return true;
 }
 
-bool SaveData_Copy(const char *dest, const char *src) {
+bool SaveDir_Copy(const char *dest, const char *src) {
 	char buf[1024];
 	FILE *fdest = fopen(dest, "wb");
 	if (!fdest) return false;

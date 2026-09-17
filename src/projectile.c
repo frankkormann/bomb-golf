@@ -8,8 +8,8 @@
 #include "environment/environment.h"
 #include "environment/terrain.h"
 #include "environment/obstacle.h"
+#include "file/levelio.h"
 #include "util/macros.h"
-#include "levelio.h"
 
 #define LAST_POS_COUNT 30
 #define STOPPED_THRESHOLD 2

@@ -19,6 +19,7 @@
 #include "components/popup.h"
 #include "components/obstacleeditor.h"
 #include "components/songselector.h"
+#include "../tile.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/color.h"
 #include "../rendering/spritesheet.h"
@@ -27,11 +28,10 @@
 #include "../environment/obstacle.h"
 #include "../audio/music.h"
 #include "../projectiles/bomb.h"
+#include "../file/levelio.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../util/list.h"
-#include "../tile.h"
-#include "../levelio.h"
 
 #define HOLE_WIDTH		(TILE_SIZE * 2)
 #define HOLE_HEIGHT		(TILE_SIZE * 4)

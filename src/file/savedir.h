@@ -3,41 +3,41 @@
  * targets.
  */
 
-#ifndef SAVEDATA_H
-#define SAVEDATA_H
+#ifndef SAVEDIR_H
+#define SAVEDIR_H
 
 #include <stdbool.h>
 
-#define SAVEDATA_NUM_LEVELS 18
+#define SAVEDIR_NUM_LEVELS 18
 
 /*
  * If this is being compiled for a CIA, opens the save data archive. Otherwise
- * does nothing and returns true.
+ * creates a folder on the SD card.
  */
-bool SaveData_Mount();
+bool SaveDir_Mount();
 
 /*
  * If this is being compiled for a CIA, commits save data and closes the
  * archive. Otherwise does nothing.
  */
-void SaveData_Unmount();
+void SaveDir_Unmount();
 
 /*
  * Returns the path of the save data's root directory. For a 3dsx this will
  * always be "sdmc:/".
  */
-const char* SaveData_Root();
+const char* SaveDir_Root();
 
 /*
  * Returns false if an error occured. In this case, nothing is swapped.
  */
-bool SaveData_Swap(const char *path1, const char *path2);
+bool SaveDir_Swap(const char *path1, const char *path2);
 
 /*
  * Copies the file at src into dest.
  *
  * Returns false if an error occured. In this case, nothing is copied.
  */
-bool SaveData_Copy(const char *dest, const char *src);
+bool SaveDir_Copy(const char *dest, const char *src);
 
 #endif

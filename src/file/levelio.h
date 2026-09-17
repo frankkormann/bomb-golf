@@ -6,9 +6,9 @@
 #define LEVELIO_H
 
 #include <stdbool.h>
-#include "projectile.h"
-#include "tile.h"
-#include "audio/music.h"
+#include "../projectile.h"
+#include "../tile.h"
+#include "../audio/music.h"
 
 #define LEVEL_PATH_MAX 32
 

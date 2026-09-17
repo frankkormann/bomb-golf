@@ -4,17 +4,17 @@
 #include <string.h>
 #include <3ds.h>
 #include "levelio.h"
-#include "tile.h"
-#include "savedata.h"
-#include "rendering/spritesheet.h"
-#include "projectiles/bomb.h"
-#include "audio/music.h"
+#include "savedir.h"
+#include "../tile.h"
+#include "../rendering/spritesheet.h"
+#include "../projectiles/bomb.h"
+#include "../audio/music.h"
 
 void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
 	if (inRomfs) {
 		sprintf(path, "romfs:/level_%i.bin", levelNum);
 	} else {
-		sprintf(path, "%slevel_%i.bin", SaveData_Root(), levelNum);
+		sprintf(path, "%slevel_%i.bin", SaveDir_Root(), levelNum);
 	}
 }
 

@@ -17,10 +17,10 @@
 #include "../rendering/animation.h"
 #include "../audio/music.h"
 #include "../audio/soundeffect.h"
+#include "../file/levelio.h"
 #include "../util/tracker.h"
 #include "../util/macros.h"
 #include "../util/touchinput.h"
-#include "../levelio.h"
 
 #define BORDER_MARGIN_HORIZ	10
 #define BORDER_MARGIN_VERT	5
