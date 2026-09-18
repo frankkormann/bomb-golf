@@ -3,7 +3,7 @@
 #include "saveio.h"
 #include "savedir.h"
 
-#define SAVEFILE "save4.bin"
+#define SAVEFILE "save.bin"
 
 /*
  * Save file layout:

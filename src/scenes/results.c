@@ -57,7 +57,6 @@ static int level, nextLevel;
 static bool levelInRomfs, isSequence;
 
 static int strokes, par;
-static bool isHighScore;
 
 static Text completeText, parText, parNumText, strokesText, strokesNumText,
 		scoreNameText, scoreTotText, scoreTotNumText, nameText;
@@ -131,6 +130,7 @@ static bool sceneInit(void *sceneParams) {
 		goto f_LevelIO_Read;
 	}
 
+	bool isHighScore;
 	Tracker_Update(TRACKER_LVL1 + params->level, params->strokes - par);
 	if (params->levelInRomfs) {
 		SaveIO_UpdateScore(params->level, params->strokes - par,
@@ -159,7 +159,9 @@ static bool sceneInit(void *sceneParams) {
 
 	scoreNameText = Text_Create(16);
 	if (!scoreNameText) goto f_scoreNameText;
-	{
+	if (isHighScore) {
+		Text_SetContent(scoreNameText, "New Best Score!");
+	} else {
 		char buf[32];
 		getScoreForStrokes(params->strokes, par, buf);
 		Text_SetContent(scoreNameText, buf);
