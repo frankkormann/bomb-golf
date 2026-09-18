@@ -94,7 +94,15 @@ static bool sceneInit(void *sceneParams) {
 		bgColor = COLOR_DGRAY;
 		fgColor = COLOR_LGRAY;
 	}
-	SaveIO_UpdateOverallScore(overallScore);
+
+	if (params->inRomfs) {
+		SaveIO_UpdateOverallScore(overallScore);
+		if (Tracker_Get(TRACKER_KILLS) == 0) {
+			SaveIO_WriteAchievement(ACHVMT_PEACE);
+		} else if (Tracker_Get(TRACKER_KILLS) == 37) {
+			SaveIO_WriteAchievement(ACHVMT_GENOCIDE);
+		}
+	}
 
 	timer = -1;  // So it's incremented to 0 on the first pass
 	inRomfs = params->inRomfs;
