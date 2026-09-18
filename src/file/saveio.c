@@ -22,7 +22,7 @@ FILE* openSaveFile() {
 		f = fopen(path, "wb");
 		if (!f) return NULL;
 		fseek(f, HISCORE_OFFSET, SEEK_SET);
-		for (int i = 0; i < 18; i++) {
+		for (int i = 0; i < 19; i++) {
 			fwrite((int[]) { INT_MAX }, sizeof(int), 1, f);
 		}
 		// Have to do this so the results from the fwrites are visible
@@ -64,7 +64,43 @@ bool SaveIO_UpdateScore(int level, int score, bool *didUpdate) {
 			return false;
 		}
 	}
-	if (didUpdate) *didUpdate = score < prevScore;
+	if (didUpdate) {
+		*didUpdate = prevScore != INT_MAX && score < prevScore;
+	}
+	fclose(f);
+	return true;
+}
+
+bool SaveIO_ReadOverallHighScore(int *score) {
+	FILE *f = openSaveFile();
+	if (!f) return false;
+
+	fseek(f, TOTAL_HISCORE_OFFSET, SEEK_SET);
+	if (fread(score, sizeof(int), 1, f) < 1) {
+		fclose(f);
+		return false;
+	}
+	fclose(f);
+	return true;
+}
+
+bool SaveIO_UpdateOverallScore(int score) {
+	FILE *f = openSaveFile();
+	if (!f) return false;
+
+	int prevScore;
+	fseek(f, TOTAL_HISCORE_OFFSET, SEEK_SET);
+	if (fread(&prevScore, sizeof(int), 1, f) < 1) {
+		fclose(f);
+		return false;
+	}
+	if (score < prevScore) {
+		fseek(f, -sizeof(int), SEEK_CUR);
+		if (fwrite(&score, sizeof(int), 1, f) < 1) {
+			fclose(f);
+			return false;
+		}
+	}
 	fclose(f);
 	return true;
 }

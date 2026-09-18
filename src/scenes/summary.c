@@ -18,6 +18,7 @@
 #include "../audio/music.h"
 #include "../audio/soundeffect.h"
 #include "../file/levelio.h"
+#include "../file/saveio.h"
 #include "../util/tracker.h"
 #include "../util/macros.h"
 #include "../util/touchinput.h"
@@ -49,6 +50,7 @@ static bool sceneInit(void *sceneParams) {
 	Summary_Params *params = (Summary_Params*)sceneParams;
 
 	int i;
+	int overallScore = 0;
 	numScores = 0;
 	for (i = 0; i < 18; i++) {
 		char *s, path[LEVEL_PATH_MAX];
@@ -67,6 +69,7 @@ static bool sceneInit(void *sceneParams) {
 			nameText[i] = NULL;
 			scoreText[i] = NULL;
 		}
+		overallScore += Tracker_Get(TRACKER_LVL1 + i);
 	}
 
 	bottomText = Text_Create(32);
@@ -75,28 +78,23 @@ static bool sceneInit(void *sceneParams) {
 	
 	totalScoreText = Text_Create(4);
 	if (!totalScoreText) goto f_totalScoreText;
-	{
-		int overall = 0;
-		for (Tracker_Stat i = TRACKER_LVL1; i <= TRACKER_LVL18; i++) {
-			overall += Tracker_Get(i);
-		}
-		Text_SetContent(totalScoreText, "%+i", overall);
-
-		if (overall <= -6) {
-			bgColor = COLOR_YELLOW;
-			fgColor = COLOR_DGREEN;
-		} else if (overall <= 0) {
-			bgColor = COLOR_BLUE;
-			fgColor = COLOR_LGRAY;
-		} else {
-			bgColor = COLOR_DGRAY;
-			fgColor = COLOR_LGRAY;
-		}
-	}
-
+	Text_SetContent(totalScoreText, "%+i", overallScore);
+	
 	killCountText = Text_Create(4);
 	if (!killCountText) goto f_killCountText;
 	Text_SetContent(killCountText, "%i", Tracker_Get(TRACKER_KILLS));
+
+	if (overallScore <= -6) {
+		bgColor = COLOR_YELLOW;
+		fgColor = COLOR_DGREEN;
+	} else if (overallScore <= 0) {
+		bgColor = COLOR_BLUE;
+		fgColor = COLOR_LGRAY;
+	} else {
+		bgColor = COLOR_DGRAY;
+		fgColor = COLOR_LGRAY;
+	}
+	SaveIO_UpdateOverallScore(overallScore);
 
 	timer = -1;  // So it's incremented to 0 on the first pass
 	inRomfs = params->inRomfs;

@@ -24,4 +24,18 @@ bool SaveIO_ReadHighScores(int scores[18]);
  */
 bool SaveIO_UpdateScore(int level, int score, bool *didUpdate);
 
+/*
+ * Reads the overall high score into score. The overall score is for the entire
+ * 18-level campaign. If there is no high score, INT_MAX is reported.
+ *
+ * Returns false if an error occurs or there is no high score.
+ */
+bool SaveIO_ReadOverallHighScore(int *score);
+
+/*
+ * Writes the overall high score if it is better than the current one. Returns
+ * false if an error occurs.
+ */
+bool SaveIO_UpdateOverallScore(int score);
+
 #endif

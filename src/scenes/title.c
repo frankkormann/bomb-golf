@@ -1,4 +1,6 @@
+//TODO Add more buttons for settings and individual level practice
 #include <stdbool.h>
+#include <limits.h>
 #include <3ds.h>
 #include <citro2d.h>
 #include "../scene.h"
@@ -14,6 +16,7 @@
 #include "../rendering/spritesheet.h"
 #include "../rendering/animation.h"
 #include "../rendering/draw3d.h"
+#include "../file/saveio.h"
 #include "../util/dispatcher.h"
 #include "../util/tracker.h"
 
@@ -21,7 +24,7 @@
 #define BUTTON_START_Y	45
 #define BUTTON_GAP	90
 
-static Text   startText,   editorText;
+static Text   startText,   editorText, hiscoreText;
 static Button startButton, editorButton;
 static Dispatcher touchDispatcher, keyDispatcher;
 
@@ -42,6 +45,15 @@ static bool sceneInit() {
 	editorText = Text_Create(16);
 	if (!editorText) goto f_editorText;
 	Text_SetContent(editorText, "Level Editor");
+
+	int hiscore;
+	if (SaveIO_ReadOverallHighScore(&hiscore) && hiscore != INT_MAX) {
+		hiscoreText = Text_Create(16);
+		if (!hiscoreText) goto f_hiscoreText;
+		Text_SetContent(hiscoreText, "Best Score: %+i", hiscore);
+	} else {
+		hiscoreText = NULL;
+	}
 
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
@@ -70,6 +82,8 @@ f_startButton:
 f_keyDispatcher:
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
+	if (hiscoreText) Text_Free(hiscoreText);
+f_hiscoreText:
 	Text_Free(editorText);
 f_editorText:
 	Text_Free(startText);
@@ -81,6 +95,7 @@ f_startText:
 static void sceneExit() {
 	Text_Free(startText);
 	Text_Free(editorText);
+	if (hiscoreText) Text_Free(hiscoreText);
 	Button_Free(startButton);
 	Button_Free(editorButton);
 	Dispatcher_Free(touchDispatcher);
@@ -94,15 +109,21 @@ static void sceneUpdate(float _) {
 
 static void sceneDraw() {
 	#define D3D_VALS { \
-			{ 0, 0.8 } \
+			{ 0, 0.8 }, \
+			{ 390, 0.6 } \
 		}
 	#define D3D_CODE \
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
 	C2D_SceneBegin(D3D_TARGET); \
 	\
+	if (hiscoreText) { \
+		Text_Draw(hiscoreText, D3D_Xi(1), 10, D3D_D(1), COLOR_DGRAY, 1, \
+				TEXT_RIGHT); \
+	} \
 	SpriteSheet_Draw(SPRITE_TITLE, D3D_Xi(0), 0, D3D_D(0), 0, false, false);
 	#include "../rendering/draw3d_gen.h"
 	/* Everything gets #undef'd by draw3d */
+
 
 	C3D_RenderTarget *bottom = RenderTarget_Bottom();
 	C2D_TargetClear(bottom, COLOR_LGRAY);
