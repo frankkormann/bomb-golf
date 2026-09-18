@@ -71,7 +71,9 @@ typedef enum {
 
 	SPRITE_TROPHY_GREAT,
 	SPRITE_TROPHY_GOOD,
-	SPRITE_TROPHY_OK
+	SPRITE_TROPHY_OK,
+	SPRITE_TROPHY_DOVE,
+	SPRITE_TROPHY_GRAVE
 } SpriteSheet_Sprite;
 
 // These values are written directly into level files, so be careful when
