@@ -7,6 +7,19 @@
 
 #include <stdbool.h>
 
+typedef enum {
+	/* Cleared the course without destroying any obstacles */
+	ACHVMT_PEACE		= 1,
+	/* Cleared the course and destroyed all obstacles */
+	ACHVMT_GENOCIDE		= 2,
+	/* Overall score <= -6 */
+	ACHVMT_SCORE_GREAT	= 4,
+	/* Overall score <=  0 */
+	ACHVMT_SCORE_GOOD	= 8,
+	/* Overall score <= 10 */
+	ACHVMT_SCORE_OK		= 16
+} SaveIO_Achvmt;
+
 /*
  * Reads the high scores for individual levels into scores. If there is no
  * high score for a level, it is reported as INT_MAX.
@@ -37,5 +50,17 @@ bool SaveIO_ReadOverallHighScore(int *score);
  * false if an error occurs.
  */
 bool SaveIO_UpdateOverallScore(int score);
+
+/*
+ * Reads the achieved achievements into achievements as a bit field. Returns
+ * false if an error occurs.
+ */
+bool SaveIO_ReadAchievements(SaveIO_Achvmt *achievements);
+
+/*
+ * More than one achievement can be granted by ORing. Returns false if an error
+ * occurs.
+ */
+bool SaveIO_WriteAchievement(SaveIO_Achvmt achievement);
 
 #endif

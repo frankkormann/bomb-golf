@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <limits.h>
+#include <3ds.h>
 #include "saveio.h"
 #include "savedir.h"
+#include "../util/macros.h"
 
 #define SAVEFILE "save.bin"
 
@@ -9,10 +11,12 @@
  * Save file layout:
  *     18 ints for high scores
  *      1 int  for overall high score
+ *      1 u16  for achievements
  */
 
 #define HISCORE_OFFSET		0
 #define TOTAL_HISCORE_OFFSET	(HISCORE_OFFSET + sizeof(int) * 18)
+#define ACHVMT_OFFSET		(TOTAL_HISCORE_OFFSET + sizeof(int))
 
 FILE* openSaveFile() {
 	char path[32];
@@ -51,13 +55,13 @@ bool SaveIO_UpdateScore(int level, int score, bool *didUpdate) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
-	int prevScore;
+	int prev;
 	fseek(f, HISCORE_OFFSET + (level * sizeof(int)), SEEK_SET);
-	if (fread(&prevScore, sizeof(int), 1, f) < 1) {
+	if (fread(&prev, sizeof(int), 1, f) < 1) {
 		fclose(f);
 		return false;
 	}
-	if (score < prevScore) {
+	if (score < prev) {
 		fseek(f, -sizeof(int), SEEK_CUR);
 		if (fwrite(&score, sizeof(int), 1, f) < 1) {
 			fclose(f);
@@ -65,7 +69,7 @@ bool SaveIO_UpdateScore(int level, int score, bool *didUpdate) {
 		}
 	}
 	if (didUpdate) {
-		*didUpdate = prevScore != INT_MAX && score < prevScore;
+		*didUpdate = prev != INT_MAX && score < prev;
 	}
 	fclose(f);
 	return true;
@@ -88,18 +92,49 @@ bool SaveIO_UpdateOverallScore(int score) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
-	int prevScore;
+	int prev;
 	fseek(f, TOTAL_HISCORE_OFFSET, SEEK_SET);
-	if (fread(&prevScore, sizeof(int), 1, f) < 1) {
+	if (fread(&prev, sizeof(int), 1, f) < 1) {
 		fclose(f);
 		return false;
 	}
-	if (score < prevScore) {
+	if (score < prev) {
 		fseek(f, -sizeof(int), SEEK_CUR);
 		if (fwrite(&score, sizeof(int), 1, f) < 1) {
 			fclose(f);
 			return false;
 		}
+	}
+	fclose(f);
+	return true;
+}
+
+bool SaveIO_ReadAchievements(SaveIO_Achvmt *achievements) {
+	FILE *f = openSaveFile();
+	if (!f) return false;
+
+	fseek(f, ACHVMT_OFFSET, SEEK_SET);
+	if (fread(achievements, min(sizeof(u16), sizeof(SaveIO_Achvmt)), 1, f) < 1) {
+		fclose(f);
+		return false;
+	}
+	fclose(f);
+	return true;
+}
+
+bool SaveIO_WriteAchievement(SaveIO_Achvmt achievement) {
+	FILE *f = openSaveFile();
+	if (!f) return false;
+
+	u16 prev = 0;
+	fseek(f, ACHVMT_OFFSET, SEEK_SET);
+	if (fread(&prev, sizeof(u16), 1, f) == 1) {
+		fseek(f, -sizeof(u16), SEEK_CUR);
+	}
+	prev |= achievement;
+	if (fwrite(&prev, sizeof(u16), 1, f) < 1) {
+		fclose(f);
+		return false;
 	}
 	fclose(f);
 	return true;

@@ -20,6 +20,11 @@
 #include "../util/dispatcher.h"
 #include "../util/tracker.h"
 
+#define TROPHY_X	20
+#define TROPHY_Y	180
+#define BEST_SCORE_X	390
+#define BEST_SCORE_Y	10
+
 #define BUTTON_X	60
 #define BUTTON_START_Y	45
 #define BUTTON_GAP	90
@@ -73,6 +78,7 @@ static bool sceneInit() {
 	Button_RegisterForTouchEvents(editorButton, touchDispatcher, 1);
 	Button_RegisterForKeyEvents(editorButton, keyDispatcher, 1);
 
+	SaveIO_ReadAchievements(&achievements);
 	return true;
 
 f_editorButton:
@@ -109,18 +115,27 @@ static void sceneUpdate(float _) {
 
 static void sceneDraw() {
 	#define D3D_VALS { \
-			{ 0, 0.8 }, \
-			{ 390, 0.6 } \
+			{ BEST_SCORE_X, 0.6 }, \
+			{ TROPHY_X, 0.6 }, \
+			{ 0, 0.8 } \
 		}
 	#define D3D_CODE \
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
 	C2D_SceneBegin(D3D_TARGET); \
 	\
 	if (hiscoreText) { \
-		Text_Draw(hiscoreText, D3D_Xi(1), 10, D3D_D(1), COLOR_DGRAY, 1, \
-				TEXT_RIGHT); \
+		Text_Draw(hiscoreText, D3D_Xi(0), BEST_SCORE_Y, D3D_D(0), \
+				COLOR_DGRAY, 1, TEXT_RIGHT); \
 	} \
-	SpriteSheet_Draw(SPRITE_TITLE, D3D_Xi(0), 0, D3D_D(0), 0, false, false);
+	SpriteSheet_Sprite trophySpr = 0; \
+	if (achievements & ACHVMT_SCORE_OK) trophySpr = SPRITE_TROPHY_OK; \
+	if (achievements & ACHVMT_SCORE_GOOD) trophySpr = SPRITE_TROPHY_GOOD; \
+	if (achievements & ACHVMT_SCORE_GREAT) trophySpr = SPRITE_TROPHY_GREAT; \
+	if (trophySpr != 0) { \
+		SpriteSheet_Draw(trophySpr, D3D_Xi(1), TROPHY_Y, D3D_D(1), 0, \
+				false, false); \
+	} \
+	SpriteSheet_Draw(SPRITE_TITLE, D3D_Xi(2), 0, D3D_D(2), 0, false, false);
 	#include "../rendering/draw3d_gen.h"
 	/* Everything gets #undef'd by draw3d */
 

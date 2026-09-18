@@ -97,11 +97,16 @@ static bool sceneInit(void *sceneParams) {
 
 	if (params->inRomfs) {
 		SaveIO_UpdateOverallScore(overallScore);
+		SaveIO_Achvmt achievements = 0;
 		if (Tracker_Get(TRACKER_KILLS) == 0) {
-			SaveIO_WriteAchievement(ACHVMT_PEACE);
+			achievements |= ACHVMT_PEACE;
 		} else if (Tracker_Get(TRACKER_KILLS) == 37) {
-			SaveIO_WriteAchievement(ACHVMT_GENOCIDE);
+			achievements |= ACHVMT_GENOCIDE;
 		}
+		if (overallScore <= -6) achievements |= ACHVMT_SCORE_GREAT;
+		if (overallScore <=  0) achievements |= ACHVMT_SCORE_GOOD;
+		if (overallScore <= 10) achievements |= ACHVMT_SCORE_OK;
+		SaveIO_WriteAchievement(achievements);
 	}
 
 	timer = -1;  // So it's incremented to 0 on the first pass
