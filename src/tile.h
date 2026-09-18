@@ -42,9 +42,9 @@ typedef enum {
 
 // Flips are applied before rotation
 typedef enum {
-	TILE_ROTATE_90 = 1,
-	TILE_FLIP_HORIZ = 2,
-	TILE_FLIP_VERT = 4
+	TILE_ROTATE_90	= 1,
+	TILE_FLIP_HORIZ	= 2,
+	TILE_FLIP_VERT	= 4
 } Tile_OrientFlags;
 
 typedef u16 Tile;
