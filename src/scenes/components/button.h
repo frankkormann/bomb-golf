@@ -25,7 +25,7 @@ Button Button_Create(float x, float y, SpriteSheet_Sprite icon, int keybind,
 void Button_Free(Button button);
 
 /*
- * Registers button receive touch input events from touchDispatcher.
+ * Registers button to receive touch input events from touchDispatcher.
  * Priority should be higher than any components drawn under button.
  *
  * Returns false if button could not be registered.
