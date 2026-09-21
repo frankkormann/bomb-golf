@@ -53,7 +53,7 @@ void Text_Free(Text text);
  * If text wasn't initialized with enough space, only part of the string will
  * be displayed.
  */
-void Text_SetContent(Text text, char *format, ...);
+void Text_SetContent(Text text, const char *format, ...);
 
 /*
  * Determines the total height text will take up when drawn at size.

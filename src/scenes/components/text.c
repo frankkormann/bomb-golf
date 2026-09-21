@@ -47,7 +47,7 @@ void Text_Free(Text text) {
 	free(text);
 }
 
-void Text_SetContent(Text text, char *format, ...) {
+void Text_SetContent(Text text, const char *format, ...) {
 	char content[text->maxChars];
 	va_list args;
 	va_start(args, format);
