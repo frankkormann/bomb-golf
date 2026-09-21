@@ -48,10 +48,14 @@
 #define CARD_HEIGHT		45
 #define CARD_X_GAP		(CARD_WIDTH + 6)
 #define CARD_Y_GAP		(CARD_HEIGHT + 5)
+#define EXIT_BUTTON_X		-2
+#define EXIT_BUTTON_Y		(240 - 30 + 2)
 
 static Dispatcher touchDispatcher;
-static Button playButton, playSeqButton, editButton, copySwapButton, deleteButton;
-static Text   playText,   playSeqText,   editText,   copySwapText,   deleteText;
+static Button playButton, playSeqButton, editButton, copySwapButton, deleteButton,
+		exitButton;
+static Text   playText,   playSeqText,   editText,   copySwapText,   deleteText,
+		exitText;
 
 static Button cards[NUM_CARD_ROWS * NUM_CARD_COLS];
 static Text cardNumbers[NUM_CARD_ROWS * NUM_CARD_COLS];
@@ -64,11 +68,7 @@ static int selectedLevel;
 static bool isLevelLoaded, inCopyMode;
 
 // Declarations needed for buttons
-static void play();
-static void playSequence();
-static void edit();
-static void copySwap();
-static void delete();
+static void play(), playSequence(), edit(), copySwap(), delete(), gotoTitle();
 static void select(int level);
 
 static bool sceneInit(void *sceneParams) {
@@ -97,11 +97,16 @@ static bool sceneInit(void *sceneParams) {
 			-1, NULL, delete);
 	if (!deleteButton) goto f_deleteButton;
 
+	exitButton = Button_Create(EXIT_BUTTON_X, EXIT_BUTTON_Y,
+			SPRITE_SMALL_BUTTON, -1, NULL, gotoTitle);
+	if (!exitButton) goto f_exitButton;
+
 	Button_RegisterForTouchEvents(playButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(playSeqButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(editButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(copySwapButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(deleteButton, touchDispatcher, 0);
+	Button_RegisterForTouchEvents(exitButton, touchDispatcher, 0);
 
 	playText = Text_Create(5);
 	if (!playText) goto f_playText;
@@ -121,6 +126,10 @@ static bool sceneInit(void *sceneParams) {
 	deleteText = Text_Create(7);
 	if (!deleteText) goto f_deleteText;
 	Text_SetContent(deleteText, "Erase");
+
+	exitText = Text_Create(5);
+	if (!exitText) goto f_exitText;
+	Text_SetContent(exitText, "Back");
 	
 	int i = 0;
 	for (int k = 0; k < NUM_CARD_ROWS; k++) {
@@ -169,6 +178,8 @@ f_cardNumbers:
 	for (int k = 0; k < j; k++) Text_Free(cardNumbers[k]);
 f_cards:
 	for (int k = 0; k < i; k++) Button_Free(cards[k]);
+	Text_Free(exitText);
+f_exitText:
 	Text_Free(deleteText);
 f_deleteText:
 	Text_Free(copySwapText);
@@ -179,6 +190,8 @@ f_editText:
 f_playSeqText:
 	Text_Free(playText);
 f_playText:
+	Button_Free(exitButton);
+f_exitButton:
 	Button_Free(deleteButton);
 f_deleteButton:
 	Button_Free(copySwapButton);
@@ -204,11 +217,13 @@ static void sceneExit() {
 	Text_Free(editText);
 	Text_Free(playSeqText);
 	Text_Free(playText);
+	Text_Free(exitText);
 	Button_Free(deleteButton);
 	Button_Free(copySwapButton);
 	Button_Free(editButton);
 	Button_Free(playSeqButton);
 	Button_Free(playButton);
+	Button_Free(exitButton);
 	Dispatcher_Free(touchDispatcher);
 	BG_Free(levelPreview);
 	if (obstacles) {
@@ -280,6 +295,10 @@ static void delete() {
 		};
 	Popup_Init("Really delete? This can't be undone.", POPUP_TWO_BUTTON,
 			buttons);
+}
+
+static void gotoTitle() {
+	Scene_Switch(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 }
 
 static void display(int level) {
@@ -451,6 +470,7 @@ static void sceneDraw() {
 	Button_Draw(editButton, 0);
 	Button_Draw(copySwapButton, 0);
 	Button_Draw(deleteButton, 0);
+	Button_Draw(exitButton, 0);
 	Text_Draw(playText, PLAY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
 	Text_Draw(playSeqText, PLAYSEQ_BUTTON_X + 50, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
@@ -460,6 +480,8 @@ static void sceneDraw() {
 	Text_Draw(copySwapText, COPY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
 	Text_Draw(deleteText, DELETE_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
+			1, TEXT_CENTER);
+	Text_Draw(exitText, EXIT_BUTTON_X + 24, EXIT_BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
 
 	for (int i = 0; i < NUM_CARD_COLS; i++) {
