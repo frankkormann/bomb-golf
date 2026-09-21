@@ -30,7 +30,8 @@ static void setRight(Toggle toggle) {
 }
 
 Toggle Toggle_Create(float x, float y, const char *leftLabel,
-		const char *rightLabel, int leftVal, int rightVal) {
+		const char *rightLabel, int leftVal, int rightVal,
+		bool isLeftSelected) {
 	Toggle toggle = malloc(sizeof(struct toggle));
 	if (!toggle) goto f_toggle;
 
@@ -38,7 +39,7 @@ Toggle Toggle_Create(float x, float y, const char *leftLabel,
 	toggle->y = y;
 	toggle->leftVal = leftVal;
 	toggle->rightVal = rightVal;
-	toggle->selected = LEFT;
+	toggle->selected = isLeftSelected ? LEFT : RIGHT;
 
 	toggle->leftBtn = Button_Create(x, y, SPRITE_SMALL_BUTTON, -1, toggle,
 			(void(*)(void*))setLeft);

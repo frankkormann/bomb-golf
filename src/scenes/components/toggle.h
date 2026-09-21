@@ -15,10 +15,13 @@ typedef struct toggle *Toggle;
  * Creates a toggle with the chosen labels and values for its two states. Each
  * label should be relatively small so it doesn't overflow the button.
  *
+ * isLeftSelected controls the initial state of the toggle.
+ *
  * Returns NULL if an error occurs.
  */
 Toggle Toggle_Create(float x, float y, const char *leftLabel,
-		const char *rightLabel, int leftVal, int rightVal);
+		const char *rightLabel, int leftVal, int rightVal,
+		bool isLeftSelected);
 
 void Toggle_Free(Toggle toggle);
 
