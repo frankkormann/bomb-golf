@@ -136,7 +136,7 @@ static bool sceneInit(void *sceneParams) {
 		SaveIO_UpdateScore(params->level, params->strokes - par,
 				&isHighScore);
 	} else {
-		isHighScore = true;
+		isHighScore = false;
 	}
 
 	completeText = Text_Create(strlen("Hole Complete!") + 1);
