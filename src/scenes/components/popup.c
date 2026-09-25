@@ -169,15 +169,15 @@ void Popup_Draw() {
 		float textX = 0, textY = 0;
 		switch (format) {
 			case POPUP_ONE_BUTTON:
-				textX = ONE_BUTTON_X + 10;
+				textX = ONE_BUTTON_X + 50;
 				textY = calculateButtonY(messageHeight) + 5;
 				break;
 			case POPUP_TWO_BUTTON:
-				textX = TWO_BUTTON_START_X + i*TWO_BUTTON_GAP + 10;
+				textX = TWO_BUTTON_START_X + i*TWO_BUTTON_GAP + 50;
 				textY = calculateButtonY(messageHeight) + 5;
 				break;
 		}
 		Text_Draw(buttonsText[i], textX, textY, 1, COLOR_LGRAY, 1,
-				TEXT_LEFT);
+				TEXT_CENTER);
 	}
 }

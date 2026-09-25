@@ -118,8 +118,8 @@ void Toggle_Draw(Toggle toggle, float depth) {
 	} else {
 		drawOutline(toggle->x + 52, toggle->y, depth, 48, 30, COLOR_DRED, 2);
 	}
-	Text_Draw(toggle->leftText, toggle->x + 10, toggle->y + 5, depth,
-			COLOR_LGRAY, 1, TEXT_LEFT);
-	Text_Draw(toggle->rightText, toggle->x + 62, toggle->y + 5, depth,
-			COLOR_LGRAY, 1, TEXT_LEFT);
+	Text_Draw(toggle->leftText, toggle->x + 24, toggle->y + 5, depth,
+			COLOR_LGRAY, 1, TEXT_CENTER);
+	Text_Draw(toggle->rightText, toggle->x + 76, toggle->y + 5, depth,
+			COLOR_LGRAY, 1, TEXT_CENTER);
 }
