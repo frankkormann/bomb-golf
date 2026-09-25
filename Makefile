@@ -65,7 +65,7 @@ ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 CFLAGS	:=	-Wall -Wextra -O3 -mword-relocations -ffunction-sections \
 			$(ARCH) -std=c99 \
 			-Wno-cast-function-type -Wno-implicit-fallthrough \
-			-Wno-unused-parameter
+			-Wno-unused-parameter -Wno-strict-aliasing
 
 CFLAGS	+=	$(INCLUDE) -D__3DS__ `$(PREFIX)pkg-config opusfile --cflags`
 
