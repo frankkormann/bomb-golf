@@ -9,14 +9,20 @@
 
 /*
  * Save file layout:
- *     18 ints for high scores
- *      1 int  for overall high score
- *      1 u16  for achievements
+ *     18 ints  for high scores
+ *      1 int   for overall high score
+ *      1 u16   for achievements
+ *      1 bool  for mirrored setting
+ *      1 u8    for explosion controls setting
+ *      1 float for game speed
  */
 
 #define HISCORE_OFFSET		0
 #define TOTAL_HISCORE_OFFSET	(HISCORE_OFFSET + sizeof(int) * 18)
 #define ACHVMT_OFFSET		(TOTAL_HISCORE_OFFSET + sizeof(int))
+#define MIRRORED_OFFSET		(ACHVMT_OFFSET + sizeof(u16))
+#define EXPLOSION_OFFSET	(MIRRORED_OFFSET + sizeof(bool))
+#define SPEED_OFFSET		(EXPLOSION_OFFSET + sizeof(u8))
 
 FILE* openSaveFile() {
 	char path[32];
@@ -138,4 +144,46 @@ bool SaveIO_WriteAchievement(SaveIO_Achvmt achievement) {
 	}
 	fclose(f);
 	return true;
+}
+
+bool SaveIO_ReadSettings(bool *isMirrored, SaveIO_ExplosionControls *controls,
+		float *gameSpeed) {
+	FILE *f = openSaveFile();
+	if (!f) return false;
+
+	u8 saveControls;
+
+	fseek(f, MIRRORED_OFFSET, SEEK_SET);
+	if (fread(isMirrored,  sizeof(bool), 1, f) < 1) goto f_fread;
+	if (fread(&saveControls, sizeof(u8), 1, f) < 1) goto f_fread;
+	if (fread(gameSpeed,  sizeof(float), 1, f) < 1) goto f_fread;
+
+	*controls = saveControls;
+
+	fclose(f);
+	return true;
+
+f_fread:
+	fclose(f);
+	return false;
+}
+
+bool SaveIO_WriteSettings(bool isMirrored, SaveIO_ExplosionControls controls,
+		float gameSpeed) {
+	FILE *f = openSaveFile();
+	if (!f) return false;
+
+	u8 saveControls = controls;
+
+	fseek(f, MIRRORED_OFFSET, SEEK_SET);
+	if (fwrite(&isMirrored, sizeof(bool), 1, f) < 1) goto f_fwrite;
+	if (fwrite(&saveControls, sizeof(u8), 1, f) < 1) goto f_fwrite;
+	if (fwrite(&gameSpeed, sizeof(float), 1, f) < 1) goto f_fwrite;
+
+	fclose(f);
+	return true;
+
+f_fwrite:
+	fclose(f);
+	return false;
 }
