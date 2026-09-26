@@ -83,7 +83,7 @@ static void update(AnimationI_AnimObj *obj, float timestep) {
 	data->trail[(int)data->oldestTrailParticle] = data->exploding ?
 			(Point) { -1, -1 } : data->loc;
 	data->oldestTrailParticle += timestep;
-	if (data->oldestTrailParticle > TRAIL_LENGTH) {
+	if (data->oldestTrailParticle >= TRAIL_LENGTH) {
 		data->oldestTrailParticle = 0;
 	}
 
