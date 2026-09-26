@@ -48,7 +48,7 @@ static bool levelInRomfs, isSequence;
 static bool shouldFreeTerrain;
 static int holeX, holeY, holeWidth, holeHeight;
 static int fieldWidth;
-static float timestep;
+static bool isMirrored;
 
 static int strokes, par;
 static bool hasFinished;
@@ -156,10 +156,13 @@ static bool sceneInit(void *sceneParams) {
 	free(obstacles);
 
 	float gameSpeed;
-	if (!SaveIO_ReadSettings(NULL, NULL, &gameSpeed)) {
+	if (!SaveIO_ReadSettings(&isMirrored, NULL, &gameSpeed)) {
 		gameSpeed = 1;
 	}
 	Scene_SetSpeed(gameSpeed);
+	if (isMirrored) {
+		TouchInput_SetMode(TOUCHINPUT_MIRROR);
+	}
 
 	holeX = hole.x;
 	holeY = hole.y;
@@ -173,7 +176,6 @@ static bool sceneInit(void *sceneParams) {
 	Music_Start(song);
 
 	strokes  = 0;
-	timestep = 1;
 	hasFinished = false;
 	level = params->level;
 	levelInRomfs = params->inRomfs;
@@ -205,6 +207,7 @@ static void sceneExit() {
 	Text_Free(nameText);
 	Music_Stop();
 	Obstacle_Clear();
+	TouchInput_SetMode(TOUCHINPUT_NORMAL);
 }
 
 static void calculateLaunchVelocity(float *velX, float *velY) {
@@ -338,6 +341,10 @@ static void sceneDraw() {
 	C2D_TargetClear(bottom, COLOR_LGRAY);
 	C2D_SceneBegin(bottom);
 
+	if (isMirrored) {
+		C2D_ViewScale(-1, 1);
+		C2D_ViewTranslate(-320, 0);
+	}
 	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
 
 	if (canLaunch() && TouchInput_InProgress()) {
