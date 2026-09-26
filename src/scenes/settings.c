@@ -57,12 +57,12 @@ static bool sceneInit() {
 	if (!mirrorToggle) goto f_mirrorToggle;
 
 	speedUpButton = Button_Create(BUTTON_X + 80, OPTION_Y_START + OPTION_GAP,
-			SPRITE_THIN_BUTTON, -1, (void*)0x40000000 /* 2.0 */,
+			SPRITE_THIN_BUTTON, -1, (void*)0x3fc00000 /* 3/2 */,
 			changeSpeed);
 	if (!speedUpButton) goto f_speedUpButton;
 
 	speedDownButton = Button_Create(BUTTON_X, OPTION_Y_START + OPTION_GAP,
-			SPRITE_THIN_BUTTON, -1, (void*)0x3f000000 /* 0.5 */,
+			SPRITE_THIN_BUTTON, -1, (void*)0x3f2aaaab /* 2/3 */,
 			changeSpeed);
 	if (!speedDownButton) goto f_speedDownButton;
 
@@ -175,7 +175,7 @@ static void sceneExit() {
 static void changeSpeed(void* multBits) {
 	float mult = *((float*)&multBits);
 	speed *= mult;
-	speed = clamp(speed, 0.5, 2.0);
+	speed = clamp(speed, (float)2/3, (float)3/2);
 	Text_SetContent(speedText, "x%.2f", speed);
 }
 
