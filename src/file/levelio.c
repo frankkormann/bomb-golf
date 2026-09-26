@@ -24,7 +24,7 @@ void LevelIO_MakePath(int levelNum, bool inRomfs, char *path) {
  *
  * Returns true if the object was successfully read or if size is 0.
  */
-bool maybeRead(void *buf, size_t size, FILE *file) {
+static bool maybeRead(void *buf, size_t size, FILE *file) {
 	if (size == 0) return true;
 
 	if (buf) {
