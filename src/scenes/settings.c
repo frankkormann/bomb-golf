@@ -23,11 +23,11 @@
 #define OPTION_Y_START	20
 #define OPTION_GAP	40
 #define SAVE_BUTTON_X	110
-#define SAVE_BUTTON_Y	(OPTION_Y_START + 3*OPTION_GAP + 10)
+#define SAVE_BUTTON_Y	(OPTION_Y_START + 4*OPTION_GAP + 10)
 #define EXIT_BUTTON_X	-2
 #define EXIT_BUTTON_Y	(240 - 30 + 2)
 
-static Toggle mirrorToggle, sensitivityToggle;
+static Toggle mirrorToggle, sensitivityToggle, bigBallToggle;
 static Button speedUpButton, speedDownButton, saveButton, exitButton;
 static Text   speedUpText,   speedDownText,   saveText,   exitText,
 		speedText, optionsText, infoText;
@@ -42,11 +42,13 @@ static void save(), gotoTitle();
 static bool handleTouchInput();
 
 static bool sceneInit() {
-	bool isMirrored, isTouchSticky;
-	if (!SaveIO_ReadSettings(&isMirrored, &isTouchSticky, &speed)) {
+	bool isMirrored, isTouchSticky, bigBallEnabled;
+	if (!SaveIO_ReadSettings(&isMirrored, &isTouchSticky, &speed,
+			&bigBallEnabled)) {
 		isMirrored = false;
 		isTouchSticky = false;
 		speed = 1;
+		bigBallEnabled = false;
 	}
 
 	mirrorToggle = Toggle_Create(BUTTON_X, OPTION_Y_START, "Yes", "No",
@@ -67,6 +69,10 @@ static bool sceneInit() {
 			"On", "Off", true, false, isTouchSticky);
 	if (!sensitivityToggle) goto f_sensitivityToggle;
 
+	bigBallToggle = Toggle_Create(BUTTON_X, OPTION_Y_START + 3*OPTION_GAP,
+			"On", "Off", true, false, bigBallEnabled);
+	if (!bigBallToggle) goto f_bigBallToggle;
+
 	saveButton = Button_Create(SAVE_BUTTON_X, SAVE_BUTTON_Y,
 			SPRITE_MEDIUM_BUTTON, -1, NULL, save);
 	if (!saveButton) goto f_saveButton;
@@ -80,6 +86,7 @@ static bool sceneInit() {
 
 	Toggle_RegisterForTouchEvents(mirrorToggle, touchDispatcher, 1);
 	Toggle_RegisterForTouchEvents(sensitivityToggle, touchDispatcher, 1);
+	Toggle_RegisterForTouchEvents(bigBallToggle, touchDispatcher, 1);
 	Button_RegisterForTouchEvents(speedUpButton, touchDispatcher, 1);
 	Button_RegisterForTouchEvents(speedDownButton, touchDispatcher, 1);
 	Button_RegisterForTouchEvents(saveButton, touchDispatcher, 1);
@@ -87,11 +94,12 @@ static bool sceneInit() {
 	Dispatcher_AddHandler(touchDispatcher,
 			(Dispatcher_Handler) { 0, NULL, handleTouchInput });
 
-	optionsText = Text_Create(64);
+	optionsText = Text_Create(66);
 	if (!optionsText) goto f_optionsText;
 	Text_SetContent(optionsText, "Mirror bottom screen\n\n"
 			"Game speed\n\n"
-			"Touchscreen smoothing");
+			"Touchscreen smoothing\n\n"
+			"Big ball");
 
 	infoText = Text_Create(256);
 	if (!infoText) goto f_infoText;
@@ -138,6 +146,8 @@ f_optionsText:
 f_touchDispatcher:
 	Button_Free(saveButton);
 f_saveButton:
+	Toggle_Free(bigBallToggle);
+f_bigBallToggle:
 	Button_Free(exitButton);
 f_exitButton:
 	Toggle_Free(sensitivityToggle);
@@ -154,6 +164,7 @@ f_mirrorToggle:
 static void sceneExit() {
 	Toggle_Free(mirrorToggle);
 	Toggle_Free(sensitivityToggle);
+	Toggle_Free(bigBallToggle);
 	Button_Free(speedUpButton);
 	Button_Free(speedDownButton);
 	Button_Free(saveButton);
@@ -176,14 +187,14 @@ static void changeSpeed(void* multBits) {
 }
 
 static void save() {
-	if (SaveIO_WriteSettings(Toggle_GetValue(mirrorToggle),
-			Toggle_GetValue(sensitivityToggle), speed)) {
-		Popup_Init("Success!", POPUP_ONE_BUTTON,
-				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
-	} else {
-		Popup_Init("Failed to save", POPUP_ONE_BUTTON,
-				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
-	}
+	bool success = SaveIO_WriteSettings(
+			Toggle_GetValue(mirrorToggle),
+			Toggle_GetValue(sensitivityToggle),
+			speed,
+			Toggle_GetValue(bigBallToggle)
+		);
+	Popup_Init(success ? "Success!" : "Failed to save", POPUP_ONE_BUTTON,
+			(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
 }
 
 static void gotoTitle() {
@@ -202,7 +213,7 @@ static bool handleTouchInput() {
 
 	TouchInput_Swipe touch = TouchInput_GetSwipe();
 	if (!pointInBox(touch.start, DESC_X, OPTION_Y_START, BUTTON_X - DESC_X,
-			3*OPTION_GAP)) {
+			4*OPTION_GAP)) {
 		return false;
 	}
 
@@ -216,7 +227,6 @@ static bool handleTouchInput() {
 			isOptionSelected = true;
 			return true;
 		}
-
 		if (pointInBox(touch.end, DESC_X, OPTION_Y_START + OPTION_GAP,
 				BUTTON_X - DESC_X, 30)) {
 			Text_SetContent(infoText, "A multiplier for the base game"
@@ -228,7 +238,6 @@ static bool handleTouchInput() {
 			isOptionSelected = true;
 			return true;
 		}
-
 		if (pointInBox(touch.end, DESC_X, OPTION_Y_START + 2*OPTION_GAP,
 				BUTTON_X - DESC_X, 30)) {
 			Text_SetContent(infoText, "Whether to ignore small gaps"
@@ -236,6 +245,14 @@ static bool handleTouchInput() {
 					" Enabling will add a small delay to"
 					"\nexploding the ball, but may decrease"
 					" unintentional inputs.");
+			isOptionSelected = true;
+			return true;
+		}
+		if (pointInBox(touch.end, DESC_X, OPTION_Y_START + 3*OPTION_GAP,
+				BUTTON_X - DESC_X, 30)) {
+			Text_SetContent(infoText, "Makes the ball bigger. Setting"
+					" this will NOT prevent\nachievements or"
+					" high scores.");
 			isOptionSelected = true;
 			return true;
 		}
@@ -278,6 +295,7 @@ static void sceneDraw() {
 	C2D_SceneBegin(bottom);
 	Toggle_Draw(mirrorToggle, 0);
 	Toggle_Draw(sensitivityToggle, 0);
+	Toggle_Draw(bigBallToggle, 0);
 	Button_Draw(speedUpButton, 0);
 	Button_Draw(speedDownButton, 0);
 	Button_Draw(saveButton, 0);

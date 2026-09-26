@@ -15,6 +15,7 @@
  *      1 bool  for mirrored setting
  *      1 bool  for touchscreen sensitivity setting
  *      1 float for game speed
+ *      1 bool  for big ball setting
  */
 
 #define HISCORE_OFFSET		0
@@ -23,6 +24,7 @@
 #define MIRRORED_OFFSET		(ACHVMT_OFFSET + sizeof(u16))
 #define SENSITIVITY_OFFSET	(MIRRORED_OFFSET + sizeof(bool))
 #define SPEED_OFFSET		(SENSITIVITY_OFFSET + sizeof(bool))
+#define BIGBALL_OFFSET		(SPEED_OFFSET + sizeof(float))
 
 FILE* openSaveFile() {
 	char path[32];
@@ -163,14 +165,16 @@ static bool maybeRead(void *buf, size_t size, FILE *file) {
 	}
 }
 
-bool SaveIO_ReadSettings(bool *isMirrored, bool *isTouchSticky, float *gameSpeed) {
+bool SaveIO_ReadSettings(bool *isMirrored, bool *isTouchSticky, float *gameSpeed,
+		bool *bigBallEnabled) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
 	fseek(f, MIRRORED_OFFSET, SEEK_SET);
-	if (!maybeRead(isMirrored,    sizeof(bool), f)) goto f_maybeRead;
-	if (!maybeRead(isTouchSticky, sizeof(bool), f)) goto f_maybeRead;
-	if (!maybeRead(gameSpeed,    sizeof(float), f)) goto f_maybeRead;
+	if (!maybeRead(isMirrored,     sizeof(bool), f)) goto f_maybeRead;
+	if (!maybeRead(isTouchSticky,  sizeof(bool), f)) goto f_maybeRead;
+	if (!maybeRead(gameSpeed,     sizeof(float), f)) goto f_maybeRead;
+	if (!maybeRead(bigBallEnabled, sizeof(bool), f)) goto f_maybeRead;
 
 	fclose(f);
 	return true;
@@ -180,14 +184,16 @@ f_maybeRead:
 	return false;
 }
 
-bool SaveIO_WriteSettings(bool isMirrored, bool isTouchSticky, float gameSpeed) {
+bool SaveIO_WriteSettings(bool isMirrored, bool isTouchSticky, float gameSpeed,
+		bool bigBallEnabled) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
 	fseek(f, MIRRORED_OFFSET, SEEK_SET);
-	if (fwrite(&isMirrored,    sizeof(bool), 1, f) < 1) goto f_fwrite;
-	if (fwrite(&isTouchSticky, sizeof(bool), 1, f) < 1) goto f_fwrite;
-	if (fwrite(&gameSpeed,    sizeof(float), 1, f) < 1) goto f_fwrite;
+	if (fwrite(&isMirrored,     sizeof(bool), 1, f) < 1) goto f_fwrite;
+	if (fwrite(&isTouchSticky,  sizeof(bool), 1, f) < 1) goto f_fwrite;
+	if (fwrite(&gameSpeed,     sizeof(float), 1, f) < 1) goto f_fwrite;
+	if (fwrite(&bigBallEnabled, sizeof(bool), 1, f) < 1) goto f_fwrite;
 
 	fclose(f);
 	return true;

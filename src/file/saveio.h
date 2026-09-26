@@ -69,11 +69,13 @@ bool SaveIO_WriteAchievement(SaveIO_Achvmt achievement);
  * Returns false if an error occurs. In that case, the values of the parameters
  * are undefined.
  */
-bool SaveIO_ReadSettings(bool *isMirrored, bool *isTouchSticky, float *gameSpeed);
+bool SaveIO_ReadSettings(bool *isMirrored, bool *isTouchSticky, float *gameSpeed,
+		bool *bigBallEnabled);
 
 /*
  * Returns false an error occurs.
  */
-bool SaveIO_WriteSettings(bool isMirrored, bool isTouchSticky, float gameSpeed);
+bool SaveIO_WriteSettings(bool isMirrored, bool isTouchSticky, float gameSpeed,
+		bool bigBallEnabled);
 
 #endif

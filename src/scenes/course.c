@@ -157,7 +157,7 @@ static bool sceneInit(void *sceneParams) {
 
 	bool isTouchSticky;
 	float gameSpeed;
-	if (!SaveIO_ReadSettings(&isMirrored, &isTouchSticky, &gameSpeed)) {
+	if (!SaveIO_ReadSettings(&isMirrored, &isTouchSticky, &gameSpeed, NULL)) {
 		gameSpeed = 1;
 	}
 	Scene_SetSpeed(gameSpeed);
