@@ -36,7 +36,7 @@ typedef struct {
 	bool exploding;
 	float explosionFrame;
 	Point trail[TRAIL_LENGTH];
-	int oldestTrailParticle;
+	float oldestTrailParticle;
 } FireworkData;
 
 Animation_Params Firework_MakeParams(float startX, float startY, bool isUnderPar) {
@@ -80,9 +80,12 @@ static u32 getTrailColor(FireworkData *data) {
 static void update(AnimationI_AnimObj *obj, float timestep) {
 	FireworkData *data = (FireworkData*)obj->data;
 
-	data->trail[data->oldestTrailParticle] = data->exploding ?
+	data->trail[(int)data->oldestTrailParticle] = data->exploding ?
 			(Point) { -1, -1 } : data->loc;
-	data->oldestTrailParticle = (data->oldestTrailParticle + 1) % TRAIL_LENGTH;
+	data->oldestTrailParticle += timestep;
+	if (data->oldestTrailParticle > TRAIL_LENGTH) {
+		data->oldestTrailParticle = 0;
+	}
 
 	if (data->exploding) {
 		data->explosionFrame += timestep;
@@ -108,15 +111,25 @@ static void draw(AnimationI_AnimObj *obj, float depth) {
 					(int)data->loc.y, depth, 0, false, false);
 		}
 	} else {
-		C2D_DrawRectSolid(data->loc.x, data->loc.y, depth,
-				TRAIL_PARTICLE_SIZE, TRAIL_PARTICLE_SIZE,
-				COLOR_WHITE);
+		C2D_DrawRectSolid(
+				data->loc.x - TRAIL_PARTICLE_SIZE/2,
+				data->loc.y - TRAIL_PARTICLE_SIZE/2,
+				depth,
+				TRAIL_PARTICLE_SIZE,
+				TRAIL_PARTICLE_SIZE,
+				COLOR_WHITE
+			);
 	}
 
 	for (size_t i = 0; i < TRAIL_LENGTH; i++) {
-		C2D_DrawRectSolid(data->trail[i].x, data->trail[i].y, depth,
-				TRAIL_PARTICLE_SIZE, TRAIL_PARTICLE_SIZE,
-				getTrailColor(data));
+		C2D_DrawRectSolid(
+				data->trail[i].x - TRAIL_PARTICLE_SIZE/2,
+				data->trail[i].y - TRAIL_PARTICLE_SIZE/2,
+				depth,
+				TRAIL_PARTICLE_SIZE,
+				TRAIL_PARTICLE_SIZE,
+				getTrailColor(data)
+			);
 	}
 }
 
