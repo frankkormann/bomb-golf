@@ -3,6 +3,7 @@
 
 static touchPosition start, end, current;
 static unsigned int counter;
+static TouchInput_Mode flags;
 
 void TouchInput_Scan() {
 	if (current.px == 0 && current.py == 0) {
@@ -11,6 +12,9 @@ void TouchInput_Scan() {
 	}
 
 	hidTouchRead(&current);
+	if (flags & TOUCHINPUT_MIRROR && (current.px != 0 || current.py != 0)) {
+		current.px = 320 - current.px;
+	}
 
 	if (current.px != 0 || current.py != 0) {
 		if (counter == 0) {
@@ -39,4 +43,8 @@ TouchInput_Swipe TouchInput_GetSwipe() {
 		.end = end,
 		.length = counter
 	};
+}
+
+void TouchInput_SetMode(TouchInput_Mode argFlags) {
+	flags = argFlags;
 }

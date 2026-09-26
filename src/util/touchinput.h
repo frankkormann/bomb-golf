@@ -13,6 +13,11 @@ typedef struct {
 	unsigned int length;
 } TouchInput_Swipe;
 
+typedef enum {
+	TOUCHINPUT_NORMAL = 0,
+	TOUCHINPUT_MIRROR = 1
+} TouchInput_Mode;
+
 /*
  * Call this once per frame after hidScanInput.
  */
@@ -47,5 +52,11 @@ bool TouchInput_JustFinished();
  * TouchInput_JustFinished both return false.
  */
 TouchInput_Swipe TouchInput_GetSwipe();
+
+/*
+ * Sets effects which influence how the touchscreen is interpreted. Multiple
+ * effects can be ORed.
+ */
+void TouchInput_SetMode(TouchInput_Mode flags);
 
 #endif
