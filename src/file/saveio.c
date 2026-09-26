@@ -146,6 +146,23 @@ bool SaveIO_WriteAchievement(SaveIO_Achvmt achievement) {
 	return true;
 }
 
+/*
+ * If buf is NULL, advances file by size. Otherwise, uses fread to read the
+ * next object of size size into buf.
+ *
+ * Returns true if the object was successfully read or if size is 0.
+ */
+static bool maybeRead(void *buf, size_t size, FILE *file) {
+	if (size == 0) return true;
+
+	if (buf) {
+		return fread(buf, size, 1, file);
+	} else {
+		fseek(file, size, SEEK_CUR);
+		return true;
+	}
+}
+
 bool SaveIO_ReadSettings(bool *isMirrored, SaveIO_ExplosionControls *controls,
 		float *gameSpeed) {
 	FILE *f = openSaveFile();
@@ -154,16 +171,16 @@ bool SaveIO_ReadSettings(bool *isMirrored, SaveIO_ExplosionControls *controls,
 	u8 saveControls;
 
 	fseek(f, MIRRORED_OFFSET, SEEK_SET);
-	if (fread(isMirrored,  sizeof(bool), 1, f) < 1) goto f_fread;
-	if (fread(&saveControls, sizeof(u8), 1, f) < 1) goto f_fread;
-	if (fread(gameSpeed,  sizeof(float), 1, f) < 1) goto f_fread;
+	if (!maybeRead(isMirrored,  sizeof(bool), f)) goto f_maybeRead;
+	if (!maybeRead(&saveControls, sizeof(u8), f)) goto f_maybeRead;
+	if (!maybeRead(gameSpeed,  sizeof(float), f)) goto f_maybeRead;
 
-	*controls = saveControls;
+	if (controls) *controls = saveControls;
 
 	fclose(f);
 	return true;
 
-f_fread:
+f_maybeRead:
 	fclose(f);
 	return false;
 }
