@@ -62,8 +62,13 @@ void Scene_Switch(Scene next, void *params);
  * The speed acts as a multiplier; 1 is typical, 0.5 is half as fast, 2 is
  * twice as fast, etc. Each Scene may interpret this number as it wishes.
  *
- * This is reset to 1 when a new Scene is entered.
+ * The speed is reset to 1 when a new Scene is entered.
  */
 void Scene_SetSpeed(float speed);
+
+/*
+ * Change the current speed by a factor. See Scene_SetSpeed.
+ */
+void Scene_MultSpeed(float mult);
 
 #endif

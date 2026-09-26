@@ -11,9 +11,9 @@ static jmp_buf jmpbuf;
 static float speed;
 
 bool Scene_Start(Scene first, void *params) {
+	speed = 1;
 	bool success = first->init(params);
 	scene = success ? first : NULL;
-	speed = 1;
 	return success;
 }
 
@@ -54,4 +54,8 @@ void Scene_Switch(Scene next, void *params) {
 
 void Scene_SetSpeed(float argSpeed) {
 	speed = argSpeed;
+}
+
+void Scene_MultSpeed(float mult) {
+	speed *= mult;
 }
