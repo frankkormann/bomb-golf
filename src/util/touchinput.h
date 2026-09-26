@@ -15,7 +15,11 @@ typedef struct {
 
 typedef enum {
 	TOUCHINPUT_NORMAL = 0,
-	TOUCHINPUT_MIRROR = 1
+	/* Inputs are reflected horizontally */
+	TOUCHINPUT_MIRROR = 1,
+	/* If the user lifts the stylus for small periods only (1-2 frames),
+	   it is still considered as a single swipe */
+	TOUCHINPUT_STICKY = 2
 } TouchInput_Mode;
 
 /*

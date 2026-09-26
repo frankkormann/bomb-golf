@@ -1,9 +1,31 @@
 #include <3ds.h>
 #include "touchinput.h"
 
+#define STICKY_LENIENCY 4
+
 static touchPosition start, end, current;
 static unsigned int counter;
 static TouchInput_Mode flags;
+
+// Handles TouchInput_Mode flags
+static void readTouch(touchPosition *out) {
+	static unsigned int framesWithoutInput;
+
+	touchPosition touch;
+	hidTouchRead(&touch);
+	if (flags & TOUCHINPUT_STICKY && touch.px == 0 && touch.py == 0) {
+		framesWithoutInput++;
+		if (framesWithoutInput > STICKY_LENIENCY) {
+			*out = touch;
+		}
+	} else {
+		framesWithoutInput = 0;
+		if (flags & TOUCHINPUT_MIRROR && (touch.px != 0 || touch.py != 0)) {
+			touch.px = 320 - touch.px;
+		}
+		*out = touch;
+	}
+}
 
 void TouchInput_Scan() {
 	if (current.px == 0 && current.py == 0) {
@@ -11,11 +33,7 @@ void TouchInput_Scan() {
 		counter = 0;
 	}
 
-	hidTouchRead(&current);
-	if (flags & TOUCHINPUT_MIRROR && (current.px != 0 || current.py != 0)) {
-		current.px = 320 - current.px;
-	}
-
+	readTouch(&current);
 	if (current.px != 0 || current.py != 0) {
 		if (counter == 0) {
 			start = current;
