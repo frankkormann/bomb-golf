@@ -20,11 +20,6 @@ typedef enum {
 	ACHVMT_SCORE_OK		= 16
 } SaveIO_Achvmt;
 
-typedef enum {
-	CONTROLS_HOLD,
-	CONTROLS_TAPS
-} SaveIO_ExplosionControls;
-
 /*
  * Reads the high scores for individual levels into scores. If there is no
  * high score for a level, it is reported as INT_MAX.
@@ -74,13 +69,11 @@ bool SaveIO_WriteAchievement(SaveIO_Achvmt achievement);
  * Returns false if an error occurs. In that case, the values of the parameters
  * are undefined.
  */
-bool SaveIO_ReadSettings(bool *isMirrored, SaveIO_ExplosionControls *controls,
-		float *gameSpeed);
+bool SaveIO_ReadSettings(bool *isMirrored, bool *isTouchSticky, float *gameSpeed);
 
 /*
  * Returns false an error occurs.
  */
-bool SaveIO_WriteSettings(bool isMirrored, SaveIO_ExplosionControls controls,
-		float gameSpeed);
+bool SaveIO_WriteSettings(bool isMirrored, bool isTouchSticky, float gameSpeed);
 
 #endif

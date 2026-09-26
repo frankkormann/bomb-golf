@@ -15,8 +15,6 @@
 #include "../util/macros.h"
 #include "../util/touchinput.h"
 
-//TODO Consider touchscreen smoothing/sensitivity option
-
 #define INFO_TEXT_X	30
 #define INFO_TEXT_Y	20
 
@@ -29,7 +27,7 @@
 #define EXIT_BUTTON_X	-2
 #define EXIT_BUTTON_Y	(240 - 30 + 2)
 
-static Toggle mirrorToggle, explodeToggle;
+static Toggle mirrorToggle, sensitivityToggle;
 static Button speedUpButton, speedDownButton, saveButton, exitButton;
 static Text   speedUpText,   speedDownText,   saveText,   exitText,
 		speedText, optionsText, infoText;
@@ -44,11 +42,10 @@ static void save(), gotoTitle();
 static bool handleTouchInput();
 
 static bool sceneInit() {
-	bool isMirrored;
-	SaveIO_ExplosionControls controls;
-	if (!SaveIO_ReadSettings(&isMirrored, &controls, &speed)) {
+	bool isMirrored, isTouchSticky;
+	if (!SaveIO_ReadSettings(&isMirrored, &isTouchSticky, &speed)) {
 		isMirrored = false;
-		controls = CONTROLS_HOLD;
+		isTouchSticky = false;
 		speed = 1;
 	}
 
@@ -66,10 +63,9 @@ static bool sceneInit() {
 			changeSpeed);
 	if (!speedDownButton) goto f_speedDownButton;
 
-	explodeToggle = Toggle_Create(BUTTON_X, OPTION_Y_START + 2*OPTION_GAP,
-			"Hold", "Taps", CONTROLS_HOLD, CONTROLS_TAPS,
-			controls == CONTROLS_HOLD);
-	if (!explodeToggle) goto f_explodeToggle;
+	sensitivityToggle = Toggle_Create(BUTTON_X, OPTION_Y_START + 2*OPTION_GAP,
+			"On", "Off", true, false, isTouchSticky);
+	if (!sensitivityToggle) goto f_sensitivityToggle;
 
 	saveButton = Button_Create(SAVE_BUTTON_X, SAVE_BUTTON_Y,
 			SPRITE_MEDIUM_BUTTON, -1, NULL, save);
@@ -83,7 +79,7 @@ static bool sceneInit() {
 	if (!touchDispatcher) goto f_touchDispatcher;
 
 	Toggle_RegisterForTouchEvents(mirrorToggle, touchDispatcher, 1);
-	Toggle_RegisterForTouchEvents(explodeToggle, touchDispatcher, 1);
+	Toggle_RegisterForTouchEvents(sensitivityToggle, touchDispatcher, 1);
 	Button_RegisterForTouchEvents(speedUpButton, touchDispatcher, 1);
 	Button_RegisterForTouchEvents(speedDownButton, touchDispatcher, 1);
 	Button_RegisterForTouchEvents(saveButton, touchDispatcher, 1);
@@ -95,7 +91,7 @@ static bool sceneInit() {
 	if (!optionsText) goto f_optionsText;
 	Text_SetContent(optionsText, "Mirror bottom screen\n\n"
 			"Game speed\n\n"
-			"Exploding controls");
+			"Touchscreen smoothing");
 
 	infoText = Text_Create(256);
 	if (!infoText) goto f_infoText;
@@ -144,8 +140,8 @@ f_touchDispatcher:
 f_saveButton:
 	Button_Free(exitButton);
 f_exitButton:
-	Toggle_Free(explodeToggle);
-f_explodeToggle:
+	Toggle_Free(sensitivityToggle);
+f_sensitivityToggle:
 	Button_Free(speedDownButton);
 f_speedDownButton:
 	Button_Free(speedUpButton);
@@ -157,7 +153,7 @@ f_mirrorToggle:
 
 static void sceneExit() {
 	Toggle_Free(mirrorToggle);
-	Toggle_Free(explodeToggle);
+	Toggle_Free(sensitivityToggle);
 	Button_Free(speedUpButton);
 	Button_Free(speedDownButton);
 	Button_Free(saveButton);
@@ -181,7 +177,7 @@ static void changeSpeed(void* multBits) {
 
 static void save() {
 	if (SaveIO_WriteSettings(Toggle_GetValue(mirrorToggle),
-			Toggle_GetValue(explodeToggle), speed)) {
+			Toggle_GetValue(sensitivityToggle), speed)) {
 		Popup_Init("Success!", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
 	} else {
@@ -235,12 +231,11 @@ static bool handleTouchInput() {
 
 		if (pointInBox(touch.end, DESC_X, OPTION_Y_START + 2*OPTION_GAP,
 				BUTTON_X - DESC_X, 30)) {
-			Text_SetContent(infoText, "How to explode the ball in"
-					" mid-air.\n\n"
-					"  Hold: Tap the touchscreen once and hold"
-					" to aim,\n  then release to explode.\n\n"
-					"  Taps: Tap the touchscreen once to enter"
-					" aiming\n  mode. Tap again to explode.");
+			Text_SetContent(infoText, "Whether to ignore small gaps"
+					" in the stylus touching\nthe screen."
+					" Enabling will add a small delay to"
+					"\nexploding the ball, but may decrease"
+					" unintentional inputs.");
 			isOptionSelected = true;
 			return true;
 		}
@@ -282,7 +277,7 @@ static void sceneDraw() {
 	C2D_TargetClear(bottom, COLOR_LGRAY);
 	C2D_SceneBegin(bottom);
 	Toggle_Draw(mirrorToggle, 0);
-	Toggle_Draw(explodeToggle, 0);
+	Toggle_Draw(sensitivityToggle, 0);
 	Button_Draw(speedUpButton, 0);
 	Button_Draw(speedDownButton, 0);
 	Button_Draw(saveButton, 0);
