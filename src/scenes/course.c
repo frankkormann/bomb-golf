@@ -26,6 +26,7 @@
 #include "../audio/music.h"
 #include "../audio/soundeffect.h"
 #include "../file/levelio.h"
+#include "../file/saveio.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 #include "../util/tracker.h"
@@ -153,6 +154,12 @@ static bool sceneInit(void *sceneParams) {
 		free(obstacles[i].ys);
 	}
 	free(obstacles);
+
+	float gameSpeed;
+	if (!SaveIO_ReadSettings(NULL, NULL, &gameSpeed)) {
+		gameSpeed = 1;
+	}
+	Scene_SetSpeed(gameSpeed);
 
 	holeX = hole.x;
 	holeY = hole.y;
