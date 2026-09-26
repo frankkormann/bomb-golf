@@ -155,14 +155,16 @@ static bool sceneInit(void *sceneParams) {
 	}
 	free(obstacles);
 
+	bool isTouchSticky;
 	float gameSpeed;
-	if (!SaveIO_ReadSettings(&isMirrored, NULL, &gameSpeed)) {
+	if (!SaveIO_ReadSettings(&isMirrored, &isTouchSticky, &gameSpeed)) {
 		gameSpeed = 1;
 	}
 	Scene_SetSpeed(gameSpeed);
-	if (isMirrored) {
-		TouchInput_SetMode(TOUCHINPUT_MIRROR);
-	}
+	TouchInput_Mode mode = TOUCHINPUT_NORMAL;
+	if (isMirrored)    mode |= TOUCHINPUT_MIRROR;
+	if (isTouchSticky) mode |= TOUCHINPUT_STICKY;
+	TouchInput_SetMode(mode);
 
 	holeX = hole.x;
 	holeY = hole.y;
