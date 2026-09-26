@@ -29,13 +29,13 @@ static enum {
 	WAITING, FLYING_SHOULD_EXPLODE, FLYING_TIME_SLOWED, FLYING_EXPLODED
 } ballState;
 
-static unsigned int timeSlowFrames;
+static float timeSlow;
 static float rotation, rotationVel;
 
 static void reset() {
 	ProjDefault_Reset();
 	ballState = WAITING;
-	timeSlowFrames = 0;
+	timeSlow = 0;
 	rotation = 0;
 	rotationVel = 0;
 }
@@ -76,13 +76,13 @@ static void doExplosion() {
 				EXPLOSION_RADIUS + 1),
 			NULL);
 	SoundEffect_Play(SFX_EXPLOSION, true);
-	if (ballState == FLYING_TIME_SLOWED) Scene_SetSpeed(1);
+	if (ballState == FLYING_TIME_SLOWED) Scene_MultSpeed(1/TIME_SLOW_FACTOR);
 	ballState = FLYING_EXPLODED;
 }
 
 static bool move(float timestep, float *hitX, float *hitY, Terrain_Type *hitType) {
 	if (TouchInput_JustStarted() && ballState == FLYING_SHOULD_EXPLODE) {
-		Scene_SetSpeed(TIME_SLOW_FACTOR);
+		Scene_MultSpeed(TIME_SLOW_FACTOR);
 		ballState = FLYING_TIME_SLOWED;
 	}
 
@@ -95,14 +95,14 @@ static bool move(float timestep, float *hitX, float *hitY, Terrain_Type *hitType
 
 	bool hitSomething = ProjDefault_Move(timestep, hitX, hitY, hitType);
 	if (ballState == FLYING_TIME_SLOWED) {		
-		timeSlowFrames++;
-		if (timeSlowFrames > TIME_SLOW_MAX_FRAMES) {
-			Scene_SetSpeed(1);
+		timeSlow += timestep/TIME_SLOW_FACTOR;
+		if (timeSlow > TIME_SLOW_MAX_FRAMES) {
+			Scene_MultSpeed(1/TIME_SLOW_FACTOR);
 			ballState = FLYING_SHOULD_EXPLODE;
 		}
 	}
 
-	if (ballState == FLYING_EXPLODED) rotation -= rotationVel;
+	if (ballState == FLYING_EXPLODED) rotation -= rotationVel * timestep;
 
 	return hitSomething;
 }
@@ -189,8 +189,8 @@ static void drawAimingCircle(float depth) {
 	float lineY = (EXPLOSION_RADIUS + 5) * (relativeY / relativeXYLength);
 
 	u32 color = COLOR_DRED;
-	if (timeSlowFrames > TIME_SLOW_MAX_FRAMES - 30
-			&& (timeSlowFrames / 5) % 2 == 0) {
+	if (timeSlow > TIME_SLOW_MAX_FRAMES - 30
+			&& ((int)timeSlow / 5) % 2 == 0) {
 		color = COLOR_TRANSPARENT;
 	}
 

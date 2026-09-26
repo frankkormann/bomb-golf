@@ -192,8 +192,7 @@ static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 
 bool ProjDefault_Move(float timestep, float *hitX, float *hitY,
 		Terrain_Type *hitType) {
-	// Use timestep squared because this is acceleration
-	data.velY += PROJECTILE_GRAVITY * timestep * timestep;
+	data.velY += PROJECTILE_GRAVITY * timestep;
 
 	bool hasHitSomething;
 	int finalX, finalY, lastOkX, lastOkY;
