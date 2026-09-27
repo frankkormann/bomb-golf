@@ -257,9 +257,9 @@ static void sceneUpdate(float speed) {
 	u32 kDown = hidKeysDown();
 //	u32 kHeld = hidKeysHeld();
 
-	if (kDown & KEY_B && !levelInRomfs) {
+	if (kDown & KEY_B && !isSequence) {
 		Scene_Switch(sceneLevelSelector,
-				&(LevelSelector_Params) { level, false });
+				&(LevelSelector_Params) { level, levelInRomfs });
 	}
 
 	if (canLaunch()) {
