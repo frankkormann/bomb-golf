@@ -46,7 +46,7 @@ static void startGame() {
 }
 
 static void openEditor() {
-	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1 });
+	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1, false });
 }
 
 static void openSettings() {

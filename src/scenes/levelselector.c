@@ -56,6 +56,7 @@ static Button playButton, playSeqButton, editButton, copySwapButton, deleteButto
 		exitButton;
 static Text   playText,   playSeqText,   editText,   copySwapText,   deleteText,
 		exitText;
+static bool inRomfs;
 
 static Button cards[NUM_CARD_ROWS * NUM_CARD_COLS];
 static Text cardNumbers[NUM_CARD_ROWS * NUM_CARD_COLS];
@@ -85,17 +86,19 @@ static bool sceneInit(void *sceneParams) {
 			SPRITE_MEDIUM_BUTTON, -1, NULL, playSequence);
 	if (!playSeqButton) goto f_playSeqButton;
 
-	editButton = Button_Create(EDIT_BUTTON_X, BUTTON_Y, SPRITE_SMALL_BUTTON,
-			-1, NULL, edit);
-	if (!editButton) goto f_editButton;
+	if (!params->inRomfs) {
+		editButton = Button_Create(EDIT_BUTTON_X, BUTTON_Y,
+				SPRITE_SMALL_BUTTON, -1, NULL, edit);
+		if (!editButton) goto f_editButton;
 
-	copySwapButton = Button_Create(COPY_BUTTON_X, BUTTON_Y, SPRITE_SMALL_BUTTON,
-			-1, NULL, copySwap);
-	if (!copySwapButton) goto f_copySwapButton;
+		copySwapButton = Button_Create(COPY_BUTTON_X, BUTTON_Y,
+				SPRITE_SMALL_BUTTON, -1, NULL, copySwap);
+		if (!copySwapButton) goto f_copySwapButton;
 
-	deleteButton = Button_Create(DELETE_BUTTON_X, BUTTON_Y, SPRITE_SMALL_BUTTON,
-			-1, NULL, delete);
-	if (!deleteButton) goto f_deleteButton;
+		deleteButton = Button_Create(DELETE_BUTTON_X, BUTTON_Y,
+				SPRITE_SMALL_BUTTON, -1, NULL, delete);
+		if (!deleteButton) goto f_deleteButton;
+	}
 
 	exitButton = Button_Create(EXIT_BUTTON_X, EXIT_BUTTON_Y,
 			SPRITE_SMALL_BUTTON, -1, NULL, gotoTitle);
@@ -103,9 +106,11 @@ static bool sceneInit(void *sceneParams) {
 
 	Button_RegisterForTouchEvents(playButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(playSeqButton, touchDispatcher, 0);
-	Button_RegisterForTouchEvents(editButton, touchDispatcher, 0);
-	Button_RegisterForTouchEvents(copySwapButton, touchDispatcher, 0);
-	Button_RegisterForTouchEvents(deleteButton, touchDispatcher, 0);
+	if (!params->inRomfs) {
+		Button_RegisterForTouchEvents(editButton, touchDispatcher, 0);
+		Button_RegisterForTouchEvents(copySwapButton, touchDispatcher, 0);
+		Button_RegisterForTouchEvents(deleteButton, touchDispatcher, 0);
+	}
 	Button_RegisterForTouchEvents(exitButton, touchDispatcher, 0);
 
 	playText = Text_Create(5);
@@ -116,16 +121,18 @@ static bool sceneInit(void *sceneParams) {
 	if (!playSeqText) goto f_playSeqText;
 	Text_SetContent(playSeqText, "Play All");
 
-	editText = Text_Create(5);
-	if (!editText) goto f_editText;
-	Text_SetContent(editText, "Edit");
+	if (!params->inRomfs) {
+		editText = Text_Create(5);
+		if (!editText) goto f_editText;
+		Text_SetContent(editText, "Edit");
 
-	copySwapText = Text_Create(8);
-	if (!copySwapText) goto f_copySwapText;
+		copySwapText = Text_Create(8);
+		if (!copySwapText) goto f_copySwapText;
 
-	deleteText = Text_Create(7);
-	if (!deleteText) goto f_deleteText;
-	Text_SetContent(deleteText, "Erase");
+		deleteText = Text_Create(7);
+		if (!deleteText) goto f_deleteText;
+		Text_SetContent(deleteText, "Erase");
+	}
 
 	exitText = Text_Create(5);
 	if (!exitText) goto f_exitText;
@@ -163,6 +170,7 @@ static bool sceneInit(void *sceneParams) {
 	if (!levelPreview) goto f_levelPreview;
 
 	inCopyMode = false;
+	inRomfs = params->inRomfs;
 	select(params->level);
 
 	return true;
@@ -180,11 +188,11 @@ f_cards:
 	for (int k = 0; k < i; k++) Button_Free(cards[k]);
 	Text_Free(exitText);
 f_exitText:
-	Text_Free(deleteText);
+	if (!params->inRomfs) Text_Free(deleteText);
 f_deleteText:
-	Text_Free(copySwapText);
+	if (!params->inRomfs) Text_Free(copySwapText);
 f_copySwapText:
-	Text_Free(editText);
+	if (!params->inRomfs) Text_Free(editText);
 f_editText:
 	Text_Free(playSeqText);
 f_playSeqText:
@@ -192,11 +200,11 @@ f_playSeqText:
 f_playText:
 	Button_Free(exitButton);
 f_exitButton:
-	Button_Free(deleteButton);
+	if (!params->inRomfs) Button_Free(deleteButton);
 f_deleteButton:
-	Button_Free(copySwapButton);
+	if (!params->inRomfs) Button_Free(copySwapButton);
 f_copySwapButton:
-	Button_Free(editButton);
+	if (!params->inRomfs) Button_Free(editButton);
 f_editButton:
 	Button_Free(playSeqButton);
 f_playSeqButton:
@@ -212,20 +220,22 @@ static void sceneExit() {
 	Text_Free(infoText);
 	Text_Free(parText);
 	Text_Free(nameText);
-	Text_Free(deleteText);
-	Text_Free(copySwapText);
-	Text_Free(editText);
 	Text_Free(playSeqText);
 	Text_Free(playText);
 	Text_Free(exitText);
-	Button_Free(deleteButton);
-	Button_Free(copySwapButton);
-	Button_Free(editButton);
 	Button_Free(playSeqButton);
 	Button_Free(playButton);
 	Button_Free(exitButton);
 	Dispatcher_Free(touchDispatcher);
 	BG_Free(levelPreview);
+	if (!inRomfs) {
+		Text_Free(deleteText);
+		Text_Free(copySwapText);
+		Text_Free(editText);
+		Button_Free(deleteButton);
+		Button_Free(copySwapButton);
+		Button_Free(editButton);
+	}
 	if (obstacles) {
 		free(obstacles);
 		obstacles = NULL;
@@ -239,7 +249,7 @@ static void play() {
 	if (isLevelLoaded) {
 		Tracker_Clear();
 		Scene_Switch(sceneCourse,
-				&(Course_Params) { selectedLevel, false, false });
+				&(Course_Params) { selectedLevel, inRomfs, false });
 	}
 }
 
@@ -247,7 +257,7 @@ static void playSequence() {
 	int firstLevel;
 	for (firstLevel = 0; firstLevel < SAVEDIR_NUM_LEVELS; firstLevel++) {
 		char path[LEVEL_PATH_MAX];
-		LevelIO_MakePath(firstLevel, false, path);
+		LevelIO_MakePath(firstLevel, inRomfs, path);
 		if (FILE *f = fopen(path, "rb")) {
 			fclose(f);
 			break;
@@ -257,7 +267,7 @@ static void playSequence() {
 	if (firstLevel < SAVEDIR_NUM_LEVELS) {
 		Tracker_Clear();
 		Scene_Switch(sceneCourse,
-				&(Course_Params) { firstLevel, false, true });
+				&(Course_Params) { firstLevel, inRomfs, true });
 	} else {
 		Popup_Init("Create some levels first", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
@@ -306,7 +316,7 @@ static void display(int level) {
 	if (level < 0) {
 		Text_SetContent(infoText, "Tap a level number to preview");
 		isLevelLoaded = false;
-		Text_SetContent(copySwapText, "Copy");
+		if (!inRomfs) Text_SetContent(copySwapText, "Copy");
 	} else {
 		if (obstacles) {
 			// In case we had it from a previous level selection
@@ -315,7 +325,7 @@ static void display(int level) {
 		}
 
 		char path[LEVEL_PATH_MAX];
-		LevelIO_MakePath(level, false, path);
+		LevelIO_MakePath(level, inRomfs, path);
 		Tile (*tiles)[LEVEL_HEIGHT_TILES];
 		Tile_WithPos *overlayTiles;
 		size_t numOverlayTiles;
@@ -328,7 +338,7 @@ static void display(int level) {
 			// Spaces to maintain center alignment
 			Text_SetContent(infoText, "Level does not exist");
 			isLevelLoaded = false;
-			Text_SetContent(copySwapText, "Copy");
+			if (!inRomfs) Text_SetContent(copySwapText, "Copy");
 			return;
 		}
 
@@ -352,7 +362,7 @@ static void display(int level) {
 		free(name);
 		Text_SetContent(parText, "Par %i", par);
 		isLevelLoaded = true;
-		Text_SetContent(copySwapText, "Swap");
+		if (!inRomfs) Text_SetContent(copySwapText, "Swap");
 	}
 }
 
@@ -467,20 +477,24 @@ static void sceneDraw() {
 
 	Button_Draw(playButton, 0);
 	Button_Draw(playSeqButton, 0);
-	Button_Draw(editButton, 0);
-	Button_Draw(copySwapButton, 0);
-	Button_Draw(deleteButton, 0);
+	if (!inRomfs) {
+		Button_Draw(editButton, 0);
+		Button_Draw(copySwapButton, 0);
+		Button_Draw(deleteButton, 0);
+	}
 	Button_Draw(exitButton, 0);
 	Text_Draw(playText, PLAY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
 	Text_Draw(playSeqText, PLAYSEQ_BUTTON_X + 50, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
-	Text_Draw(editText, EDIT_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
-			1, TEXT_CENTER);
-	Text_Draw(copySwapText, COPY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
-			1, TEXT_CENTER);
-	Text_Draw(deleteText, DELETE_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
-			1, TEXT_CENTER);
+	if (!inRomfs) {
+		Text_Draw(editText, EDIT_BUTTON_X + 24, BUTTON_Y + 5, 0.5,
+				COLOR_LGRAY, 1, TEXT_CENTER);
+		Text_Draw(copySwapText, COPY_BUTTON_X + 24, BUTTON_Y + 5, 0.5,
+				COLOR_LGRAY, 1, TEXT_CENTER);
+		Text_Draw(deleteText, DELETE_BUTTON_X + 24, BUTTON_Y + 5, 0.5,
+				COLOR_LGRAY, 1, TEXT_CENTER);
+	}
 	Text_Draw(exitText, EXIT_BUTTON_X + 24, EXIT_BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
 

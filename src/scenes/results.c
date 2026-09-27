@@ -269,7 +269,8 @@ static void nextScene() {
 		}
 	} else {
 		Music_Stop();
-		Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { level });
+		Scene_Switch(sceneLevelSelector,
+				&(LevelSelector_Params) { level, levelInRomfs });
 	}
 }
 
