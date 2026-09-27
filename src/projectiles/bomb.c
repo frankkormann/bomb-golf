@@ -144,7 +144,7 @@ static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
 		float nx = data->x - hitX;
 		float ny = data->y - hitY;
 		// Amount of the velocity vector in the direction of n
-		float p = fabs(nx * data->velY + ny * data->velX)
+		float p = (nx * data->velY + ny * data->velX)
 				/ sqrt(nx*nx + ny*ny);
 		rotationVel = p / projectileBomb->radius;
 
