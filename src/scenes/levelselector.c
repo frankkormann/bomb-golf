@@ -2,6 +2,7 @@
 #include <malloc.h>
 #include <stdio.h>
 #include <math.h>
+#include <limits.h>
 #include <3ds.h>
 #include <citro2d.h>
 #include "../scene.h"
@@ -23,6 +24,7 @@
 #include "../rendering/animation.h"
 #include "../rendering/draw3d.h"
 #include "../file/savedir.h"
+#include "../file/saveio.h"
 #include "../file/levelio.h"
 #include "../util/dispatcher.h"
 #include "../util/tracker.h"
@@ -33,6 +35,8 @@
 #define LEVEL_PREVIEW_Y		(LEVEL_NAME_Y + 35)
 #define LEVEL_PREVIEW_WIDTH	380
 #define LEVEL_PREVIEW_HEIGHT	90
+#define HISCORE_TEXT_X		390
+#define HISCORE_TEXT_Y		(LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 15)
 
 #define BUTTON_Y		-2
 #define PLAY_BUTTON_X		10
@@ -55,7 +59,7 @@ static Dispatcher touchDispatcher;
 static Button playButton, playSeqButton, editButton, copySwapButton, deleteButton,
 		exitButton;
 static Text   playText,   playSeqText,   editText,   copySwapText,   deleteText,
-		exitText;
+		exitText, hiscoreText;
 static bool inRomfs;
 
 static Button cards[NUM_CARD_ROWS * NUM_CARD_COLS];
@@ -132,6 +136,10 @@ static bool sceneInit(void *sceneParams) {
 		deleteText = Text_Create(7);
 		if (!deleteText) goto f_deleteText;
 		Text_SetContent(deleteText, "Erase");
+	} else {
+		hiscoreText = Text_Create(16);
+		if (!hiscoreText) goto f_hiscoreText;
+		Text_SetContent(hiscoreText, "");
 	}
 
 	exitText = Text_Create(5);
@@ -188,6 +196,8 @@ f_cards:
 	for (int k = 0; k < i; k++) Button_Free(cards[k]);
 	Text_Free(exitText);
 f_exitText:
+	if (params->inRomfs) Text_Free(hiscoreText);
+f_hiscoreText:
 	if (!params->inRomfs) Text_Free(deleteText);
 f_deleteText:
 	if (!params->inRomfs) Text_Free(copySwapText);
@@ -235,6 +245,8 @@ static void sceneExit() {
 		Button_Free(deleteButton);
 		Button_Free(copySwapButton);
 		Button_Free(editButton);
+	} else {
+		Text_Free(hiscoreText);
 	}
 	if (obstacles) {
 		free(obstacles);
@@ -354,7 +366,6 @@ static void display(int level) {
 			Tile_GetPos(overlayTiles[i], &x, &y);
 			BG_DrawTile(levelPreview, overlayTiles[i], x, y, false);
 		}
-
 		free(tiles);
 		free(overlayTiles);
 
@@ -362,7 +373,18 @@ static void display(int level) {
 		free(name);
 		Text_SetContent(parText, "Par %i", par);
 		isLevelLoaded = true;
-		if (!inRomfs) Text_SetContent(copySwapText, "Swap");
+		if (!inRomfs) {
+			Text_SetContent(copySwapText, "Swap");
+		} else {
+			int scores[18];
+			if (SaveIO_ReadHighScores(scores)
+					&& scores[level] != INT_MAX) {
+				Text_SetContent(hiscoreText, "Best Score: %+i",
+						scores[level]);
+			} else {
+				Text_SetContent(hiscoreText, "No Score Yet");
+			}
+		}
 	}
 }
 
@@ -432,7 +454,7 @@ static void sceneDraw() {
 	BG_UpdateGraphics(levelPreview);
 
 	int previewX, previewY, previewWidth, previewHeight;
-	#define D3D_DEPTHS { 0.8, 0.8, 0, 0.6, 0.8, 0.8 }
+	#define D3D_DEPTHS { 0.8, 0.8, 0, 0.6, 0.8, 0.8, 0.6 }
 	#define D3D_XS { \
 			LEVEL_NAME_X, \
 			390, \
@@ -440,6 +462,7 @@ static void sceneDraw() {
 			previewX + ceilf(D3D_CORRECTION(3)), \
 			previewX, \
 			200, \
+			HISCORE_TEXT_X, \
 		}
 	#define D3D_CODE \
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
@@ -466,6 +489,10 @@ static void sceneDraw() {
 	} else { \
 		Text_Draw(infoText, D3D_Xi(5), 60, D3D_D(5), COLOR_DGRAY, 1, \
 			TEXT_CENTER); \
+	} \
+	if (inRomfs) { \
+		Text_Draw(hiscoreText, D3D_Xi(6), HISCORE_TEXT_Y, D3D_D(6), \
+				COLOR_DGRAY, 1, TEXT_RIGHT); \
 	}
 	#include "../rendering/draw3d_gen.h"
 	/* Everything gets #undef'd by draw3d */
