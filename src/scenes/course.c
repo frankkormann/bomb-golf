@@ -155,16 +155,22 @@ static bool sceneInit(void *sceneParams) {
 	}
 	free(obstacles);
 
-	bool isTouchSticky;
+	bool isTouchSticky, bigBallEnabled;
 	float gameSpeed;
-	if (!SaveIO_ReadSettings(&isMirrored, &isTouchSticky, &gameSpeed, NULL)) {
+	if (!SaveIO_ReadSettings(&isMirrored, &isTouchSticky, &gameSpeed,
+			&bigBallEnabled)) {
 		gameSpeed = 1;
+		isTouchSticky = false;
+		bigBallEnabled = false;
 	}
 	Scene_SetSpeed(gameSpeed);
 	TouchInput_Mode mode = TOUCHINPUT_NORMAL;
 	if (isMirrored)    mode |= TOUCHINPUT_MIRROR;
 	if (isTouchSticky) mode |= TOUCHINPUT_STICKY;
 	TouchInput_SetMode(mode);
+	if (bigBallEnabled) {
+		proj.startY -= 4;
+	}
 
 	holeX = hole.x;
 	holeY = hole.y;

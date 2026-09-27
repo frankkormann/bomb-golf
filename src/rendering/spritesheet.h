@@ -141,6 +141,12 @@ C2D_Image SpriteSheet_GetObstacleImage(SpriteSheet_ObstSprite obst);
 void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
 		float depth, float angle, bool flipHoriz, bool flipVert);
 
+/*
+ * The same as SpriteSheet_DrawCentered except sprites are drawn double size.
+ */
+void SpriteSheet_DrawCenteredLarge(SpriteSheet_Sprite sprite, float x, float y,
+		float depth, float angle, bool flipHoriz, bool flipVert);
+
 void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
 		float angle, bool flipHoriz, bool flipVert);
 

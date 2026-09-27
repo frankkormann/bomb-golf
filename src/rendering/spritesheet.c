@@ -38,17 +38,17 @@ C2D_Image SpriteSheet_GetObstacleImage(SpriteSheet_ObstSprite obst) {
 }
 
 void drawCenter(C2D_Image img, float x, float y, float depth, float angle,
-		bool flipHoriz, bool flipVert) {
+		bool flipHoriz, bool flipVert, float scale) {
 	C2D_DrawImage(img, &(C2D_DrawParams) {
 			.pos = {
 				x,
 				y,
-				img.subtex->width * (flipHoriz ? -1 : 1),
-				img.subtex->height * (flipVert ? -1 : 1)
+				scale * img.subtex->width * (flipHoriz ? -1 : 1),
+				scale * img.subtex->height * (flipVert ? -1 : 1)
 			},
 			.center = {
-				img.subtex->width * 0.5,
-				img.subtex->height * 0.5
+				scale * img.subtex->width * 0.5,
+				scale * img.subtex->height * 0.5
 			},
 			.depth = depth,
 			.angle = angle
@@ -81,7 +81,15 @@ void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
 	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
 	// Make the drawn position match center of mass better
 	if (sprite == SPRITE_BOMB) y -= 3;
-	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert);
+	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert, 1);
+}
+
+void SpriteSheet_DrawCenteredLarge(SpriteSheet_Sprite sprite, float x, float y,
+		float depth, float angle, bool flipHoriz, bool flipVert) {
+	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
+	// Make the drawn position match center of mass better
+	if (sprite == SPRITE_BOMB) y -= 6;
+	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert, 2);
 }
 
 void SpriteSheet_Draw(SpriteSheet_Sprite sprite, float x, float y, float depth,
@@ -99,5 +107,5 @@ void SpriteSheet_DrawTile(SpriteSheet_TileSprite tile, float x, float y, float d
 void SpriteSheet_DrawObstacle(SpriteSheet_ObstSprite obst, float x, float y,
 		float depth, float angle, bool flipHoriz, bool flipVert) {
 	C2D_Image img = C2D_SpriteSheetGetImage(obstSheet, obst);
-	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert);
+	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert, 1);
 }
