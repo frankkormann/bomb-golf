@@ -63,4 +63,9 @@ TouchInput_Swipe TouchInput_GetSwipe();
  */
 void TouchInput_SetMode(TouchInput_Mode flags);
 
+/*
+ * Multiple flags may be ORed together.
+ */
+TouchInput_Mode TouchInput_GetMode();
+
 #endif

@@ -54,9 +54,19 @@ int main() {
 
 		u32 kDown = hidKeysDown();
 		if (kDown & KEY_START) {
+			//TODO Find a better fix for the problem of the course
+			// mirroring the screen but not mirroring the options
+			// in this popup
+			TouchInput_Mode touchFlags = TouchInput_GetMode();
 			Popup_Button buttons[] = {
-					{ "Resume", KEY_START, NULL, Popup_Exit },
-					{ "Quit to Title", -1, NULL, gotoTitle }
+					{ "Resume", KEY_START, NULL,
+						touchFlags & TOUCHINPUT_MIRROR
+							? gotoTitle
+							: Popup_Exit },
+					{ "Quit to Title", -1, NULL, 
+						touchFlags & TOUCHINPUT_MIRROR
+							? Popup_Exit
+							: gotoTitle }
 				};
 			Popup_Init("Paused", POPUP_TWO_BUTTON, buttons);
 		}

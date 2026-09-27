@@ -66,3 +66,7 @@ TouchInput_Swipe TouchInput_GetSwipe() {
 void TouchInput_SetMode(TouchInput_Mode argFlags) {
 	flags = argFlags;
 }
+
+TouchInput_Mode TouchInput_GetMode() {
+	return flags;
+}
