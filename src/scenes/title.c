@@ -9,6 +9,7 @@
 #include "course.h"
 #include "levelselector.h"
 #include "error.h"
+#include "settings.h"
 #include "components/button.h"
 #include "components/text.h"
 #include "../rendering/color.h"
@@ -30,11 +31,12 @@
 #define BEST_SCORE_Y	10
 
 #define BUTTON_X	60
-#define BUTTON_START_Y	45
-#define BUTTON_GAP	90
+#define START_Y		45
+#define EDITOR_Y	(START_Y + 70)
+#define SETTINGS_Y	(EDITOR_Y + 40)
 
-static Text   startText,   editorText, hiscoreText;
-static Button startButton, editorButton;
+static Button startButton, editorButton, settingsButton;
+static Text   startText,   editorText,   settingsText, hiscoreText;
 static Dispatcher touchDispatcher, keyDispatcher;
 static SaveIO_Achvmt achievements;
 
@@ -47,14 +49,22 @@ static void openEditor() {
 	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1 });
 }
 
+static void openSettings() {
+	Scene_Switch(sceneSettings, &(Settings_Params) SCENE_PARAMS_EMPTY);
+}
+
 static bool sceneInit() {
-	startText = Text_Create(8);
+	startText = Text_Create(6);
 	if (!startText) goto f_startText;
 	Text_SetContent(startText, "Start");
 
-	editorText = Text_Create(16);
+	editorText = Text_Create(13);
 	if (!editorText) goto f_editorText;
 	Text_SetContent(editorText, "Level Editor");
+
+	settingsText = Text_Create(9);
+	if (!settingsText) goto f_settingsText;
+	Text_SetContent(settingsText, "Settings");
 
 	int hiscore;
 	if (SaveIO_ReadOverallHighScore(&hiscore) && hiscore != INT_MAX) {
@@ -71,23 +81,32 @@ static bool sceneInit() {
 	keyDispatcher = Dispatcher_Create();
 	if (!keyDispatcher) goto f_keyDispatcher;
 
-	startButton = Button_Create(BUTTON_X, BUTTON_START_Y, SPRITE_LARGE_BUTTON,
-			KEY_A, NULL, startGame);
+	startButton = Button_Create(BUTTON_X, START_Y, SPRITE_LARGE_BUTTON, KEY_A,
+			NULL, startGame);
 	if (!startButton) goto f_startButton;
 	Button_RegisterForTouchEvents(startButton, touchDispatcher, 1);
 	Button_RegisterForKeyEvents(startButton, keyDispatcher, 1);
 
-	editorButton = Button_Create(BUTTON_X, BUTTON_START_Y + BUTTON_GAP,
-			SPRITE_LARGE_BUTTON, KEY_X, NULL, openEditor);
+	editorButton = Button_Create(BUTTON_X, EDITOR_Y, SPRITE_LONG_BUTTON, KEY_X,
+			NULL, openEditor);
 	if (!editorButton) goto f_editorButton;
 	Button_RegisterForTouchEvents(editorButton, touchDispatcher, 1);
 	Button_RegisterForKeyEvents(editorButton, keyDispatcher, 1);
+
+	settingsButton = Button_Create(BUTTON_X, SETTINGS_Y, SPRITE_LONG_BUTTON,
+			KEY_X, NULL, openSettings);
+	if (!settingsButton) goto f_settingsButton;
+	Button_RegisterForTouchEvents(settingsButton, touchDispatcher, 1);
+	Button_RegisterForKeyEvents(settingsButton, keyDispatcher, 1);
+
 
 	if (!SaveIO_ReadAchievements(&achievements)) {
 		achievements = 0;
 	}
 	return true;
 
+f_settingsButton:
+	Button_Free(editorButton);
 f_editorButton:
 	Button_Free(startButton);
 f_startButton:
@@ -97,6 +116,8 @@ f_keyDispatcher:
 f_touchDispatcher:
 	if (hiscoreText) Text_Free(hiscoreText);
 f_hiscoreText:
+	Text_Free(settingsText);
+f_settingsText:
 	Text_Free(editorText);
 f_editorText:
 	Text_Free(startText);
@@ -108,9 +129,11 @@ f_startText:
 static void sceneExit() {
 	Text_Free(startText);
 	Text_Free(editorText);
+	Text_Free(settingsText);
 	if (hiscoreText) Text_Free(hiscoreText);
 	Button_Free(startButton);
 	Button_Free(editorButton);
+	Button_Free(settingsButton);
 	Dispatcher_Free(touchDispatcher);
 	Dispatcher_Free(keyDispatcher);
 }
@@ -162,11 +185,14 @@ static void sceneDraw() {
 	C2D_SceneBegin(bottom);
 
 	Button_Draw(startButton, 0);
-	Text_Draw(startText, BUTTON_X + 20, BUTTON_START_Y + 10, 0, COLOR_LGRAY, 2,
+	Text_Draw(startText, BUTTON_X + 15, START_Y + 10, 0, COLOR_LGRAY, 2,
 			TEXT_LEFT);
 	Button_Draw(editorButton, 0);
-	Text_Draw(editorText, BUTTON_X +20, BUTTON_START_Y + BUTTON_GAP + 10, 0,
-			COLOR_LGRAY, 2, TEXT_LEFT);
+	Text_Draw(editorText, BUTTON_X + 15, EDITOR_Y + 5, 0, COLOR_LGRAY, 1,
+			TEXT_LEFT);
+	Button_Draw(settingsButton, 0);
+	Text_Draw(settingsText, BUTTON_X + 15, SETTINGS_Y + 5, 0, COLOR_LGRAY, 1,
+			TEXT_LEFT);
 
 	Animation_Draw(0.5);
 }
