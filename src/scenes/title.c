@@ -1,4 +1,3 @@
-//TODO Add more buttons for settings and individual level practice
 #include <stdbool.h>
 #include <limits.h>
 #include <3ds.h>
@@ -30,13 +29,13 @@
 #define BEST_SCORE_X	390
 #define BEST_SCORE_Y	10
 
-#define BUTTON_X	60
+#define BUTTON_X	58
 #define START_Y		45
 #define EDITOR_Y	(START_Y + 70)
-#define SETTINGS_Y	(EDITOR_Y + 40)
+#define SETTINGS_Y	(EDITOR_Y + 35)
 
-static Button startButton, editorButton, settingsButton;
-static Text   startText,   editorText,   settingsText, hiscoreText;
+static Button startButton, editorButton, practiceButton, settingsButton;
+static Text   startText,   editorText,   practiceText,   settingsText, hiscoreText;
 static Dispatcher touchDispatcher, keyDispatcher;
 static SaveIO_Achvmt achievements;
 
@@ -47,6 +46,10 @@ static void startGame() {
 
 static void openEditor() {
 	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1, false });
+}
+
+static void openPractice() {
+	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1, true });
 }
 
 static void openSettings() {
@@ -61,6 +64,10 @@ static bool sceneInit() {
 	editorText = Text_Create(13);
 	if (!editorText) goto f_editorText;
 	Text_SetContent(editorText, "Level Editor");
+
+	practiceText = Text_Create(9);
+	if (!practiceText) goto f_practiceText;
+	Text_SetContent(practiceText, "Practice");
 
 	settingsText = Text_Create(9);
 	if (!settingsText) goto f_settingsText;
@@ -87,18 +94,22 @@ static bool sceneInit() {
 	Button_RegisterForTouchEvents(startButton, touchDispatcher, 1);
 	Button_RegisterForKeyEvents(startButton, keyDispatcher, 1);
 
-	editorButton = Button_Create(BUTTON_X, EDITOR_Y, SPRITE_LONG_BUTTON, KEY_X,
+	editorButton = Button_Create(BUTTON_X, EDITOR_Y, SPRITE_MEDIUM_BUTTON, KEY_X,
 			NULL, openEditor);
 	if (!editorButton) goto f_editorButton;
 	Button_RegisterForTouchEvents(editorButton, touchDispatcher, 1);
 	Button_RegisterForKeyEvents(editorButton, keyDispatcher, 1);
 
+	practiceButton = Button_Create(BUTTON_X + 104, EDITOR_Y,
+			SPRITE_MEDIUM_BUTTON, KEY_Y, NULL, openPractice);
+	if (!practiceButton) goto f_practiceButton;
+	Button_RegisterForTouchEvents(practiceButton, touchDispatcher, 1);
+	Button_RegisterForKeyEvents(practiceButton, keyDispatcher, 1);
+
 	settingsButton = Button_Create(BUTTON_X, SETTINGS_Y, SPRITE_LONG_BUTTON,
-			KEY_X, NULL, openSettings);
+			-1, NULL, openSettings);
 	if (!settingsButton) goto f_settingsButton;
 	Button_RegisterForTouchEvents(settingsButton, touchDispatcher, 1);
-	Button_RegisterForKeyEvents(settingsButton, keyDispatcher, 1);
-
 
 	if (!SaveIO_ReadAchievements(&achievements)) {
 		achievements = 0;
@@ -106,6 +117,8 @@ static bool sceneInit() {
 	return true;
 
 f_settingsButton:
+	Button_Free(practiceButton);
+f_practiceButton:
 	Button_Free(editorButton);
 f_editorButton:
 	Button_Free(startButton);
@@ -118,6 +131,8 @@ f_touchDispatcher:
 f_hiscoreText:
 	Text_Free(settingsText);
 f_settingsText:
+	Text_Free(practiceText);
+f_practiceText:
 	Text_Free(editorText);
 f_editorText:
 	Text_Free(startText);
@@ -130,12 +145,14 @@ static void sceneExit() {
 	Text_Free(startText);
 	Text_Free(editorText);
 	Text_Free(settingsText);
+	Text_Free(practiceText);
 	if (hiscoreText) Text_Free(hiscoreText);
 	Button_Free(startButton);
 	Button_Free(editorButton);
 	Button_Free(settingsButton);
 	Dispatcher_Free(touchDispatcher);
 	Dispatcher_Free(keyDispatcher);
+	Button_Free(practiceButton);
 }
 
 static void sceneUpdate(float _) {
@@ -189,6 +206,9 @@ static void sceneDraw() {
 			TEXT_LEFT);
 	Button_Draw(editorButton, 0);
 	Text_Draw(editorText, BUTTON_X + 15, EDITOR_Y + 5, 0, COLOR_LGRAY, 1,
+			TEXT_LEFT);
+	Button_Draw(practiceButton, 0);
+	Text_Draw(practiceText, BUTTON_X + 119, EDITOR_Y + 5, 0, COLOR_LGRAY, 1,
 			TEXT_LEFT);
 	Button_Draw(settingsButton, 0);
 	Text_Draw(settingsText, BUTTON_X + 15, SETTINGS_Y + 5, 0, COLOR_LGRAY, 1,
