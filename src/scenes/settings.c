@@ -232,15 +232,16 @@ static bool handleTouchInput() {
 			Text_SetContent(infoText, "A multiplier for the base game"
 					" speed. This option is\nintended to make"
 					" it accessible for those with slower"
-					"\nreaction times, not as a replacement"
-					" for skill. Setting\nthis will NOT prevent"
-					" achievements or high scores.");
+					"\nreaction times or as a challenge for"
+					" experienced\nplayers. Setting this will"
+					" NOT prevent achievements or\nhigh"
+					" scores.");
 			isOptionSelected = true;
 			return true;
 		}
 		if (pointInBox(touch.end, DESC_X, OPTION_Y_START + 2*OPTION_GAP,
 				BUTTON_X - DESC_X, 30)) {
-			Text_SetContent(infoText, "Whether to ignore small gaps"
+			Text_SetContent(infoText, "Whether to ignore small lapses"
 					" in the stylus touching\nthe screen."
 					" Enabling will add a small delay to"
 					"\nexploding the ball, but may decrease"
