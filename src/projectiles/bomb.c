@@ -18,13 +18,14 @@
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 
-#define BALL_RADIUS 4
-#define EXPLOSION_RADIUS (isLarge ? 30 : 20)
-#define EXPLOSION_BOOST 1
-#define MIN_SPEED_AFTER_EXPLOSION 3
 
-#define TIME_SLOW_FACTOR 0.1
-#define TIME_SLOW_MAX_FRAMES (60 * 2)
+#define BALL_RADIUS			4
+#define EXPLOSION_RADIUS		(data->isLarge ? 30 : 20)
+#define EXPLOSION_BOOST			1
+#define MIN_SPEED_AFTER_EXPLOSION	3
+
+#define TIME_SLOW_FACTOR		0.1
+#define TIME_SLOW_MAX_FRAMES		(60 * 2)
 
 static enum {
 	WAITING, FLYING_SHOULD_EXPLODE, FLYING_TIME_SLOWED, FLYING_EXPLODED
@@ -32,18 +33,6 @@ static enum {
 
 static float timeSlow;
 static float rotation, rotationVel;
-static bool isLarge;
-
-static void setSizeIfNeeded() {
-	//TODO Determine if hitting the file every time is a problem
-	int *radius = &projectileBomb->radius;
-	if (SaveIO_ReadSettings(NULL, NULL, NULL, &isLarge) && isLarge) {
-		*radius = 2*BALL_RADIUS;
-	} else {
-		*radius = BALL_RADIUS;
-		isLarge = false;  // In case SaveIO_ReadSettings failed
-	}
-}
 
 static void reset() {
 	ProjDefault_Reset();
@@ -51,7 +40,6 @@ static void reset() {
 	timeSlow = 0;
 	rotation = 0;
 	rotationVel = 0;
-	setSizeIfNeeded();
 }
 
 static void launch(float velX, float velY) {
@@ -222,14 +210,15 @@ static void draw(float depth) {
 			// fall through
 		case WAITING:
 		case FLYING_SHOULD_EXPLODE:
-			(isLarge ? SpriteSheet_DrawCenteredLarge
-			         : SpriteSheet_DrawCentered)(
+drawBomb:
+			(data->isLarge ? SpriteSheet_DrawCenteredLarge
+			               : SpriteSheet_DrawCentered)(
 						SPRITE_BOMB, data->x + 1,
 						data->y + 1, depth, 0, false, false);
 			break;
 		case FLYING_EXPLODED:
-			(isLarge ? SpriteSheet_DrawCenteredLarge
-			         : SpriteSheet_DrawCentered)(
+			(data->isLarge ? SpriteSheet_DrawCenteredLarge
+			               : SpriteSheet_DrawCentered)(
 						SPRITE_BALL, data->x + 1,
 						data->y + 1, depth, rotation, false,
 						false);

@@ -8,6 +8,7 @@
 #include "environment/environment.h"
 #include "environment/terrain.h"
 #include "environment/obstacle.h"
+#include "file/saveio.h"
 #include "file/levelio.h"
 #include "util/macros.h"
 
@@ -21,7 +22,6 @@ static Projectile proj;
 static ProjectileI_Data data;
 
 static bool oldIsMoving;
-
 static size_t lastPosIndex;
 static float lastXs[LAST_POS_COUNT];
 static float lastYs[LAST_POS_COUNT];
@@ -29,6 +29,9 @@ static float lastYs[LAST_POS_COUNT];
 void Projectile_SetType(Projectile newProj) {
 	proj = newProj;
 	Projectile_Reset();
+	if (!SaveIO_ReadSettings(NULL, NULL, NULL, &data.isLarge)) {
+		data.isLarge = false;
+	}
 }
 
 void Projectile_SetPos(float x, float y) {
@@ -168,7 +171,8 @@ static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 		*ultimateX = x0;
 		*ultimateY = y0;
 
-		checkCircle(x0, y0, proj->radius, hitX, hitY);
+		checkCircle(x0, y0, data.isLarge ? proj->radius * 2 : proj->radius,
+				hitX, hitY);
 		if (*hitX >= 0 || *hitY >= 0) {
 			*hitSomething = true;
 			break;
