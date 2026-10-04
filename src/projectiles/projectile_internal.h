@@ -49,6 +49,8 @@ typedef struct {
 	float y;
 	float velX;
 	float velY;
+	float rotation;
+	float rotationVel;
 	bool isLarge;
 } ProjectileI_Data;
 

@@ -35,14 +35,11 @@ static enum {
 } ballState;
 
 static float timeSlow;
-static float rotation, rotationVel;
 
 static void reset() {
 	ProjDefault_Reset();
 	ballState = WAITING;
 	timeSlow = 0;
-	rotation = 0;
-	rotationVel = 0;
 }
 
 static void launch(float velX, float velY) {
@@ -107,8 +104,6 @@ static bool move(float timestep, float *hitX, float *hitY, Terrain_Type *hitType
 		}
 	}
 
-	if (ballState == FLYING_EXPLODED) rotation -= rotationVel * timestep;
-
 	return hitSomething;
 }
 
@@ -129,18 +124,9 @@ static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
 		doExplosion();
 	}
 
-	if (ballState == FLYING_EXPLODED) {
-		// Vector from the center of the ball to the hit position
-		float nx = data->x - hitX;
-		float ny = data->y - hitY;
-		// Amount of the velocity vector in the direction of n
-		float p = (nx * data->velY + ny * data->velX)
-				/ sqrt(nx*nx + ny*ny);
-		rotationVel = p / projectileBomb->radius;
-
-		if (data->velX*data->velX + data->velY*data->velY > 1) {
-			SoundEffect_Play(SFX_BOUNCE, false);
-		}
+	if (ballState == FLYING_EXPLODED
+			&& (data->velX*data->velX + data->velY*data->velY > 1)) {
+		SoundEffect_Play(SFX_BOUNCE, false);
 	}
 
 	ProjDefault_OnHitGround(hitX, hitY, hitType);
@@ -268,8 +254,8 @@ drawBomb:
 			(data->isLarge ? SpriteSheet_DrawCenteredLarge
 			               : SpriteSheet_DrawCentered)(
 						SPRITE_BALL, data->x + 1,
-						data->y + 1, depth, rotation, false,
-						false);
+						data->y + 1, depth,
+						data->rotation, false, false);
 			break;
 	}
 }

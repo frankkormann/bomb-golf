@@ -88,6 +88,8 @@ ProjectileI_Data* ProjectileI_AccessData() {
 void ProjDefault_Reset() {
 	data.velX = 0;
 	data.velY = 0;
+	data.rotation = 0;
+	data.rotationVel = 0;
 }
 
 void ProjDefault_Launch(float velX, float velY) {
@@ -197,6 +199,7 @@ static void raycast(int x0, int y0, int x1, int y1, bool *hitSomething,
 bool ProjDefault_Move(float timestep, float *hitX, float *hitY,
 		Terrain_Type *hitType) {
 	data.velY += PROJECTILE_GRAVITY * timestep;
+	data.rotation -= data.rotationVel * timestep;
 
 	bool hasHitSomething;
 	int finalX, finalY, lastOkX, lastOkY;
@@ -268,6 +271,13 @@ void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType) {
 		case TERRAIN_BOUNCY:
 			break;
 	}
+
+	// Vector from the center of the ball to the hit position
+	float nx = data.x - hitX;
+	float ny = data.y - hitY;
+	// Amount of the velocity vector in the direction of n
+	float p = (nx * data.velY + ny * data.velX) / sqrt(nx*nx + ny*ny);
+	data.rotationVel = p / proj->radius;
 }
 
 void ProjDefault_Draw(float _) {}
