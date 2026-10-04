@@ -289,15 +289,6 @@ static void sceneUpdate(float speed) {
 	Text_SetContent(strokesText, "Strokes %i", strokes );
 }
 
-static void plotTrajectoryPoint(float initX, float initY, float velX, float velY,
-		int framesInFuture, float size, float depth, u32 color) {
-	float pointX = initX + (velX * framesInFuture);
-	float pointY = initY + (velY * framesInFuture)
-			+ (0.5 * PROJECTILE_GRAVITY * framesInFuture*framesInFuture);
-	C2D_DrawRectSolid(pointX - size/2, pointY - size/2, depth, size, size,
-			color);
-}
-
 static void sceneDraw() {
 	Terrain_UpdateGraphics();
 
@@ -354,23 +345,6 @@ static void sceneDraw() {
 		C2D_ViewTranslate(-320, 0);
 	}
 	C2D_ViewTranslate(-Course_GetScreenOffset(), 0);
-
-	if (canLaunch() && TouchInput_InProgress()) {
-		float projX, projY, velX, velY;
-		calculateLaunchVelocity(&velX, &velY);
-		Projectile_GetPos(&projX, &projY);
-
-		float strength = (velX*velX + velY*velY)
-				/ (LAUNCH_SPEED_MAX*LAUNCH_SPEED_MAX);
-		u32 color = strength > 0.75 ? COLOR_DRED
-				: strength > 0.5 ? COLOR_RED
-				: strength > 0.25 ? COLOR_ORANGE
-				: COLOR_LGREEN;
-		plotTrajectoryPoint(projX, projY, velX, velY, 5, 3, 1, color);
-		plotTrajectoryPoint(projX, projY, velX, velY, 10, 3, 1, color);
-		plotTrajectoryPoint(projX, projY, velX, velY, 15, 3, 1, color);
-		plotTrajectoryPoint(projX, projY, velX, velY, 20, 3, 1, color);
-	}
 
 	Terrain_Draw(0, 0, 0, fieldWidth, LEVEL_HEIGHT, NULL, NULL, NULL, NULL);
 	Animation_Draw(0.5);

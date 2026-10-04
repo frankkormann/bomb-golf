@@ -18,6 +18,9 @@
 #include "../util/touchinput.h"
 #include "../util/macros.h"
 
+//TODO Figure out how to share these between course and bomb
+#define LAUNCH_SPEED_MAX		6
+#define TOUCH_TO_LAUNCH_VEL_FACTOR	0.05
 
 #define BALL_RADIUS			4
 #define EXPLOSION_RADIUS		(data->isLarge ? 30 : 20)
@@ -201,14 +204,60 @@ static void drawAimingCircle(float depth) {
 			data->y + lineY, color, 1, depth);
 }
 
+//TODO Figure out how to share this between course and bomb
+static void calculateLaunchVelocity(float *velX, float *velY) {
+	TouchInput_Swipe stroke = TouchInput_GetSwipe();
+	float projX, projY;
+	Projectile_GetPos(&projX, &projY);
+	*velX = (float)(stroke.end.px - projX + Course_GetScreenOffset())
+			* TOUCH_TO_LAUNCH_VEL_FACTOR;
+	*velY = (float)(stroke.end.py - projY) * TOUCH_TO_LAUNCH_VEL_FACTOR;
+	float magnitude² = *velX * *velX + *velY * *velY;
+	if (magnitude² > LAUNCH_SPEED_MAX*LAUNCH_SPEED_MAX) {
+		// Set vector length to LAUNCH_SPEED_MAX
+		*velX *= LAUNCH_SPEED_MAX / sqrt(magnitude²);
+		*velY *= LAUNCH_SPEED_MAX / sqrt(magnitude²);
+	}
+}
+
+static void plotTrajectoryPoint(float initX, float initY, float velX, float velY,
+		int framesInFuture, float size, float depth, u32 color) {
+	float pointX = initX + (velX * framesInFuture);
+	float pointY = initY + (velY * framesInFuture)
+			+ (0.5 * PROJECTILE_GRAVITY * framesInFuture*framesInFuture);
+	C2D_DrawRectSolid(pointX - size/2, pointY - size/2, depth, size, size,
+			color);
+}
+
+static void plotTrajectoryPoints(float initX, float initY, float depth) {
+	float velX, velY;
+	calculateLaunchVelocity(&velX, &velY);
+
+	float strength = (velX*velX + velY*velY)
+			/ (LAUNCH_SPEED_MAX*LAUNCH_SPEED_MAX);
+	u32 color = strength > 0.75 ? COLOR_DRED
+			: strength > 0.5 ? COLOR_RED
+			: strength > 0.25 ? COLOR_ORANGE
+			: COLOR_LGREEN;
+	plotTrajectoryPoint(initX, initY, velX, velY, 5, 3, 1, color);
+	plotTrajectoryPoint(initX, initY, velX, velY, 10, 3, 1, color);
+	plotTrajectoryPoint(initX, initY, velX, velY, 15, 3, 1, color);
+	plotTrajectoryPoint(initX, initY, velX, velY, 20, 3, 1, color);
+}
+
 static void draw(float depth) {
 	ProjectileI_Data *data = ProjectileI_AccessData();
 	// Adding 1 to x and y when drawing makes it look better
 	switch (ballState) {
 		case FLYING_TIME_SLOWED:
 			drawAimingCircle(depth);
-			// fall through
+			goto drawBomb;
 		case WAITING:
+			if (TouchInput_InProgress()) {
+				plotTrajectoryPoints(data->x, data->y,
+						nextafterf(depth, -1));
+			}
+			goto drawBomb;
 		case FLYING_SHOULD_EXPLODE:
 drawBomb:
 			(data->isLarge ? SpriteSheet_DrawCenteredLarge
