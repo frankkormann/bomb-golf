@@ -55,6 +55,7 @@ typedef struct {
 /*
  * Allows reading/writing to internal state of the projectile.
  */
+//TODO Consider just making it an extern variable
 ProjectileI_Data* ProjectileI_AccessData();
 
 /*
