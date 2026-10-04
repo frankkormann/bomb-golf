@@ -18,6 +18,8 @@
 #include "components/popup.h"
 #include "components/button.h"
 #include "../environment/terrain.h"
+#include "../projectiles/bomb.h"
+#include "../projectiles/missile.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/color.h"
 #include "../rendering/spritesheet.h"
@@ -261,7 +263,8 @@ static void play() {
 	if (isLevelLoaded) {
 		Tracker_Clear();
 		Scene_Switch(sceneCourse,
-				&(Course_Params) { selectedLevel, inRomfs, false });
+				&(Course_Params) { selectedLevel, inRomfs, false,
+					projectileBomb });
 	}
 }
 
@@ -279,7 +282,8 @@ static void playSequence() {
 	if (firstLevel < SAVEDIR_NUM_LEVELS) {
 		Tracker_Clear();
 		Scene_Switch(sceneCourse,
-				&(Course_Params) { firstLevel, inRomfs, true });
+				&(Course_Params) { firstLevel, inRomfs, true,
+					projectileBomb });
 	} else {
 		Popup_Init("Create some levels first", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });

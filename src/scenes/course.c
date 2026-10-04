@@ -15,7 +15,6 @@
 #include "components/background.h"
 #include "components/border.h"
 #include "../projectile.h"
-#include "../projectiles/bomb.h"
 #include "../environment/obstacle.h"
 #include "../environment/terrain.h"
 #include "../rendering/color.h"
@@ -177,7 +176,7 @@ static bool sceneInit(void *sceneParams) {
 	holeWidth = hole.width;
 	holeHeight = hole.height;
 
-	Projectile_SetType(projectileBomb);
+	if (params->projectile) Projectile_SetType(params->projectile);
 	Projectile_SetPos(proj.startX, proj.startY);
 	Projectile_Reset();
 

@@ -7,11 +7,14 @@
 
 #include <stdbool.h>
 #include "../scene.h"
+#include "../projectile.h"
 
 typedef struct {
 	int level;
 	bool inRomfs;
 	bool isSequence;
+	/* Give NULL to continue using the last-used projectile */
+	Projectile projectile;
 } Course_Params;
 
 extern Scene sceneCourse;

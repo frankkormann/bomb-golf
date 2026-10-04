@@ -262,7 +262,7 @@ static void nextScene() {
 			Music_Stop();
 			Scene_Switch(sceneCourse,
 					&(Course_Params) { nextLevel, levelInRomfs,
-						isSequence });
+						isSequence, NULL });
 		} else {
 			Scene_Switch(sceneSummary,
 					&(Summary_Params) { levelInRomfs });
