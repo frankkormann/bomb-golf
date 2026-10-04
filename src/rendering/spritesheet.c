@@ -1,3 +1,4 @@
+#include <math.h>
 #include <3ds.h>
 #include <citro2d.h>
 #include "spritesheet.h"
@@ -76,11 +77,21 @@ void drawTopLeft(C2D_Image img, float x, float y, float depth, float angle,
 		}, NULL);
 }
 
+// (dx, dy) represent the correction amount without factoring in the angle
+static void correctCenterWithAngle(float *x, float *y, float dx, float dy,
+		float angle) {
+	float dxRot = (dx * cos(angle)) - (dy * sin(angle));
+	float dyRot = (dx * sin(angle)) + (dy * cos(angle));
+	*x += dxRot, *y += dyRot;
+}
+
 void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
 		float depth, float angle, bool flipHoriz, bool flipVert) {
 	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
 	// Make the drawn position match center of mass better
-	if (sprite == SPRITE_BOMB) y -= 3;
+	if (sprite == SPRITE_BOMB) correctCenterWithAngle(&x, &y, 0, -3, angle);
+	if (sprite == SPRITE_MISSILE_FLYING)
+		correctCenterWithAngle(&x, &y, 0, 3, angle);
 	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert, 1);
 }
 
@@ -88,7 +99,9 @@ void SpriteSheet_DrawCenteredLarge(SpriteSheet_Sprite sprite, float x, float y,
 		float depth, float angle, bool flipHoriz, bool flipVert) {
 	C2D_Image img = C2D_SpriteSheetGetImage(spriteSheet, sprite);
 	// Make the drawn position match center of mass better
-	if (sprite == SPRITE_BOMB) y -= 6;
+	if (sprite == SPRITE_BOMB) correctCenterWithAngle(&x, &y, 0, -6, angle);
+	if (sprite == SPRITE_MISSILE_FLYING)
+		correctCenterWithAngle(&x, &y, 0, 6, angle);
 	drawCenter(img, x, y, depth, angle, flipHoriz, flipVert, 2);
 }
 

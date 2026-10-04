@@ -138,7 +138,7 @@ C2D_Image SpriteSheet_GetImage(SpriteSheet_Sprite sprite);
 C2D_Image SpriteSheet_GetObstacleImage(SpriteSheet_ObstSprite obst);
 
 /*
- * For SPRITE_BOMB, the "center" is offset vertically to match the visual
+ * For some sprites, the "center" is offset vertically to match the visual
  * center of mass.
  */
 void SpriteSheet_DrawCentered(SpriteSheet_Sprite sprite, float x, float y,
