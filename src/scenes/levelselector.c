@@ -17,6 +17,7 @@
 #include "components/border.h"
 #include "components/popup.h"
 #include "components/button.h"
+#include "components/toggle.h"
 #include "../environment/terrain.h"
 #include "../projectiles/bomb.h"
 #include "../projectiles/missile.h"
@@ -56,12 +57,15 @@
 #define CARD_Y_GAP		(CARD_HEIGHT + 5)
 #define EXIT_BUTTON_X		-2
 #define EXIT_BUTTON_Y		(240 - 30 + 2)
+#define TOGGLE_X		222
+#define TOGGLE_Y		EXIT_BUTTON_Y
 
 static Dispatcher touchDispatcher;
 static Button playButton, playSeqButton, editButton, copySwapButton, deleteButton,
 		exitButton;
 static Text   playText,   playSeqText,   editText,   copySwapText,   deleteText,
 		exitText, hiscoreText;
+static Toggle projectileToggle;
 static bool inRomfs;
 
 static Button cards[NUM_CARD_ROWS * NUM_CARD_COLS];
@@ -110,6 +114,10 @@ static bool sceneInit(void *sceneParams) {
 			SPRITE_SMALL_BUTTON, -1, NULL, gotoTitle);
 	if (!exitButton) goto f_exitButton;
 
+	projectileToggle = Toggle_Create(TOGGLE_X, TOGGLE_Y, "Bomb", "Missile",
+			(int)projectileBomb, (int)projectileMissile, true);
+	if (!projectileToggle) goto f_projectileToggle;
+
 	Button_RegisterForTouchEvents(playButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(playSeqButton, touchDispatcher, 0);
 	if (!params->inRomfs) {
@@ -118,6 +126,7 @@ static bool sceneInit(void *sceneParams) {
 		Button_RegisterForTouchEvents(deleteButton, touchDispatcher, 0);
 	}
 	Button_RegisterForTouchEvents(exitButton, touchDispatcher, 0);
+	Toggle_RegisterForTouchEvents(projectileToggle, touchDispatcher, 0);
 
 	playText = Text_Create(5);
 	if (!playText) goto f_playText;
@@ -210,6 +219,8 @@ f_editText:
 f_playSeqText:
 	Text_Free(playText);
 f_playText:
+	Toggle_Free(projectileToggle);
+f_projectileToggle:
 	Button_Free(exitButton);
 f_exitButton:
 	if (!params->inRomfs) Button_Free(deleteButton);
@@ -238,6 +249,7 @@ static void sceneExit() {
 	Button_Free(playSeqButton);
 	Button_Free(playButton);
 	Button_Free(exitButton);
+	Toggle_Free(projectileToggle);
 	Dispatcher_Free(touchDispatcher);
 	BG_Free(levelPreview);
 	if (!inRomfs) {
@@ -264,7 +276,9 @@ static void play() {
 		Tracker_Clear();
 		Scene_Switch(sceneCourse,
 				&(Course_Params) { selectedLevel, inRomfs, false,
-					projectileBomb });
+						(Projectile)Toggle_GetValue(
+							projectileToggle)
+					});
 	}
 }
 
@@ -283,7 +297,9 @@ static void playSequence() {
 		Tracker_Clear();
 		Scene_Switch(sceneCourse,
 				&(Course_Params) { firstLevel, inRomfs, true,
-					projectileBomb });
+						(Projectile)Toggle_GetValue(
+							projectileToggle)
+					});
 	} else {
 		Popup_Init("Create some levels first", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
@@ -514,6 +530,7 @@ static void sceneDraw() {
 		Button_Draw(deleteButton, 0);
 	}
 	Button_Draw(exitButton, 0);
+	Toggle_Draw(projectileToggle, 0);
 	Text_Draw(playText, PLAY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
 	Text_Draw(playSeqText, PLAYSEQ_BUTTON_X + 50, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
