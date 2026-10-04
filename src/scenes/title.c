@@ -5,7 +5,7 @@
 #include "../scene.h"
 #include "scene_internal.h"
 #include "title.h"
-#include "course.h"
+#include "arsenal.h"
 #include "levelselector.h"
 #include "error.h"
 #include "settings.h"
@@ -41,7 +41,7 @@ static SaveIO_Achvmt achievements;
 
 static void startGame() {
 	Tracker_Clear();
-	Scene_Switch(sceneCourse, &(Course_Params) { 0, true, true });
+	Scene_Switch(sceneArsenal, &(Arsenal_Params) SCENE_PARAMS_EMPTY);
 }
 
 static void openEditor() {
