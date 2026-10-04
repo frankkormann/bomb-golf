@@ -1,6 +1,8 @@
 --atlas -f rgba8888 -z auto
 ball.png
 bomb.png
+missile.png
+missile_flying.png
 firework/firework1.png
 firework/firework2.png
 firework/firework3.png
