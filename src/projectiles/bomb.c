@@ -239,10 +239,9 @@ static void plotTrajectoryPoints(float initX, float initY, float depth) {
 			: strength > 0.5 ? COLOR_RED
 			: strength > 0.25 ? COLOR_ORANGE
 			: COLOR_LGREEN;
-	plotTrajectoryPoint(initX, initY, velX, velY, 5, 3, 1, color);
-	plotTrajectoryPoint(initX, initY, velX, velY, 10, 3, 1, color);
-	plotTrajectoryPoint(initX, initY, velX, velY, 15, 3, 1, color);
-	plotTrajectoryPoint(initX, initY, velX, velY, 20, 3, 1, color);
+	for (int t = 5; t <= 20; t += 5) {
+		plotTrajectoryPoint(initX, initY, velX, velY, t, 3, 1, color);
+	}
 }
 
 static void draw(float depth) {
