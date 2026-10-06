@@ -114,9 +114,16 @@ static bool sceneInit(void *sceneParams) {
 			SPRITE_SMALL_BUTTON, -1, NULL, gotoTitle);
 	if (!exitButton) goto f_exitButton;
 
-	projectileToggle = Toggle_Create(TOGGLE_X, TOGGLE_Y, "Bomb", "Missile",
-			(int)projectileBomb, (int)projectileMissile, true);
-	if (!projectileToggle) goto f_projectileToggle;
+	int hi;
+	bool gameBeaten = SaveIO_ReadOverallHighScore(&hi) && hi != INT_MAX;
+	if (gameBeaten) {
+		projectileToggle = Toggle_Create(TOGGLE_X, TOGGLE_Y, "Bomb",
+				"Missile", (int)projectileBomb,
+				(int)projectileMissile, true);
+		if (!projectileToggle) goto f_projectileToggle;
+	} else {
+		projectileToggle = NULL;
+	}
 
 	Button_RegisterForTouchEvents(playButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(playSeqButton, touchDispatcher, 0);
@@ -126,7 +133,9 @@ static bool sceneInit(void *sceneParams) {
 		Button_RegisterForTouchEvents(deleteButton, touchDispatcher, 0);
 	}
 	Button_RegisterForTouchEvents(exitButton, touchDispatcher, 0);
-	Toggle_RegisterForTouchEvents(projectileToggle, touchDispatcher, 0);
+	if (projectileToggle) {
+		Toggle_RegisterForTouchEvents(projectileToggle, touchDispatcher, 0);
+	}
 
 	playText = Text_Create(5);
 	if (!playText) goto f_playText;
@@ -219,7 +228,7 @@ f_editText:
 f_playSeqText:
 	Text_Free(playText);
 f_playText:
-	Toggle_Free(projectileToggle);
+	if (projectileToggle) Toggle_Free(projectileToggle);
 f_projectileToggle:
 	Button_Free(exitButton);
 f_exitButton:
@@ -249,7 +258,7 @@ static void sceneExit() {
 	Button_Free(playSeqButton);
 	Button_Free(playButton);
 	Button_Free(exitButton);
-	Toggle_Free(projectileToggle);
+	if (projectileToggle) Toggle_Free(projectileToggle);
 	Dispatcher_Free(touchDispatcher);
 	BG_Free(levelPreview);
 	if (!inRomfs) {
@@ -274,11 +283,12 @@ static void sceneExit() {
 static void play() {
 	if (isLevelLoaded) {
 		Tracker_Clear();
+		Projectile proj = projectileToggle
+				? (Projectile)Toggle_GetValue(projectileToggle)
+				: projectileBomb;
 		Scene_Switch(sceneCourse,
 				&(Course_Params) { selectedLevel, inRomfs, false,
-						(Projectile)Toggle_GetValue(
-							projectileToggle)
-					});
+						proj });
 	}
 }
 
@@ -295,11 +305,12 @@ static void playSequence() {
 
 	if (firstLevel < SAVEDIR_NUM_LEVELS) {
 		Tracker_Clear();
+		Projectile proj = projectileToggle
+				? (Projectile)Toggle_GetValue(projectileToggle)
+				: projectileBomb;
 		Scene_Switch(sceneCourse,
 				&(Course_Params) { firstLevel, inRomfs, true,
-						(Projectile)Toggle_GetValue(
-							projectileToggle)
-					});
+						proj });
 	} else {
 		Popup_Init("Create some levels first", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });
@@ -530,7 +541,7 @@ static void sceneDraw() {
 		Button_Draw(deleteButton, 0);
 	}
 	Button_Draw(exitButton, 0);
-	Toggle_Draw(projectileToggle, 0);
+	if (projectileToggle) Toggle_Draw(projectileToggle, 0);
 	Text_Draw(playText, PLAY_BUTTON_X + 24, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
 			1, TEXT_CENTER);
 	Text_Draw(playSeqText, PLAYSEQ_BUTTON_X + 50, BUTTON_Y + 5, 0.5, COLOR_LGRAY,
