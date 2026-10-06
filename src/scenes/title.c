@@ -6,11 +6,13 @@
 #include "scene_internal.h"
 #include "title.h"
 #include "arsenal.h"
+#include "course.h"
 #include "levelselector.h"
 #include "error.h"
 #include "settings.h"
 #include "components/button.h"
 #include "components/text.h"
+#include "../projectiles/bomb.h"
 #include "../rendering/color.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/spritesheet.h"
@@ -41,7 +43,13 @@ static SaveIO_Achvmt achievements;
 
 static void startGame() {
 	Tracker_Clear();
-	Scene_Switch(sceneArsenal, &(Arsenal_Params) SCENE_PARAMS_EMPTY);
+	// hiscoreText will be NULL iff the game hasn't been beaten once
+	if (hiscoreText) {
+		Scene_Switch(sceneArsenal, &(Arsenal_Params) SCENE_PARAMS_EMPTY);
+	} else {
+		Scene_Switch(sceneCourse,
+				&(Course_Params) { 0, true, true, projectileBomb });
+	}
 }
 
 static void openEditor() {
