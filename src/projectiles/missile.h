@@ -1,5 +1,6 @@
 /*
- * Projectile which transitions between a ball and missile state.
+ * Projectile which travels in a straightish line, ignoring gravity but
+ * guided by the player, until it hits terrain.
  *
  * Starts in the missile state where it moves in a straight line. Transitions
  * to the ball state after hitting something or when exploded by the player.

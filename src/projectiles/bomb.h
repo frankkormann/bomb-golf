@@ -1,5 +1,5 @@
 /*
- * Projectile which transitions between a ball and bomb state.
+ * Projectile which explodes when it hits terrain or by the player.
  *
  * Starts in the bomb state. Transitions to the ball state after hitting
  * ground or when exploded by the player. Clears a circle of terrain durng
