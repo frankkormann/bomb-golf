@@ -16,7 +16,7 @@
 #include "../projectiles/drill.h"
 #include "../util/dispatcher.h"
 
-#define INSTRUCTIONS_TEXT_Y	100
+#define INSTRUCTIONS_TEXT_Y	95
 
 #define BUTTON_X		58
 #define BUTTON_Y_START		70
