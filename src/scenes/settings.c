@@ -51,8 +51,9 @@ static bool sceneInit() {
 		bigBallEnabled = false;
 	}
 
-	mirrorToggle = Toggle_Create(BUTTON_X, OPTION_Y_START, "Yes", "No",
-			true, false, isMirrored);
+	mirrorToggle = Toggle_Create(BUTTON_X, OPTION_Y_START, 2,
+			isMirrored ? 0 : 1,
+			(Toggle_Button[]) { { "Yes", true }, { "No", false } });
 	if (!mirrorToggle) goto f_mirrorToggle;
 
 	speedUpButton = Button_Create(BUTTON_X + 80, OPTION_Y_START + OPTION_GAP,
@@ -66,11 +67,13 @@ static bool sceneInit() {
 	if (!speedDownButton) goto f_speedDownButton;
 
 	sensitivityToggle = Toggle_Create(BUTTON_X, OPTION_Y_START + 2*OPTION_GAP,
-			"On", "Off", true, false, isTouchSticky);
+			2, isTouchSticky ? 0 : 1,
+			(Toggle_Button[]) { { "On", true }, { "Off", false } });
 	if (!sensitivityToggle) goto f_sensitivityToggle;
 
 	bigBallToggle = Toggle_Create(BUTTON_X, OPTION_Y_START + 3*OPTION_GAP,
-			"On", "Off", true, false, bigBallEnabled);
+			2, bigBallEnabled ? 0 : 1,
+			(Toggle_Button[]) { { "On", true }, { "Off", false } });
 	if (!bigBallToggle) goto f_bigBallToggle;
 
 	saveButton = Button_Create(SAVE_BUTTON_X, SAVE_BUTTON_Y,

@@ -11,17 +11,26 @@
 
 typedef struct toggle *Toggle;
 
+typedef struct {
+	char *label;
+	int value;
+} Toggle_Button;
+
 /*
- * Creates a toggle with the chosen labels and values for its two states. Each
- * label should be relatively small so it doesn't overflow the button.
+ * Creates a toggle with the chosen buttons. Each label should be relatively
+ * small so it doesn't overflow the button.
  *
- * isLeftSelected controls the initial state of the toggle.
+ * The buttons are rendered in a horizontal row. (x, y) is the top-left
+ * position of the first button in the row. Buttons are drawn from left to
+ * right in the order they are in buttons.
+ *
+ * The button whose position in buttons matches initIndex will be initially
+ * selected.
  *
  * Returns NULL if an error occurs.
  */
-Toggle Toggle_Create(float x, float y, const char *leftLabel,
-		const char *rightLabel, int leftVal, int rightVal,
-		bool isLeftSelected);
+Toggle Toggle_Create(float x, float y, int numButtons, int initIndex,
+		Toggle_Button buttons[]);
 
 void Toggle_Free(Toggle toggle);
 

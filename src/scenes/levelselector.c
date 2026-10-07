@@ -21,6 +21,7 @@
 #include "../environment/terrain.h"
 #include "../projectiles/bomb.h"
 #include "../projectiles/missile.h"
+#include "../projectiles/drill.h"
 #include "../rendering/rendertarget.h"
 #include "../rendering/color.h"
 #include "../rendering/spritesheet.h"
@@ -57,7 +58,7 @@
 #define CARD_Y_GAP		(CARD_HEIGHT + 5)
 #define EXIT_BUTTON_X		-2
 #define EXIT_BUTTON_Y		(240 - 30 + 2)
-#define TOGGLE_X		222
+#define TOGGLE_X		170
 #define TOGGLE_Y		EXIT_BUTTON_Y
 
 static Dispatcher touchDispatcher;
@@ -117,10 +118,14 @@ static bool sceneInit(void *sceneParams) {
 	int hi;
 	bool gameBeaten = SaveIO_ReadOverallHighScore(&hi) && hi != INT_MAX;
 	if (gameBeaten) {
-		projectileToggle = Toggle_Create(TOGGLE_X, TOGGLE_Y, "Bomb",
-				"Missile", (int)projectileBomb,
-				(int)projectileMissile, true);
-		if (!projectileToggle) goto f_projectileToggle;
+		Toggle_Button buttons[] = {
+				{ "Bomb",    (int)projectileBomb    },
+				{ "Missile", (int)projectileMissile },
+				{ "Drill",   (int)projectileDrill   }
+			};
+		projectileToggle = Toggle_Create(TOGGLE_X, TOGGLE_Y, 3, 0, buttons);
+		// Don't need to check for projectileToggle = NULL since it's not
+		// necessary for the scene and sometimes it isn't loaded anyway
 	} else {
 		projectileToggle = NULL;
 	}
@@ -229,7 +234,6 @@ f_playSeqText:
 	Text_Free(playText);
 f_playText:
 	if (projectileToggle) Toggle_Free(projectileToggle);
-f_projectileToggle:
 	Button_Free(exitButton);
 f_exitButton:
 	if (!params->inRomfs) Button_Free(deleteButton);
