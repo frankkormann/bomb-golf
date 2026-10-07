@@ -13,36 +13,36 @@
 #include "../rendering/draw3d.h"
 #include "../projectiles/bomb.h"
 #include "../projectiles/missile.h"
+#include "../projectiles/drill.h"
 #include "../util/dispatcher.h"
 
 #define INSTRUCTIONS_TEXT_Y	100
 
 #define BUTTON_X		58
 #define BUTTON_Y_START		70
-#define BUTTON_GAP		40
+#define BUTTON_GAP		35
 
-static Button bombButton, missileButton;
-static Text   bombText,   missileText, instructionsText;
+static Button bombButton, missileButton, drillButton;
+static Text   bombText,   missileText,   drillText, instructionsText;
 static Dispatcher touchDispatcher;
 
-static void selectBomb() {
+static void selectProjectile(void *projectile) {
 	Scene_Switch(sceneCourse, &(Course_Params) { 0, true, true,
-			projectileBomb });
-}
-
-static void selectMissile() {
-	Scene_Switch(sceneCourse, &(Course_Params) { 0, true, true,
-			projectileMissile });
+			projectile });
 }
 
 static bool sceneInit() {
 	bombButton = Button_Create(BUTTON_X, BUTTON_Y_START, SPRITE_LONG_BUTTON,
-			-1, NULL, selectBomb);
+			-1, projectileBomb, selectProjectile);
 	if (!bombButton) goto f_bombButton;
 
 	missileButton = Button_Create(BUTTON_X, BUTTON_Y_START + BUTTON_GAP,
-			SPRITE_LONG_BUTTON, -1, NULL, selectMissile);
+			SPRITE_LONG_BUTTON, -1, projectileMissile, selectProjectile);
 	if (!missileButton) goto f_missileButton;
+
+	drillButton = Button_Create(BUTTON_X, BUTTON_Y_START + 2*BUTTON_GAP,
+			SPRITE_LONG_BUTTON, -1, projectileDrill, selectProjectile);
+	if (!drillButton) goto f_drillButton;
 
 	instructionsText = Text_Create(19);
 	if (!instructionsText) goto f_instructionsText;
@@ -56,21 +56,30 @@ static bool sceneInit() {
 	if (!missileText ) goto f_missileText ;
 	Text_SetContent(missileText , "Missile");
 
+	drillText = Text_Create(6);
+	if (!drillText ) goto f_drillText ;
+	Text_SetContent(drillText , "Drill");
+
 	touchDispatcher = Dispatcher_Create();
 	if (!touchDispatcher) goto f_touchDispatcher;
 
 	Button_RegisterForTouchEvents(bombButton, touchDispatcher, 0);
 	Button_RegisterForTouchEvents(missileButton, touchDispatcher, 0);
+	Button_RegisterForTouchEvents(drillButton, touchDispatcher, 0);
 
 	return true;
 
 f_touchDispatcher:
+	Text_Free(drillText);
+f_drillText:
 	Text_Free(missileText);
 f_missileText:
 	Text_Free(bombText);
 f_bombText:
 	Text_Free(instructionsText);
 f_instructionsText:
+	Button_Free(drillButton);
+f_drillButton:
 	Button_Free(missileButton);
 f_missileButton:
 	Button_Free(bombButton);
@@ -82,9 +91,11 @@ static void sceneExit() {
 	Dispatcher_Free(touchDispatcher);
 	Text_Free(missileText);
 	Text_Free(bombText);
+	Text_Free(drillText);
 	Text_Free(instructionsText);
 	Button_Free(missileButton);
 	Button_Free(bombButton);
+	Button_Free(drillButton);
 }
 
 static void sceneUpdate(float _) {
@@ -119,6 +130,9 @@ static void sceneDraw() {
 			TEXT_LEFT);
 	Button_Draw(missileButton, 0);
 	Text_Draw(missileText, BUTTON_X + 10, BUTTON_Y_START + BUTTON_GAP + 5, 1,
+			COLOR_LGRAY, 1, TEXT_LEFT);
+	Button_Draw(drillButton, 0);
+	Text_Draw(drillText, BUTTON_X + 10, BUTTON_Y_START + 2*BUTTON_GAP + 5, 1,
 			COLOR_LGRAY, 1, TEXT_LEFT);
 }
 
