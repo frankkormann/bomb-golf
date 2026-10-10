@@ -10,6 +10,7 @@
 typedef struct animation *Animation;
 typedef union animation_params Animation_Params;
 
+//TODO Transition these params to the Scene-style structs
 #include "animations/explosion.h"
 #include "animations/firework.h"
 #include "animations/smoke.h"
