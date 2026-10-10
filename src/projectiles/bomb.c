@@ -96,7 +96,7 @@ static bool move(float timestep, float *hitX, float *hitY, Terrain_Type *hitType
 	}
 
 	bool hitSomething = ProjDefault_Move(timestep, hitX, hitY, hitType);
-	if (ballState == FLYING_TIME_SLOWED) {		
+	if (ballState == FLYING_TIME_SLOWED) {
 		timeSlow += timestep/TIME_SLOW_FACTOR;
 		if (timeSlow > TIME_SLOW_MAX_FRAMES) {
 			Scene_MultSpeed(1/TIME_SLOW_FACTOR);
