@@ -164,7 +164,7 @@ void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious) {
 void Terrain_ClearPixel(int x, int y) {
 	if (typeMap[x + y*width] == TERRAIN_EXPLOSIVE) {
 		Queue_Push(tilesToExplode, (void*)(x + y*width));
-	} else {
+	} else if (typeMap[x + y*width] != TERRAIN_NOTHING) {
 		typeMap[x + y*width] = TERRAIN_NOTHING;
 		BG_ClearPixel(bg, x, y);
 	}
