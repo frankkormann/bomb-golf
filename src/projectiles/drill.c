@@ -25,8 +25,8 @@
 #define EXPLOSION_BOOST			1
 #define MIN_SPEED_AFTER_EXPLOSION	3
 
-#define SPIKE_VELOCITY_X		2
-#define SPIKE_VELOCITY_Y		4
+#define SPIKE_VELOCITY_X		3
+#define SPIKE_VELOCITY_Y		3
 
 #define ANIMATION_FRAME_TIME		5
 
@@ -125,7 +125,7 @@ static bool move(float timestep, float *hitX, float *hitY,
 	ProjectileI_Data *data = ProjectileI_AccessData();
 
 	if (TouchInput_JustStarted() && drillState == FLYING_DRILL) {
-		data->velX = SPIKE_VELOCITY_X * data->velX >= 0 ? 1 : -1;
+		data->velX = SPIKE_VELOCITY_X * (data->velX >= 0 ? 1 : -1);
 		data->velY = SPIKE_VELOCITY_Y;
 	}
 
