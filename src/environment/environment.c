@@ -4,6 +4,10 @@
 #include "../scenes/course.h"
 
 void Env_ClearCircle(int x, int y, int radius) {
+	Env_ClearCircleExcept(x, y, radius, TERRAIN_NOTHING);
+}
+
+void Env_ClearCircleExcept(int x, int y, int radius, Terrain_Type excluded) {
 	//https://stackoverflow.com/a/24453110
 	int r2 = radius * radius;
 	int area = r2 << 2;
@@ -16,7 +20,8 @@ void Env_ClearCircle(int x, int y, int radius) {
 		int ny = y + ty;
 		if (tx * tx + ty * ty <= r2 && nx >= 0 && ny >= 0
 				&& nx < Course_GetFieldWidth()
-				&& ny < Course_GetFieldHeight()) {
+				&& ny < Course_GetFieldHeight()
+				&& Terrain_TypeAt(nx, ny) != excluded) {
 			Terrain_ClearPixel(nx, ny);
 		}
 	}

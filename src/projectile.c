@@ -263,6 +263,7 @@ void ProjDefault_OnHitGround(float hitX, float hitY, Terrain_Type hitType) {
 
 	switch (hitType) {
 		case TERRAIN_GROUND:
+		case TERRAIN_HOLE:
 		case TERRAIN_EXPLOSIVE:
 		case TERRAIN_NOTHING:  // Cover for an imprecise hit position
 			data.velX *= BOUNCE_VELOCITY_RETENTION_X;

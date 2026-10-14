@@ -50,6 +50,9 @@ Terrain_Type getTerrainForTile(Tile tile) {
 	switch (Tile_GetSprite(tile)) {
 		default:
 			return TERRAIN_GROUND;
+		case SPRITE_TILE_HOLE_WALL:
+		case SPRITE_TILE_HOLE_WALL_TRIANGLE:
+			return TERRAIN_HOLE;
 		case SPRITE_TILE_OVERLAY_BOUNCY:
 		case SPRITE_TILE_OVERLAY_BOUNCY_TRIANGLE:
 			return TERRAIN_BOUNCY;
@@ -132,24 +135,29 @@ static void setTerrainForTriangle(int x, int y, u8 orientation, Terrain_Type typ
 	}
 }
 
-void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious) {
-	if (clearPrevious) {
-		for (int j = 0; j < TILE_SIZE; j++) {
-			for (int i = 0; i < TILE_SIZE; i++) {
-				typeMap[x+i + (y+j)*width] = TERRAIN_NOTHING;
-			}
+static void setTerrainForFull(int x, int y, Terrain_Type type) {
+	for (int j = 0; j < TILE_SIZE; j++) {
+		for (int i = 0; i < TILE_SIZE; i++) {
+			typeMap[x+i + (y+j)*width] = type;
 		}
 	}
+}
+
+void Terrain_FillTile(int x, int y, Tile tile, bool clearPrevious) {
+	if (clearPrevious) {
+		setTerrainForFull(x, y, TERRAIN_NOTHING);
+	}
 	Terrain_Type type = getTerrainForTile(tile);
-	switch (Tile_GetHitbox(tile)) {
+	// Since this tile is a triangular hole segment on a ground background,
+	// we need to fill the background before filling the tile as a triangle
+	if (Tile_GetSprite(tile) == SPRITE_TILE_HOLE_WALL_TRIANGLE) {
+		setTerrainForFull(x, y, TERRAIN_GROUND);
+		setTerrainForTriangle(x, y, Tile_GetOrientFlags(tile), type);
+	} else switch (Tile_GetHitbox(tile)) {
 		case TILE_HITBOX_NONE:
 			break;
 		case TILE_HITBOX_FULL:
-			for (int j = 0; j < TILE_SIZE; j++) {
-				for (int i = 0; i < TILE_SIZE; i++) {
-					typeMap[x+i + (y+j)*width] = type;
-				}
-			}
+			setTerrainForFull(x, y, type);
 			break;
 		case TILE_HITBOX_HALF:
 			setTerrainForHalf(x, y, Tile_GetOrientFlags(tile), type);

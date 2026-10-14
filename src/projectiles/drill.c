@@ -96,7 +96,7 @@ static void clearPath(int x0, int y0, int x1, int y1, int width) {
     	int error = dx + dy;
 
 	while (true) {
-		Env_ClearCircle(x0, y0, width);
+		Env_ClearCircleExcept(x0, y0, width, TERRAIN_HOLE);
        		int e2 = 2 * error;
 		if (e2 >= dy) {
 			if (x0 == x1) break;
@@ -148,28 +148,31 @@ static bool move(float timestep, float *hitX, float *hitY,
 
 	float oldVelY = data->velY;
 	bool hitSomething = ProjDefault_Move(timestep, hitX, hitY, hitType);
-	if (drillState == DRILLING) data->velY = oldVelY - 2*(data->velY - oldVelY);
+	if (drillState == DRILLING) data->velY = oldVelY;
 
 	return hitSomething;
 }
 
 static void onHitGround(float hitX, float hitY, Terrain_Type hitType) {
-	if (drillState == FLYING_DRILL) {
-		if (hitX > 0 && hitX < Course_GetFieldWidth()-1
-				&& hitY > 0 && hitY < Course_GetFieldHeight()-1) {
-			drillState = DRILLING;
-		} else {
+	switch (drillState) {
+		case WAITING:
+		case FLYING_BALL:
 			ProjDefault_OnHitGround(hitX, hitY, hitType);
-		}
-	}
-	if (drillState == DRILLING) {
-		if (hitX <= 0 || hitX >= Course_GetFieldWidth()-1
-				|| hitY <= 0 || hitY >= Course_GetFieldHeight()-1) {
-			ProjDefault_OnHitGround(hitX, hitY, hitType);
-		}
-	}
-	if (drillState == WAITING || drillState == FLYING_BALL) {
-		ProjDefault_OnHitGround(hitX, hitY, hitType);
+			break;
+		case DRILLING:
+			if (hitType == TERRAIN_HOLE) {
+				ProjDefault_OnHitGround(hitX, hitY, hitType);
+				break;
+			}
+		case FLYING_DRILL:
+			if (hitX > 0 && hitX < Course_GetFieldWidth()-1
+					&& hitY > 0
+					&& hitY < Course_GetFieldHeight()-1) {
+				drillState = DRILLING;
+			} else {
+				ProjDefault_OnHitGround(hitX, hitY, hitType);
+			}
+			break;
 	}
 }
 
