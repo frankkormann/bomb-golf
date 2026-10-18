@@ -35,6 +35,8 @@ struct background {
 	Queue renderQueue;
 	u32 clearColor;
 	bool isDirty;
+	// (x, y) goes to [x + y*width]
+	bool *isCleared;
 };
 
 Background BG_Create(unsigned int width, unsigned int height, u32 clearColor) {
@@ -65,8 +67,13 @@ Background BG_Create(unsigned int width, unsigned int height, u32 clearColor) {
 	bg->clearColor = clearColor;
 	bg->isDirty = true;
 
+	bg->isCleared = calloc(width * height, sizeof(*bg->isCleared));
+	if (!bg->isCleared) goto f_isCleared;
+
 	return bg;
 
+f_isCleared:
+	Queue_Free(bg->renderQueue);
 f_renderQueue:
 	C3D_RenderTargetDelete(bg->texTarget);
 f_texTarget:
@@ -84,6 +91,7 @@ void BG_Free(Background bg) {
 		free(Queue_Pop(bg->renderQueue));
 	}
 	Queue_Free(bg->renderQueue);
+	free(bg->isCleared);
 	free(bg);
 }
 
@@ -103,10 +111,18 @@ bool BG_DrawTile(Background bg, Tile tile, int x, int y, bool clearPrevious) {
 		free(o);
 		return false;
 	}
+
+	for (int i = x; i < x + TILE_SIZE; i++) {
+		for (int j = y; j < y + TILE_SIZE; j++) {
+			bg->isCleared[i + (j * bg->subtex.width)] = false;
+		}
+	}
 	return true;
 }
 
 bool BG_ClearPixel(Background bg, int x, int y) {
+	if (bg->isCleared[x + (y * bg->subtex.width)]) return true;
+
 	RenderObj *o = malloc(sizeof(*o));
 	if (!o) return false;
 
@@ -116,14 +132,16 @@ bool BG_ClearPixel(Background bg, int x, int y) {
 		free(o);
 		return false;
 	}
+
+	bg->isCleared[x + (y * bg->subtex.width)] = true;
 	return true;
 }
 
-void drawPoint(RenderPoint point) {
+static void drawPoint(RenderPoint point) {
 	C2D_DrawRectSolid(point.x, point.y, 0, 1, 1, point.color);
 }
 
-void drawTile(RenderTile tile) {
+static void drawTile(RenderTile tile) {
 	SpriteSheet_TileSprite sprite = Tile_GetSprite(tile.type);
 	u8 orientation = Tile_GetOrientFlags(tile.type);
 	SpriteSheet_DrawTile(
@@ -139,6 +157,9 @@ void drawTile(RenderTile tile) {
 
 void BG_ClearAll(Background bg) {
 	bg->isDirty = true;
+	for (int i = 0; i < bg->subtex.width * bg->subtex.height; i++) {
+		bg->isCleared[i] = true;
+	}
 }
 
 void BG_UpdateGraphics(Background bg) {

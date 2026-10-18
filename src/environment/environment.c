@@ -4,7 +4,7 @@
 #include "../scenes/course.h"
 
 void Env_ClearCircle(int x, int y, int radius) {
-	Env_ClearCircleExcept(x, y, radius, TERRAIN_NOTHING);
+	Env_ClearCircleExcept(x, y, radius, -1);
 }
 
 void Env_ClearCircleExcept(int x, int y, int radius, Terrain_Type excluded) {
