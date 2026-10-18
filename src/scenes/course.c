@@ -258,7 +258,8 @@ static void sceneUpdate(float speed) {
 
 	if (kDown & KEY_B && !isSequence) {
 		Scene_Switch(sceneLevelSelector,
-				&(LevelSelector_Params) { level, levelInRomfs });
+				&(LevelSelector_Params) { level, levelInRomfs,
+					NULL });
 	}
 
 	if (canLaunch()) {

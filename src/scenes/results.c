@@ -270,7 +270,8 @@ static void nextScene() {
 	} else {
 		Music_Stop();
 		Scene_Switch(sceneLevelSelector,
-				&(LevelSelector_Params) { level, levelInRomfs });
+				&(LevelSelector_Params) { level, levelInRomfs,
+					NULL });
 	}
 }
 

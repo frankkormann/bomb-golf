@@ -53,11 +53,13 @@ static void startGame() {
 }
 
 static void openEditor() {
-	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1, false });
+	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1, false,
+			projectileBomb });
 }
 
 static void openPractice() {
-	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1, true });
+	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { -1, true,
+			projectileBomb });
 }
 
 static void openSettings() {

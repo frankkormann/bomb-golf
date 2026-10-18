@@ -68,6 +68,7 @@ static Text   playText,   playSeqText,   editText,   copySwapText,   deleteText,
 		exitText, hiscoreText;
 static Toggle projectileToggle;
 static bool inRomfs;
+static Projectile projectile;
 
 static Button cards[NUM_CARD_ROWS * NUM_CARD_COLS];
 static Text cardNumbers[NUM_CARD_ROWS * NUM_CARD_COLS];
@@ -123,7 +124,13 @@ static bool sceneInit(void *sceneParams) {
 				{ "Missile", (int)projectileMissile },
 				{ "Drill",   (int)projectileDrill   }
 			};
-		projectileToggle = Toggle_Create(TOGGLE_X, TOGGLE_Y, 3, 0, buttons);
+		Projectile toUse = params->selectedProj ? params->selectedProj
+				: projectile;
+		int selected = toUse == projectileBomb ? 0
+				: toUse == projectileMissile ? 1
+				: 2;
+		projectileToggle = Toggle_Create(TOGGLE_X, TOGGLE_Y, 3, selected,
+				buttons);
 		// Don't need to check for projectileToggle = NULL since it's not
 		// necessary for the scene and sometimes it isn't loaded anyway
 	} else {
@@ -204,6 +211,7 @@ static bool sceneInit(void *sceneParams) {
 
 	inCopyMode = false;
 	inRomfs = params->inRomfs;
+	if (params->selectedProj) projectile = params->selectedProj;
 	select(params->level);
 
 	return true;
@@ -253,6 +261,11 @@ f_touchDispatcher:
 }
 
 static void sceneExit() {
+	// Make sure projectile gets updated for reentry
+	projectile = projectileToggle
+			? (Projectile)Toggle_GetValue(projectileToggle)
+			: projectileBomb;
+
 	Text_Free(infoText);
 	Text_Free(parText);
 	Text_Free(nameText);
@@ -287,12 +300,12 @@ static void sceneExit() {
 static void play() {
 	if (isLevelLoaded) {
 		Tracker_Clear();
-		Projectile proj = projectileToggle
+		projectile = projectileToggle
 				? (Projectile)Toggle_GetValue(projectileToggle)
 				: projectileBomb;
 		Scene_Switch(sceneCourse,
 				&(Course_Params) { selectedLevel, inRomfs, false,
-						proj });
+						projectile });
 	}
 }
 
@@ -309,12 +322,12 @@ static void playSequence() {
 
 	if (firstLevel < SAVEDIR_NUM_LEVELS) {
 		Tracker_Clear();
-		Projectile proj = projectileToggle
+		projectile = projectileToggle
 				? (Projectile)Toggle_GetValue(projectileToggle)
 				: projectileBomb;
 		Scene_Switch(sceneCourse,
 				&(Course_Params) { firstLevel, inRomfs, true,
-						proj });
+						projectile });
 	} else {
 		Popup_Init("Create some levels first", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "Ok", -1, NULL, Popup_Exit } });

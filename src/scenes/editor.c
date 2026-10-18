@@ -497,7 +497,7 @@ static void saveExit() {
 	Popup_Exit();
 	if (exportLevel()) {
 		Scene_Switch(sceneLevelSelector,
-				&(LevelSelector_Params) { level, false });
+				&(LevelSelector_Params) { level, false, NULL });
 	} else {
 		Popup_Init("Failed to save file", POPUP_ONE_BUTTON,
 				(Popup_Button[]) { { "OK", -1, NULL, Popup_Exit } });
@@ -506,7 +506,8 @@ static void saveExit() {
 
 static void exitNoSave() {
 	Popup_Exit();
-	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { level, false });
+	Scene_Switch(sceneLevelSelector, &(LevelSelector_Params) { level, false,
+			NULL });
 }
 
 static void showExitPopup() {
