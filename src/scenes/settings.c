@@ -247,8 +247,8 @@ static bool handleTouchInput() {
 			Text_SetContent(infoText, "Whether to ignore small lapses"
 					" in the stylus touching\nthe screen."
 					" Enabling will add a small delay to"
-					"\nexploding the ball, but may decrease"
-					" unintentional inputs.");
+					" actions\nrequiring lifting the stylus, but"
+					" may decrease\nunintentional inputs.");
 			isOptionSelected = true;
 			return true;
 		}
