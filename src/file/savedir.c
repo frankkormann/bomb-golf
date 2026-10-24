@@ -35,11 +35,11 @@ static int getHashTableLength(int numEntries) {
 
 bool SaveDir_Mount() {
 	#ifdef _CIA
-		Result res = archiveMount(ARCHIVE_SAVEDIR,
+		Result res = archiveMount(ARCHIVE_SAVEDATA,
 				fsMakePath(PATH_EMPTY, ""), CIA_DEVICE_NAME);
 		if (R_FAILED(res)) {
-			res = FSUSER_FormatSaveDir(
-					ARCHIVE_SAVEDIR,
+			res = FSUSER_FormatSaveData(
+					ARCHIVE_SAVEDATA,
 					fsMakePath(PATH_EMPTY, ""),
 					512,
 					0,
@@ -49,7 +49,7 @@ bool SaveDir_Mount() {
 					false
 				);
 			if (R_FAILED(res)) return false;
-			res = archiveMount(ARCHIVE_SAVEDIR,
+			res = archiveMount(ARCHIVE_SAVEDATA,
 					fsMakePath(PATH_EMPTY, ""), CIA_DEVICE_NAME);
 			if (R_FAILED(res)) return false;
 		}
@@ -69,7 +69,7 @@ bool SaveDir_Mount() {
 
 void SaveDir_Unmount() {
 	#ifdef _CIA
-		archiveCommitSaveDir(CIA_DEVICE_NAME);
+		archiveCommitSaveData(CIA_DEVICE_NAME);
 		archiveUnmount(CIA_DEVICE_NAME);
 	#endif
 }
