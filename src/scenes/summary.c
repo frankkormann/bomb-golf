@@ -22,6 +22,7 @@
 #include "../util/tracker.h"
 #include "../util/macros.h"
 #include "../util/touchinput.h"
+#include "../projectile.h"
 
 #define BORDER_MARGIN_HORIZ	10
 #define BORDER_MARGIN_VERT	5
@@ -96,7 +97,7 @@ static bool sceneInit(void *sceneParams) {
 	}
 
 	if (params->inRomfs) {
-		SaveIO_UpdateOverallScore(overallScore);
+		SaveIO_UpdateOverallScore(overallScore, Projectile_GetType());
 		SaveIO_Achvmt achievements = 0;
 		if (Tracker_Get(TRACKER_KILLS) == 0) {
 			achievements |= ACHVMT_PEACE;

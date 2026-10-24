@@ -6,6 +6,7 @@
 #define SAVEIO_H
 
 #include <stdbool.h>
+#include "../projectile.h"
 
 typedef enum {
 	/* Cleared the course without destroying any obstacles */
@@ -21,12 +22,14 @@ typedef enum {
 } SaveIO_Achvmt;
 
 /*
- * Reads the high scores for individual levels into scores. If there is no
- * high score for a level, it is reported as INT_MAX.
+ * Reads the high scores for individual levels for each projectile into their
+ * respective xyzScores. If there is no high score for a slot, it is reported
+ * as INT_MAX.
  *
  * Returns false if an error occurs.
  */
-bool SaveIO_ReadHighScores(int scores[18]);
+bool SaveIO_ReadHighScores(int bombScores[18], int missileScores[18],
+		int drillScores[18]);
 
 /*
  * Writes the high score if it is better than the current high score. If
@@ -35,21 +38,22 @@ bool SaveIO_ReadHighScores(int scores[18]);
  *
  * Returns false if an error occurs.
  */
-bool SaveIO_UpdateScore(int level, int score, bool *didUpdate);
+bool SaveIO_UpdateScore(int level, int score, Projectile proj, bool *didUpdate);
 
 /*
- * Reads the overall high score into score. The overall score is for the entire
- * 18-level campaign. If there is no high score, INT_MAX is reported.
+ * Reads the overall high score for each projectile into its respective
+ * xysScore. The overall score is for the entire 18-level campaign. If there is
+ * no high score, INT_MAX is reported.
  *
  * Returns false if an error occurs or there is no high score.
  */
-bool SaveIO_ReadOverallHighScore(int *score);
+bool SaveIO_ReadOverallHighScore(int *bombScore, int *missileScore, int *drillScore);
 
 /*
  * Writes the overall high score if it is better than the current one. Returns
  * false if an error occurs.
  */
-bool SaveIO_UpdateOverallScore(int score);
+bool SaveIO_UpdateOverallScore(int score, Projectile proj);
 
 /*
  * Reads the achieved achievements into achievements as a bit field. Returns

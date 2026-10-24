@@ -21,6 +21,11 @@ typedef struct projectile *Projectile;
  */
 void Projectile_SetType(Projectile proj);
 
+/*
+ * Returns the current active projectile type. May return NULL.
+ */
+Projectile Projectile_GetType();
+
 void Projectile_SetPos(float x, float y);
 void Projectile_GetPos(float *x, float *y);
 bool Projectile_IsMoving();

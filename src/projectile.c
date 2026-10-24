@@ -34,6 +34,10 @@ void Projectile_SetType(Projectile newProj) {
 	}
 }
 
+Projectile Projectile_GetType() {
+	return proj;
+}
+
 void Projectile_SetPos(float x, float y) {
 	data.x = x;
 	data.y = y;

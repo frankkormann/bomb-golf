@@ -26,6 +26,7 @@
 #include "../util/tracker.h"
 #include "../util/touchinput.h"
 #include "../util/macros.h"
+#include "../projectile.h"
 
 #define COMPLETE_TEXT_Y		20
 #define LEVEL_PREVIEW_X		10
@@ -134,7 +135,7 @@ static bool sceneInit(void *sceneParams) {
 	Tracker_Update(TRACKER_LVL1 + params->level, params->strokes - par);
 	if (params->levelInRomfs) {
 		SaveIO_UpdateScore(params->level, params->strokes - par,
-				&isHighScore);
+				Projectile_GetType(), &isHighScore);
 	} else {
 		isHighScore = false;
 	}

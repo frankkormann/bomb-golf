@@ -3,14 +3,22 @@
 #include <3ds.h>
 #include "saveio.h"
 #include "savedir.h"
+#include "../projectile.h"
+#include "../projectiles/bomb.h"
+#include "../projectiles/missile.h"
+#include "../projectiles/drill.h"
 #include "../util/macros.h"
 
 #define SAVEFILE "save.bin"
 
 /*
  * Save file layout:
- *     18 ints  for high scores
- *      1 int   for overall high score
+ *     18 ints  for bomb high scores
+ *      1 int   for overall bomb high score
+ *     18 ints  for missile high scores
+ *      1 int   for overall missile high score
+ *     18 ints  for drill high scores
+ *      1 int   for overall drill high score
  *      1 u16   for achievements
  *      1 bool  for mirrored setting
  *      1 bool  for touchscreen sensitivity setting
@@ -18,13 +26,17 @@
  *      1 bool  for big ball setting
  */
 
-#define HISCORE_OFFSET		0
-#define TOTAL_HISCORE_OFFSET	(HISCORE_OFFSET + sizeof(int) * 18)
-#define ACHVMT_OFFSET		(TOTAL_HISCORE_OFFSET + sizeof(int))
-#define MIRRORED_OFFSET		(ACHVMT_OFFSET + sizeof(u16))
-#define SENSITIVITY_OFFSET	(MIRRORED_OFFSET + sizeof(bool))
-#define SPEED_OFFSET		(SENSITIVITY_OFFSET + sizeof(bool))
-#define BIGBALL_OFFSET		(SPEED_OFFSET + sizeof(float))
+#define HISCORE_BOMB_OFF		0
+#define TOT_HISCORE_BOMB_OFF		(HISCORE_BOMB_OFF        + sizeof(int) * 18)
+#define HISCORE_MISSILE_OFF		(TOT_HISCORE_BOMB_OFF    + sizeof(int))
+#define TOT_HISCORE_MISSILE_OFF		(HISCORE_MISSILE_OFF     + sizeof(int) * 18)
+#define HISCORE_DRILL_OFF		(TOT_HISCORE_MISSILE_OFF + sizeof(int))
+#define TOT_HISCORE_DRILL_OFF		(HISCORE_DRILL_OFF        + sizeof(int) * 18)
+#define ACHVMT_OFF			(TOT_HISCORE_DRILL_OFF    + sizeof(int))
+#define MIRRORED_OFF			(ACHVMT_OFF              + sizeof(u16))
+#define SENSITIVITY_OFF			(MIRRORED_OFF            + sizeof(bool))
+#define SPEED_OFF			(SENSITIVITY_OFF         + sizeof(bool))
+#define BIGBALL_OFF			(SPEED_OFF               + sizeof(float))
 
 FILE* openSaveFile() {
 	char path[32];
@@ -33,8 +45,9 @@ FILE* openSaveFile() {
 	if (!f) {
 		f = fopen(path, "wb");
 		if (!f) return NULL;
-		fseek(f, HISCORE_OFFSET, SEEK_SET);
-		for (int i = 0; i < 19; i++) {
+		// All the high scores are adjacent
+		fseek(f, HISCORE_BOMB_OFF, SEEK_SET);
+		for (int i = 0; i < 3*18 + 3; i++) {
 			fwrite((int[]) { INT_MAX }, sizeof(int), 1, f);
 		}
 		// Have to do this so the results from the fwrites are visible
@@ -46,25 +59,40 @@ FILE* openSaveFile() {
 	return f;
 }
 
-bool SaveIO_ReadHighScores(int scores[18]) {
+bool SaveIO_ReadHighScores(int bombScores[18], int missileScores[18],
+		int drillScores[18]) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
-	fseek(f, HISCORE_OFFSET, SEEK_SET);
-	if (fread(scores, sizeof(int), 18, f) < 18) {
+	fseek(f, HISCORE_BOMB_OFF, SEEK_SET);
+	if (fread(bombScores, sizeof(int), 18, f) < 18) {
 		fclose(f);
 		return false;
 	}
+	fseek(f, HISCORE_MISSILE_OFF, SEEK_SET);
+	if (fread(missileScores, sizeof(int), 18, f) < 18) {
+		fclose(f);
+		return false;
+	}
+	fseek(f, HISCORE_DRILL_OFF, SEEK_SET);
+	if (fread(drillScores, sizeof(int), 18, f) < 18) {
+		fclose(f);
+		return false;
+	}
+
 	fclose(f);
 	return true;
 }
 
-bool SaveIO_UpdateScore(int level, int score, bool *didUpdate) {
+bool SaveIO_UpdateScore(int level, int score, Projectile proj, bool *didUpdate) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
+	size_t offset = proj == projectileBomb ? HISCORE_BOMB_OFF
+			: proj == projectileMissile ? HISCORE_MISSILE_OFF
+			: HISCORE_DRILL_OFF;
 	int prev;
-	fseek(f, HISCORE_OFFSET + (level * sizeof(int)), SEEK_SET);
+	fseek(f, offset + (level * sizeof(int)), SEEK_SET);
 	if (fread(&prev, sizeof(int), 1, f) < 1) {
 		fclose(f);
 		return false;
@@ -83,25 +111,40 @@ bool SaveIO_UpdateScore(int level, int score, bool *didUpdate) {
 	return true;
 }
 
-bool SaveIO_ReadOverallHighScore(int *score) {
+bool SaveIO_ReadOverallHighScore(int *bombScore, int *missileScore,
+		int *drillScore) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
-	fseek(f, TOTAL_HISCORE_OFFSET, SEEK_SET);
-	if (fread(score, sizeof(int), 1, f) < 1) {
+	fseek(f, TOT_HISCORE_BOMB_OFF, SEEK_SET);
+	if (fread(bombScore, sizeof(int), 1, f) < 1) {
 		fclose(f);
 		return false;
 	}
+	fseek(f, TOT_HISCORE_MISSILE_OFF, SEEK_SET);
+	if (fread(missileScore, sizeof(int), 1, f) < 1) {
+		fclose(f);
+		return false;
+	}
+	fseek(f, TOT_HISCORE_DRILL_OFF, SEEK_SET);
+	if (fread(drillScore, sizeof(int), 1, f) < 1) {
+		fclose(f);
+		return false;
+	}
+
 	fclose(f);
 	return true;
 }
 
-bool SaveIO_UpdateOverallScore(int score) {
+bool SaveIO_UpdateOverallScore(int score, Projectile proj) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
+	size_t offset = proj == projectileBomb ? TOT_HISCORE_BOMB_OFF
+			: proj == projectileMissile ? TOT_HISCORE_MISSILE_OFF
+			: TOT_HISCORE_DRILL_OFF;
 	int prev;
-	fseek(f, TOTAL_HISCORE_OFFSET, SEEK_SET);
+	fseek(f, offset, SEEK_SET);
 	if (fread(&prev, sizeof(int), 1, f) < 1) {
 		fclose(f);
 		return false;
@@ -121,7 +164,7 @@ bool SaveIO_ReadAchievements(SaveIO_Achvmt *achievements) {
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
-	fseek(f, ACHVMT_OFFSET, SEEK_SET);
+	fseek(f, ACHVMT_OFF, SEEK_SET);
 	if (fread(achievements, min(sizeof(u16), sizeof(SaveIO_Achvmt)), 1, f) < 1) {
 		fclose(f);
 		return false;
@@ -135,7 +178,7 @@ bool SaveIO_WriteAchievement(SaveIO_Achvmt achievement) {
 	if (!f) return false;
 
 	u16 prev = 0;
-	fseek(f, ACHVMT_OFFSET, SEEK_SET);
+	fseek(f, ACHVMT_OFF, SEEK_SET);
 	if (fread(&prev, sizeof(u16), 1, f) == 1) {
 		fseek(f, -sizeof(u16), SEEK_CUR);
 	}
@@ -170,7 +213,7 @@ bool SaveIO_ReadSettings(bool *isMirrored, bool *isTouchSticky, float *gameSpeed
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
-	fseek(f, MIRRORED_OFFSET, SEEK_SET);
+	fseek(f, MIRRORED_OFF, SEEK_SET);
 	if (!maybeRead(isMirrored,     sizeof(bool), f)) goto f_maybeRead;
 	if (!maybeRead(isTouchSticky,  sizeof(bool), f)) goto f_maybeRead;
 	if (!maybeRead(gameSpeed,     sizeof(float), f)) goto f_maybeRead;
@@ -189,7 +232,7 @@ bool SaveIO_WriteSettings(bool isMirrored, bool isTouchSticky, float gameSpeed,
 	FILE *f = openSaveFile();
 	if (!f) return false;
 
-	fseek(f, MIRRORED_OFFSET, SEEK_SET);
+	fseek(f, MIRRORED_OFF, SEEK_SET);
 	if (fwrite(&isMirrored,     sizeof(bool), 1, f) < 1) goto f_fwrite;
 	if (fwrite(&isTouchSticky,  sizeof(bool), 1, f) < 1) goto f_fwrite;
 	if (fwrite(&gameSpeed,     sizeof(float), 1, f) < 1) goto f_fwrite;

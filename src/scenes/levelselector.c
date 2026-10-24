@@ -39,7 +39,7 @@
 #define LEVEL_PREVIEW_Y		(LEVEL_NAME_Y + 35)
 #define LEVEL_PREVIEW_WIDTH	380
 #define LEVEL_PREVIEW_HEIGHT	90
-#define HISCORE_TEXT_X		390
+#define HISCORE_TEXT_X		360
 #define HISCORE_TEXT_Y		(LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 15)
 
 #define BUTTON_Y		-2
@@ -65,9 +65,9 @@ static Dispatcher touchDispatcher;
 static Button playButton, playSeqButton, editButton, copySwapButton, deleteButton,
 		exitButton;
 static Text   playText,   playSeqText,   editText,   copySwapText,   deleteText,
-		exitText, hiscoreText;
+		exitText, hiscoreText[3];
 static Toggle projectileToggle;
-static bool inRomfs;
+static bool inRomfs, gameBeaten;
 static Projectile projectile;
 
 static Button cards[NUM_CARD_ROWS * NUM_CARD_COLS];
@@ -116,8 +116,9 @@ static bool sceneInit(void *sceneParams) {
 			SPRITE_SMALL_BUTTON, -1, NULL, gotoTitle);
 	if (!exitButton) goto f_exitButton;
 
-	int hi;
-	bool gameBeaten = SaveIO_ReadOverallHighScore(&hi) && hi != INT_MAX;
+	int hi1, hi2, hi3;
+	gameBeaten = SaveIO_ReadOverallHighScore(&hi1, &hi2, &hi3)
+			&& (hi1 != INT_MAX || hi2 != INT_MAX || hi3 != INT_MAX);
 	if (gameBeaten) {
 		Toggle_Button buttons[] = {
 				{ "Bomb",    (int)projectileBomb    },
@@ -168,10 +169,10 @@ static bool sceneInit(void *sceneParams) {
 		deleteText = Text_Create(7);
 		if (!deleteText) goto f_deleteText;
 		Text_SetContent(deleteText, "Erase");
-	} else {
-		hiscoreText = Text_Create(16);
-		if (!hiscoreText) goto f_hiscoreText;
-		Text_SetContent(hiscoreText, "");
+	} else for (int i = 0; i < 3; i++) {
+		hiscoreText[i] = Text_Create(24);
+		if (!hiscoreText[i]) goto f_hiscoreText;
+		Text_SetContent(hiscoreText[i], "");
 	}
 
 	exitText = Text_Create(5);
@@ -229,8 +230,13 @@ f_cards:
 	for (int k = 0; k < i; k++) Button_Free(cards[k]);
 	Text_Free(exitText);
 f_exitText:
-	if (params->inRomfs) Text_Free(hiscoreText);
 f_hiscoreText:
+	if (params->inRomfs) {
+		for (int i = 0; i < 3; i++) {
+			if (hiscoreText[i]) Text_Free(hiscoreText[i]);
+			hiscoreText[i] = NULL;
+		}
+	}
 	if (!params->inRomfs) Text_Free(deleteText);
 f_deleteText:
 	if (!params->inRomfs) Text_Free(copySwapText);
@@ -285,8 +291,9 @@ static void sceneExit() {
 		Button_Free(deleteButton);
 		Button_Free(copySwapButton);
 		Button_Free(editButton);
-	} else {
-		Text_Free(hiscoreText);
+	} else for (int i = 0; i < 3; i++) {
+		if (hiscoreText[i]) Text_Free(hiscoreText[i]);
+		hiscoreText[i] = NULL;
 	}
 	if (obstacles) {
 		free(obstacles);
@@ -424,13 +431,22 @@ static void display(int level) {
 		if (!inRomfs) {
 			Text_SetContent(copySwapText, "Swap");
 		} else {
-			int scores[18];
-			if (SaveIO_ReadHighScores(scores)
-					&& scores[level] != INT_MAX) {
-				Text_SetContent(hiscoreText, "Best Score: %+i",
-						scores[level]);
-			} else {
-				Text_SetContent(hiscoreText, "No Score Yet");
+			int bombScores[18], drillScores[18], missileScores[18];
+			if (SaveIO_ReadHighScores(bombScores, drillScores,
+					missileScores)) {
+				Text_SetContent(hiscoreText[0],
+						bombScores[level] == INT_MAX ?
+							"Best Scores: None"
+							: "Best Scores: %+i",
+						bombScores[level]);
+				Text_SetContent(hiscoreText[1],
+						drillScores[level] == INT_MAX ?
+							"None" : "%+i",
+						drillScores[level]);
+				Text_SetContent(hiscoreText[2],
+						missileScores[level] == INT_MAX ?
+							"None" : "%+i",
+						missileScores[level]);
 			}
 		}
 	}
@@ -502,7 +518,7 @@ static void sceneDraw() {
 	BG_UpdateGraphics(levelPreview);
 
 	int previewX, previewY, previewWidth, previewHeight;
-	#define D3D_DEPTHS { 0.8, 0.8, 0, 0.6, 0.8, 0.8, 0.6 }
+	#define D3D_DEPTHS { 0.8, 0.8, 0, 0.6, 0.8, 0.8, 0.6, 0.6 }
 	#define D3D_XS { \
 			LEVEL_NAME_X, \
 			390, \
@@ -511,6 +527,7 @@ static void sceneDraw() {
 			previewX, \
 			200, \
 			HISCORE_TEXT_X, \
+			HISCORE_TEXT_X + 20 \
 		}
 	#define D3D_CODE \
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
@@ -538,9 +555,25 @@ static void sceneDraw() {
 		Text_Draw(infoText, D3D_Xi(5), 60, D3D_D(5), COLOR_DGRAY, 1, \
 			TEXT_CENTER); \
 	} \
-	if (inRomfs) { \
-		Text_Draw(hiscoreText, D3D_Xi(6), HISCORE_TEXT_Y, D3D_D(6), \
+	if (inRomfs && isLevelLoaded) { \
+		Text_Draw(hiscoreText[0], D3D_Xi(6), HISCORE_TEXT_Y, D3D_D(6), \
 				COLOR_DGRAY, 1, TEXT_RIGHT); \
+		SpriteSheet_DrawCenteredLarge(SPRITE_BALL, D3D_X(7), \
+				HISCORE_TEXT_Y + 10, D3D_D(7), 0, false, false); \
+		if (gameBeaten) { \
+			Text_Draw(hiscoreText[1], D3D_Xi(6), \
+					HISCORE_TEXT_Y + TEXT_LINE_HEIGHT, \
+					D3D_D(6), COLOR_DGRAY, 1, TEXT_RIGHT); \
+			SpriteSheet_DrawCenteredLarge(SPRITE_DRILL, D3D_X(7), \
+					HISCORE_TEXT_Y + 10 + TEXT_LINE_HEIGHT, \
+					D3D_D(7), M_PI/2, false, false); \
+			Text_Draw(hiscoreText[2], D3D_Xi(6), \
+					HISCORE_TEXT_Y + 2*TEXT_LINE_HEIGHT, \
+					D3D_D(6), COLOR_DGRAY, 1, TEXT_RIGHT); \
+			SpriteSheet_DrawCenteredLarge(SPRITE_MISSILE, D3D_X(7), \
+					HISCORE_TEXT_Y + 10 + 2*TEXT_LINE_HEIGHT, \
+					D3D_D(7), M_PI/2, false, false); \
+		} \
 	}
 	#include "../rendering/draw3d_gen.h"
 	/* Everything gets #undef'd by draw3d */

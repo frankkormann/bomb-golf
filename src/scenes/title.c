@@ -28,7 +28,7 @@
 #define DOVE_Y		(240 - 36 - 15)
 #define GRAVE_X		(DOVE_X - 32 - 10)
 #define GRAVE_Y		(240 - 40 - 13)
-#define BEST_SCORE_X	390
+#define BEST_SCORE_X	360
 #define BEST_SCORE_Y	10
 
 #define BUTTON_X	58
@@ -37,14 +37,15 @@
 #define SETTINGS_Y	(EDITOR_Y + 35)
 
 static Button startButton, editorButton, practiceButton, settingsButton;
-static Text   startText,   editorText,   practiceText,   settingsText, hiscoreText;
+static Text   startText,   editorText,   practiceText,   settingsText,
+		hiscoreText[3];
 static Dispatcher touchDispatcher, keyDispatcher;
 static SaveIO_Achvmt achievements;
+static bool showHiscore;
 
 static void startGame() {
 	Tracker_Clear();
-	// hiscoreText will be NULL iff the game hasn't been beaten once
-	if (hiscoreText) {
+	if (showHiscore) {
 		Scene_Switch(sceneArsenal, &(Arsenal_Params) SCENE_PARAMS_EMPTY);
 	} else {
 		Scene_Switch(sceneCourse,
@@ -83,13 +84,30 @@ static bool sceneInit() {
 	if (!settingsText) goto f_settingsText;
 	Text_SetContent(settingsText, "Settings");
 
-	int hiscore;
-	if (SaveIO_ReadOverallHighScore(&hiscore) && hiscore != INT_MAX) {
-		hiscoreText = Text_Create(16);
-		if (!hiscoreText) goto f_hiscoreText;
-		Text_SetContent(hiscoreText, "Best Score: %+i", hiscore);
-	} else {
-		hiscoreText = NULL;
+	for (int i = 0; i < 3; i++) {
+		hiscoreText[i] = Text_Create(24);
+		if (!hiscoreText[i]) goto f_hiscoreText;
+	}
+
+	int hiscoreBomb, hiscoreDrill, hiscoreMissile;
+	showHiscore = SaveIO_ReadOverallHighScore(&hiscoreBomb, &hiscoreDrill,
+				&hiscoreMissile)
+			&& (hiscoreBomb != INT_MAX || hiscoreDrill != INT_MAX
+				|| hiscoreMissile != INT_MAX);
+	if (showHiscore) {
+		Text_SetContent(hiscoreText[0],
+				hiscoreBomb == INT_MAX ?
+					"Best Scores: None"
+					: "Best Scores: %+i",
+				hiscoreBomb);
+		Text_SetContent(hiscoreText[1],
+				hiscoreDrill == INT_MAX ?
+					"None" : "%+i",
+				hiscoreDrill);
+		Text_SetContent(hiscoreText[2],
+				hiscoreMissile == INT_MAX ?
+					"None" : "%+i",
+				hiscoreMissile);
 	}
 
 	touchDispatcher = Dispatcher_Create();
@@ -137,8 +155,13 @@ f_startButton:
 f_keyDispatcher:
 	Dispatcher_Free(touchDispatcher);
 f_touchDispatcher:
-	if (hiscoreText) Text_Free(hiscoreText);
 f_hiscoreText:
+	for (int i = 0; i < 3; i++) {
+		if (hiscoreText[i]) {
+			Text_Free(hiscoreText[i]);
+			hiscoreText[i] = NULL;
+		}
+	}
 	Text_Free(settingsText);
 f_settingsText:
 	Text_Free(practiceText);
@@ -156,7 +179,12 @@ static void sceneExit() {
 	Text_Free(editorText);
 	Text_Free(settingsText);
 	Text_Free(practiceText);
-	if (hiscoreText) Text_Free(hiscoreText);
+	for (int i = 0; i < 3; i++) {
+		if (hiscoreText[i]) {
+			Text_Free(hiscoreText[i]);
+			hiscoreText[i] = NULL;
+		}
+	}
 	Button_Free(startButton);
 	Button_Free(editorButton);
 	Button_Free(settingsButton);
@@ -176,15 +204,30 @@ static void sceneDraw() {
 			{ TROPHY_X, 0.6 }, \
 			{ DOVE_X, 0.6 }, \
 			{ GRAVE_X, 0.6 }, \
-			{ 0, 0.8 } \
+			{ 0, 0.8 }, \
+			{ BEST_SCORE_X + 20, 0.6 } \
 		}
 	#define D3D_CODE \
 	C2D_TargetClear(D3D_TARGET, COLOR_LGRAY); \
 	C2D_SceneBegin(D3D_TARGET); \
 	\
-	if (hiscoreText) { \
-		Text_Draw(hiscoreText, D3D_Xi(0), BEST_SCORE_Y, D3D_D(0), \
+	if (showHiscore) { \
+		Text_Draw(hiscoreText[0], D3D_Xi(0), BEST_SCORE_Y, D3D_D(0), \
 				COLOR_DGRAY, 1, TEXT_RIGHT); \
+		SpriteSheet_DrawCenteredLarge(SPRITE_BOMB, D3D_X(5), \
+				BEST_SCORE_Y + 10, D3D_D(5), 0, false, false); \
+		Text_Draw(hiscoreText[1], D3D_Xi(0), \
+				BEST_SCORE_Y + TEXT_LINE_HEIGHT, \
+				D3D_D(0), COLOR_DGRAY, 1, TEXT_RIGHT); \
+		SpriteSheet_DrawCenteredLarge(SPRITE_DRILL, D3D_X(5), \
+				BEST_SCORE_Y + 10 + TEXT_LINE_HEIGHT, \
+				D3D_D(5), M_PI/2, false, false); \
+		Text_Draw(hiscoreText[2], D3D_Xi(0), \
+				BEST_SCORE_Y + 2*TEXT_LINE_HEIGHT, \
+				D3D_D(0), COLOR_DGRAY, 1, TEXT_RIGHT); \
+		SpriteSheet_DrawCenteredLarge(SPRITE_MISSILE, D3D_X(5), \
+				BEST_SCORE_Y + 10 + 2*TEXT_LINE_HEIGHT, \
+				D3D_D(5), M_PI/2, false, false); \
 	} \
 	SpriteSheet_Sprite trophySpr = 0; \
 	if (achievements & ACHVMT_SCORE_OK) trophySpr = SPRITE_TROPHY_OK; \
