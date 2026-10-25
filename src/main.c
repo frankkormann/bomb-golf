@@ -41,13 +41,12 @@ int main() {
 	Music_Init();
 	SoundEffect_Init();
 	Obstacle_Init();
-	Scene_Start(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
-
 	if (!SaveDir_Mount()) {
-		Scene_Switch(sceneError,
+		Scene_Start(sceneError,
 				&(Error_Params) { "Failed to mount save data" });
 	}
 
+	Scene_Start(sceneTitle, &(Title_Params) SCENE_PARAMS_EMPTY);
 	while (aptMainLoop()) {
 		hidScanInput();
 		TouchInput_Scan();
