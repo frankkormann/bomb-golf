@@ -2,11 +2,13 @@
 
 Explode your ball to reshape the course or get a boost in mid-air.
 
-## Feedback welcome!
+## Features
 
-Game is work in progress. It would be much appreciated if you gave it a go and
-left your feedback on the
-[Issues](https://github.com/frankkormann/bomb-golf/issues) page!
+- Fully destructible environment
+- Complete 18-hole golf course
+- Level editor to create your own course
+- Multiple ball types
+- Left-handed support
 
 ## Installing
 
