@@ -40,7 +40,7 @@
 #define LEVEL_PREVIEW_WIDTH	380
 #define LEVEL_PREVIEW_HEIGHT	90
 #define HISCORE_TEXT_X		360
-#define HISCORE_TEXT_Y		(LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 15)
+#define HISCORE_TEXT_Y		(LEVEL_PREVIEW_Y + LEVEL_PREVIEW_HEIGHT + 20)
 
 #define BUTTON_Y		-2
 #define PLAY_BUTTON_X		10
@@ -558,7 +558,7 @@ static void sceneDraw() {
 	if (inRomfs && isLevelLoaded) { \
 		Text_Draw(hiscoreText[0], D3D_Xi(6), HISCORE_TEXT_Y, D3D_D(6), \
 				COLOR_DGRAY, 1, TEXT_RIGHT); \
-		SpriteSheet_DrawCenteredLarge(SPRITE_BALL, D3D_X(7), \
+		SpriteSheet_DrawCenteredLarge(SPRITE_BOMB, D3D_X(7), \
 				HISCORE_TEXT_Y + 10, D3D_D(7), 0, false, false); \
 		if (gameBeaten) { \
 			Text_Draw(hiscoreText[1], D3D_Xi(6), \
